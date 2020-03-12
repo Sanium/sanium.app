@@ -81,3 +81,86 @@ class _HomePageState extends State<HomePage> {
   );
   }
 }
+
+
+
+//custom look of list tile
+class MenuListTile extends StatelessWidget{
+  const MenuListTile({
+    this.thumbnail,
+    this.description,
+    this.salary,
+    this.viewCount,
+  });
+
+  final Widget thumbnail;
+  final Map description;
+  final String salary;
+  final int viewCount;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 7.0, horizontal: 5.0),
+      child: Material(
+        elevation: 4.0,
+         borderRadius: BorderRadius.circular(10.0),
+        child: InkWell (
+          onTap: () {},
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 5.0),
+            child: SizedBox(
+              height: 80,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(5.0, 0.0, 5.0, 0.0),
+                     child: Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).accentColor,
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      child: AspectRatio(
+                        aspectRatio: 1.0,
+                        child: thumbnail,
+                        
+                      ),
+                    ),
+                  ),
+                  
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(5.0, 5.0, 5.0, 5.0),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: <Widget>[
+                            Container(
+                              child: new Text("Job:  ${description['firma']}"),
+                              decoration: BoxDecoration(
+                                color: Colors.transparent,
+                                border: Border(bottom: BorderSide(width: 2.0, color: Theme.of(context).dividerColor))
+                              ),
+                            ),
+                            Container(
+                              child: new Text("Salary: ${salary*4}"),
+                              decoration: BoxDecoration(
+                                color: Colors.transparent,
+                              ),
+                            ),
+
+                          ],
+                        ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
