@@ -1,5 +1,7 @@
+import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
-
+import 'package:auto_animated/auto_animated.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key, this.title}) : super(key: key);
@@ -20,8 +22,62 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  Map<String, dynamic> data;
+
+  Future<String> getData() async {
+    this.setState(() {
+      data = json.decode('''{"1" : {"firma" : "Google"}, "2" : {"firma" : "Facebook"}, "3" : {"firma" : "Twitter"}, "4" : {"firma" : "Google"}, "5" : {"firma" : "Facebook"}, "6": {"firma" : "Twitter"}, "7" : {"firma" : "Google"}, "8": {"firma" : "Facebook"}, "9" : {"firma" : "Twitter"},  "10": {"firma" : "Facebook"}, "11" : {"firma" : "Twitter"} }''');
+    });
+    return "Success!";
+  }
+
+  @override
+  void initState(){
+    this.getData();
+  }
+
   @override
   Widget build(BuildContext context) {
+    Widget _buildCard(int index) => Builder(
+      builder: (context) => Container(
+        width: 140,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: Material(
+            // color: Colors.lime,
+            child: Center(
+              child: MenuListTile(
+                description: data[index.toString()],
+                salary: index.toString(),
+                thumbnail: Icon(Icons.android),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    Widget _buildAnimatedItem(
+      BuildContext context,
+      int index,
+      Animation<double> animation, 
+    ) => FadeTransition(
+      opacity: Tween<double>(
+        begin: 0,
+        end: 1,
+      ).animate(animation),
+      child: SlideTransition(
+        position: Tween<Offset>(
+          begin: Offset(0, -0.1),
+          end: Offset.zero,
+        ).animate(animation),
+        child: Padding(
+          padding: EdgeInsets.only(bottom: 0),
+          child: _buildCard(index+1),
+        ),
+      ),
+    );
+
   return Scaffold(
     appBar: PreferredSize(
       preferredSize: Size.fromHeight(35.0),
@@ -77,7 +133,20 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     ),
-    body: Container(),
+    body: Center(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(5.0, 0.0, 5.0, 0.0),
+        child: LiveList(
+          reAnimateOnVisibility: true,
+          showItemInterval: Duration(milliseconds: 200),
+          showItemDuration: Duration(milliseconds: 1000),
+          scrollDirection: Axis.vertical,
+          itemCount: data.length.toInt(),
+          itemBuilder: _buildAnimatedItem,
+        ),
+      ),
+    ),
+
   );
   }
 }
@@ -124,7 +193,6 @@ class MenuListTile extends StatelessWidget{
                       child: AspectRatio(
                         aspectRatio: 1.0,
                         child: thumbnail,
-                        
                       ),
                     ),
                   ),
@@ -150,7 +218,6 @@ class MenuListTile extends StatelessWidget{
                                 color: Colors.transparent,
                               ),
                             ),
-
                           ],
                         ),
                     ),
