@@ -19,3 +19,15 @@ doc/api/
 *.js_
 *.js.deps
 *.js.map
+
+
+# Visual Studio Code related
+.classpath
+.project
+.settings/
+.vscode/
+/ios
+/android
+/.idea
+/sanium_app.iml
+/.metadata
