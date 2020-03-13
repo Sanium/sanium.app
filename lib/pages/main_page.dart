@@ -29,116 +29,240 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    Widget _buildCard(int index) => Builder(
-      builder: (context) => Container(
-        width: 140,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(4),
-          child: Material(
-            // color: Colors.lime,
-            child: Center(
-              child: MenuListTile(
-                description: data[index.toString()],
-                salary: index.toString(),
-                thumbnail: Icon(Icons.android),
-              ),
+    return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(55.0),
+
+        child: new AppBar(
+          iconTheme: IconThemeData(
+            color: Theme.of(context).accentColor
+          ),
+          title: Text(
+            widget.title,
+            style: TextStyle(
+              color: Theme.of(context).primaryColorDark,
             ),
           ),
         ),
       ),
-    );
 
-    Widget _buildAnimatedItem(
-      BuildContext context,
-      int index,
-      Animation<double> animation, 
-    ) => FadeTransition(
-      opacity: Tween<double>(
-        begin: 0,
-        end: 1,
-      ).animate(animation),
-      child: SlideTransition(
-        position: Tween<Offset>(
-          begin: Offset(0, -0.1),
-          end: Offset.zero,
-        ).animate(animation),
-        child: Padding(
-          padding: EdgeInsets.only(bottom: 0),
-          child: _buildCard(index+1),
-        ),
-      ),
-    );
-
-  return Scaffold(
-    appBar: PreferredSize(
-      preferredSize: Size.fromHeight(35.0),
-
-      child: new AppBar(
-        iconTheme: IconThemeData(
-          color: Theme.of(context).accentColor
-        ),
-        title: Text(
-          widget.title,
-          style: TextStyle(
-            color: Colors.grey[800]
-          ),
-        ),
-      ),
-    ),
-
-    drawer: Container(
-      width: MediaQuery.of(context).size.width * 0.65,
-      child: Drawer(
-        child: ListView(
-          // Important: Remove any padding from the ListView.
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              child: Text(
-                'Drawer Header',
-                style: TextStyle(
-                  color: Colors.black,
+      drawer: Container(
+        width: MediaQuery.of(context).size.width * 0.65,
+        child: Drawer(
+          child: ListView(
+            // Important: Remove any padding from the ListView.
+            padding: EdgeInsets.zero,
+            children: <Widget>[
+              DrawerHeader(
+                child: Text(
+                  'Drawer Header',
+                  style: TextStyle(
+                    color: Colors.black,
+                  ),
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
                 ),
               ),
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
+              ListTile(
+                title: Text('Item 1'),
+                onTap: () {
+                  // Update the state of the app.
+                  // ...
+                  Navigator.pop(context);
+                },
               ),
-            ),
-            ListTile(
-              title: Text('Item 1'),
-              onTap: () {
-                // Update the state of the app.
-                // ...
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('Item 2'),
-              onTap: () {
-                // Update the state of the app.
-                // ...
-                Navigator.pop(context);
-              },
-            ),
-          ],
+              ListTile(
+                title: Text('Item 2'),
+                onTap: () {
+                  // Update the state of the app.
+                  // ...
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
         ),
       ),
-    ),
-    body: Center(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(5.0, 0.0, 5.0, 0.0),
-        child: LiveList(
-          reAnimateOnVisibility: true,
-          showItemInterval: Duration(milliseconds: 200),
-          showItemDuration: Duration(milliseconds: 1000),
-          scrollDirection: Axis.vertical,
-          itemCount: data.length.toInt(),
-          itemBuilder: _buildAnimatedItem,
-        ),
+      body: CustomSliverList(
+        title: widget.title,
+        data: data,
       ),
-    ),
+    );
+  }
+}
 
+class CustomSliverList extends StatefulWidget{
+  CustomSliverList({Key key, this.title, this.data}) : super(key: key);
+
+  final String title;
+  final Map data;
+
+  @override
+  _CustomSliverListState createState() => _CustomSliverListState();
+}
+
+class _CustomSliverListState extends State<CustomSliverList>{
+  final controller = ScrollController();
+  double appBarHeight = 30.0;
+  double appBarMinHeight = 2.0;
+
+  Widget _buildCard(int index) => Builder(
+    builder: (context) => Container(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(4),
+        child: Material(
+          child: Center(
+            child: MenuListTile(
+              description: widget.data[index.toString()],
+              salary: index.toString(),
+              thumbnail: Icon(Icons.android),
+            ),
+          ),
+        ),
+      ),
+    ),
   );
+
+  Widget _buildAnimatedItem(
+    BuildContext context,
+    int index,
+    Animation<double> animation, 
+  ) => FadeTransition(
+    opacity: Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(animation),
+    child: SlideTransition(
+      position: Tween<Offset>(
+        begin: Offset(0, -0.1),
+        end: Offset.zero,
+      ).animate(animation),
+      child: Padding(
+        padding: EdgeInsets.only(bottom: 0),
+        child: _buildCard(index+1),
+      ),
+    ),
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: ScrollConfiguration(
+        behavior: ScrollBehavior(),
+        child: GlowingOverscrollIndicator(
+          axisDirection: AxisDirection.down,
+          color: Colors.red[100],
+          showLeading: false,
+          showTrailing: false,
+          child: CustomScrollView(
+            controller: controller,
+            slivers: <Widget>[
+              SliverAppBar(
+                leading: new Container(),
+                backgroundColor: Colors.grey[400],
+                elevation: 10.0,
+                pinned: true,
+                expandedHeight: appBarHeight,
+                bottom: PreferredSize(                  
+                  preferredSize: Size.fromHeight(appBarMinHeight),      
+                  child: Container(),                           
+                ),
+                floating: true,
+                flexibleSpace: Center(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        stops: [
+                          0.4,
+                          0.7,
+                          0.8
+                        ],
+                        colors: <Color>[
+                          Theme.of(context).primaryColor,
+                          Theme.of(context).primaryColor.withOpacity(0.38),
+                          Theme.of(context).primaryColor.withOpacity(0.24),
+                        ]
+                      )          
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(2.0, 0.0, 1.0, 1.0),
+                            child: FlatButton(
+                              color: Theme.of(context).primaryColor,
+                              highlightColor: Colors.transparent,
+                              splashColor: Colors.grey[200],
+                              child: Text(
+                                'Lokalizacja',
+                                // style: TextStyle(
+                                //   color: Colors.grey[700],
+                                // ),
+                              ),
+                              onPressed: (){print('Lokalizacja');},
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(1.0, 0.0, 1.0, 1.0),
+                            child: FlatButton(
+                              color: Theme.of(context).primaryColor,
+                              highlightColor: Colors.transparent,
+                              splashColor: Colors.grey[200],
+                              child: Text(
+                                'Tech',
+                                style: Theme.of(context).textTheme.button.copyWith(),
+                                // style: TextStyle(
+                                //   color: Theme.of(context).primaryColorDark,
+                                //   // color: Colors.grey[700],
+                                // ),
+                              ),
+                              onPressed: (){print('Tech');},
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(1.0, 0.0, 2.0, 1.0),
+                            child: FlatButton(
+                              color: Theme.of(context).primaryColor,
+                              highlightColor: Colors.transparent,
+                              splashColor: Colors.grey[200],
+                              child: Text(
+                                'Płaca',
+                                // style: TextStyle(
+                                //   color: Colors.grey[700],
+                                // ),
+                              ),
+                              onPressed: (){print('Płaca');},
+                            ),
+                          ),
+                        ),
+
+                      ],
+                    ),
+                  ),
+                )
+              ),
+
+              LiveSliverList(
+                // reAnimateOnVisibility: true,
+                controller: controller,
+                showItemInterval: Duration(milliseconds: 200),
+                showItemDuration: Duration(milliseconds: 1000),
+                itemCount: widget.data.length.toInt(),
+                itemBuilder: _buildAnimatedItem,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 
