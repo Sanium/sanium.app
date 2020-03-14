@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:auto_animated/auto_animated.dart';
+import 'package:sanium_app/pages/job_offer_page.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key, this.title}) : super(key: key);
@@ -45,7 +46,6 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
-
       drawer: Container(
         width: MediaQuery.of(context).size.width * 0.65,
         child: Drawer(
@@ -114,6 +114,7 @@ class _CustomSliverListState extends State<CustomSliverList>{
         child: Material(
           child: Center(
             child: MenuListTile(
+              id: index,
               description: widget.data[index.toString()],
               salary: index.toString(),
               thumbnail: Icon(Icons.android),
@@ -243,7 +244,6 @@ class _CustomSliverListState extends State<CustomSliverList>{
                             ),
                           ),
                         ),
-
                       ],
                     ),
                   ),
@@ -271,12 +271,14 @@ class _CustomSliverListState extends State<CustomSliverList>{
 //custom look of list tile
 class MenuListTile extends StatelessWidget{
   const MenuListTile({
+    this.id,
     this.thumbnail,
     this.description,
     this.salary,
     this.viewCount,
   });
 
+  final int id;
   final Widget thumbnail;
   final Map description;
   final String salary;
@@ -288,9 +290,18 @@ class MenuListTile extends StatelessWidget{
       padding: const EdgeInsets.symmetric(vertical: 7.0, horizontal: 5.0),
       child: Material(
         elevation: 4.0,
-         borderRadius: BorderRadius.circular(10.0),
+        borderRadius: BorderRadius.circular(10.0),
         child: InkWell (
-          onTap: () {},
+          onTap: () {
+            Navigator.push(
+              context, 
+              MaterialPageRoute(
+                builder: (_) {
+                  return JobDatail(id: id, img:thumbnail, data: description);
+                },
+              ),
+            );
+          },
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 5.0),
             child: SizedBox(
@@ -300,14 +311,17 @@ class MenuListTile extends StatelessWidget{
                 children: <Widget>[
                   Padding(
                     padding: const EdgeInsets.fromLTRB(5.0, 0.0, 5.0, 0.0),
-                     child: Container(
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).accentColor,
-                        borderRadius: BorderRadius.circular(20.0),
-                      ),
-                      child: AspectRatio(
-                        aspectRatio: 1.0,
-                        child: thumbnail,
+                    child: Hero(
+                      tag: id.toString(),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).accentColor,
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                        child: AspectRatio(
+                          aspectRatio: 1.0,
+                          child: thumbnail,
+                        ),
                       ),
                     ),
                   ),
