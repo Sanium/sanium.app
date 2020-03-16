@@ -2,36 +2,54 @@
 
 import 'package:flutter/material.dart';
 
-class JobDatail extends StatefulWidget{
+class JobDetailPage extends StatefulWidget{
   // final JobOffer data;
   final int id;
   final Map data;
   final Widget img;
-  JobDatail({@required this.id, this.img, this.data});
+  JobDetailPage({@required this.id, this.img, this.data});
 
   @override
-  _JobDatailState createState() {
-    return _JobDatailState();
-  }
+  _JobDetailPageState createState() => _JobDetailPageState();
 }
 
-class _JobDatailState extends State<JobDatail>{
+class _JobDetailPageState extends State<JobDetailPage> with SingleTickerProviderStateMixin{
   final controller = ScrollController();
   double appBarHeight = 120.0;
   double appBarMinHeight = 60.0;
+
+   @override
+  void initState(){
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(55.0),
-
         child: new AppBar(
+          // automaticallyImplyLeading: false,
+          leading: IconButton(
+            icon: Icon(
+              Icons.arrow_back,
+              color: Colors.black,
+            ),
+            onPressed: () {
+              Navigator.of(context).pop(true);
+            },
+          ),
           iconTheme: IconThemeData(
             color: Theme.of(context).accentColor
           ),
           title: Text(
-            widget.data['firma'],
+            // widget.data,
+            "Sanium:  ${widget.data['firma']}",
             style: TextStyle(
               color: Theme.of(context).primaryColorDark,
             ),
@@ -41,7 +59,7 @@ class _JobDatailState extends State<JobDatail>{
 
       body: SafeArea(
         child: Container(
-          color: Colors.red,
+          color: Theme.of(context).primaryColor,
           child: ScrollConfiguration(
             behavior: ScrollBehavior(),
             child: GlowingOverscrollIndicator(
@@ -55,17 +73,13 @@ class _JobDatailState extends State<JobDatail>{
                   SliverAppBar(
                     leading: new Container(),
                     backgroundColor: Colors.transparent,
-                    elevation: 10.0,
+                    elevation: 20.0,
                     pinned: true,
                     expandedHeight: appBarHeight,
-                    bottom: PreferredSize(                  
-                      preferredSize: Size.fromHeight(appBarMinHeight),      
-                      child: Container(),                           
-                    ),
-                    floating: true,
+                    floating: false,
                     flexibleSpace: GestureDetector(
                       onTap: () {
-                        Navigator.pop(context);
+                         Navigator.of(context).pop(true);
                       },
                       child: Hero(
                         tag: widget.id.toString(),
@@ -87,7 +101,7 @@ class _JobDatailState extends State<JobDatail>{
                 SliverList(
                   delegate: SliverChildListDelegate(
                     [
-                      Container(color: Colors.red, height: 250.0, child: Text("Główne info"),),
+                      Container(color: Theme.of(context).primaryColor, height: 250.0, child: Text("Główne info"),),
                       Container(color: Colors.purple, height: 250.0, child: Text("Dodatkowe info"),),
                       Container(color: Colors.green, height: 250.0, child: Text("Główne wymagania"),),
                       Container(color: Colors.yellow, height: 250.0, child: Text("Opis szczegółowy"),),
