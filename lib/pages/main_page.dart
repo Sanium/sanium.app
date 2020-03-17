@@ -2,18 +2,37 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:auto_animated/auto_animated.dart';
+import 'package:sanium_app/pages/job_offer_page.dart';
+import 'package:sanium_app/routes/fancy_page_route.dart';
+
+class Data{
+  int id;
+  Widget img;
+  Map data;
+
+  Data(int id, Widget thumbnail, Map description){
+    this.id = id;
+    this.img = thumbnail;
+    this.data = description;
+  }
+}
 
 class HomePage extends StatefulWidget {
   HomePage({Key key, this.title}) : super(key: key);
-
   final String title;
-
+ 
   @override
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
   Map<String, dynamic> data;
+
+  AnimationController _animationController;
+  bool returnFromDetailPage = false;
+  ValueNotifier<bool> stateNotifier;
 
   Future<String> getData() async {
     this.setState(() {
@@ -25,15 +44,62 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState(){
     this.getData();
+    super.initState();
+    _initAnimationController();
+
+  }
+  
+  void _initAnimationController() {
+    _animationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 550),
+    )..addListener(() {
+        setState(() {});
+      });
+
+    stateNotifier = ValueNotifier(returnFromDetailPage)
+      ..addListener(() {
+        if (stateNotifier.value) {
+          _animationController.reverse(from: 1.0);
+          stateNotifier.value = false;
+        }
+      });
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    stateNotifier.dispose();
+    super.dispose();
+  }
+
+ void onSelected(Data tempData) async {
+    _animationController.forward(from: 0.0);
+    stateNotifier.value = await Navigator.of(context).push(
+      FancyPageRoute(
+        builder: (_) {
+          return JobDetailPage(id: tempData.id, img: tempData.img, data: tempData.data);
+        },
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(55.0),
-
         child: new AppBar(
+          leading: IconButton(
+            hoverColor: Colors.black38,
+            icon: AnimatedIcon(
+              icon: AnimatedIcons.menu_arrow,
+              progress: _animationController,
+              color: Theme.of(context).primaryColorDark,
+            ),
+            onPressed: () => _scaffoldKey.currentState.openDrawer(),
+          ),
           iconTheme: IconThemeData(
             color: Theme.of(context).accentColor
           ),
@@ -87,14 +153,15 @@ class _HomePageState extends State<HomePage> {
       body: CustomSliverList(
         title: widget.title,
         data: data,
+        onSelected: onSelected,
       ),
     );
   }
 }
 
 class CustomSliverList extends StatefulWidget{
-  CustomSliverList({Key key, this.title, this.data}) : super(key: key);
-
+  CustomSliverList({Key key, this.title, this.data, this.onSelected}) : super(key: key);
+  final Function(Data) onSelected;
   final String title;
   final Map data;
 
@@ -104,7 +171,7 @@ class CustomSliverList extends StatefulWidget{
 
 class _CustomSliverListState extends State<CustomSliverList>{
   final controller = ScrollController();
-  double appBarHeight = 30.0;
+  double appBarHeight = 50.0;
   double appBarMinHeight = 2.0;
 
   Widget _buildCard(int index) => Builder(
@@ -114,9 +181,11 @@ class _CustomSliverListState extends State<CustomSliverList>{
         child: Material(
           child: Center(
             child: MenuListTile(
+              id: index,
               description: widget.data[index.toString()],
               salary: index.toString(),
               thumbnail: Icon(Icons.android),
+              onSelected: widget.onSelected,
             ),
           ),
         ),
@@ -160,7 +229,7 @@ class _CustomSliverListState extends State<CustomSliverList>{
             slivers: <Widget>[
               SliverAppBar(
                 leading: new Container(),
-                backgroundColor: Colors.grey[400],
+                backgroundColor: Colors.grey[300],
                 elevation: 10.0,
                 pinned: true,
                 expandedHeight: appBarHeight,
@@ -192,7 +261,7 @@ class _CustomSliverListState extends State<CustomSliverList>{
                       children: <Widget>[
                         Expanded(
                           child: Padding(
-                            padding: const EdgeInsets.fromLTRB(2.0, 0.0, 1.0, 1.0),
+                            padding: const EdgeInsets.fromLTRB(2.0, 0.0, 1.0, 0.0),
                             child: FlatButton(
                               color: Theme.of(context).primaryColor,
                               highlightColor: Colors.transparent,
@@ -209,7 +278,7 @@ class _CustomSliverListState extends State<CustomSliverList>{
                         ),
                         Expanded(
                           child: Padding(
-                            padding: const EdgeInsets.fromLTRB(1.0, 0.0, 1.0, 1.0),
+                            padding: const EdgeInsets.fromLTRB(1.0, 0.0, 1.0, 0.0),
                             child: FlatButton(
                               color: Theme.of(context).primaryColor,
                               highlightColor: Colors.transparent,
@@ -228,7 +297,7 @@ class _CustomSliverListState extends State<CustomSliverList>{
                         ),
                         Expanded(
                           child: Padding(
-                            padding: const EdgeInsets.fromLTRB(1.0, 0.0, 2.0, 1.0),
+                            padding: const EdgeInsets.fromLTRB(1.0, 0.0, 2.0, 0.0),
                             child: FlatButton(
                               color: Theme.of(context).primaryColor,
                               highlightColor: Colors.transparent,
@@ -243,7 +312,6 @@ class _CustomSliverListState extends State<CustomSliverList>{
                             ),
                           ),
                         ),
-
                       ],
                     ),
                   ),
@@ -254,7 +322,7 @@ class _CustomSliverListState extends State<CustomSliverList>{
                 // reAnimateOnVisibility: true,
                 controller: controller,
                 showItemInterval: Duration(milliseconds: 200),
-                showItemDuration: Duration(milliseconds: 1000),
+                showItemDuration: Duration(milliseconds: 800),
                 itemCount: widget.data.length.toInt(),
                 itemBuilder: _buildAnimatedItem,
               ),
@@ -267,20 +335,30 @@ class _CustomSliverListState extends State<CustomSliverList>{
 }
 
 
-
 //custom look of list tile
-class MenuListTile extends StatelessWidget{
+class MenuListTile extends StatefulWidget{
   const MenuListTile({
+    Key key,
+    this.id,
     this.thumbnail,
     this.description,
     this.salary,
     this.viewCount,
-  });
+    this.onSelected
+  }) : super(key: key);
 
+  final Function(Data) onSelected;
+  final int id;
   final Widget thumbnail;
   final Map description;
   final String salary;
   final int viewCount;
+
+  @override
+  _MenuListTileState createState() => _MenuListTileState();
+}
+
+class _MenuListTileState extends State<MenuListTile> {
 
   @override
   Widget build(BuildContext context) {
@@ -288,9 +366,9 @@ class MenuListTile extends StatelessWidget{
       padding: const EdgeInsets.symmetric(vertical: 7.0, horizontal: 5.0),
       child: Material(
         elevation: 4.0,
-         borderRadius: BorderRadius.circular(10.0),
+        borderRadius: BorderRadius.circular(10.0),
         child: InkWell (
-          onTap: () {},
+          onTap: () => widget.onSelected(Data(widget.id, widget.thumbnail, widget.description)),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 5.0),
             child: SizedBox(
@@ -300,14 +378,18 @@ class MenuListTile extends StatelessWidget{
                 children: <Widget>[
                   Padding(
                     padding: const EdgeInsets.fromLTRB(5.0, 0.0, 5.0, 0.0),
-                     child: Container(
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).accentColor,
-                        borderRadius: BorderRadius.circular(20.0),
-                      ),
-                      child: AspectRatio(
-                        aspectRatio: 1.0,
-                        child: thumbnail,
+                    child: Hero(
+                      tag: widget.id.toString(),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).primaryColor,
+                          borderRadius: BorderRadius.circular(20.0),
+                          border: Border.all(width: 1.5, color: Theme.of(context).accentColor)
+                        ),
+                        child: AspectRatio(
+                          aspectRatio: 1.0,
+                          child: widget.thumbnail,
+                        ),
                       ),
                     ),
                   ),
@@ -321,14 +403,14 @@ class MenuListTile extends StatelessWidget{
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: <Widget>[
                             Container(
-                              child: new Text("Job:  ${description['firma']}"),
+                              child: new Text("Job:  ${widget.description['firma']}"),
                               decoration: BoxDecoration(
                                 color: Colors.transparent,
-                                border: Border(bottom: BorderSide(width: 2.0, color: Theme.of(context).dividerColor))
+                                border: Border(bottom: BorderSide(width: 1.0, color: Theme.of(context).dividerColor))
                               ),
                             ),
                             Container(
-                              child: new Text("Salary: ${salary*4}"),
+                              child: new Text("Salary: ${widget.salary*4}"),
                               decoration: BoxDecoration(
                                 color: Colors.transparent,
                               ),
