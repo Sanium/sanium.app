@@ -26,7 +26,7 @@ class FancyPageRoute<T> extends PageRoute<T>{
   String get barrierLabel => null;
 
   @override
-  Duration get transitionDuration => const Duration(milliseconds: 350);
+  Duration get transitionDuration => const Duration(milliseconds: 550);
 
   @override
   Widget buildPage(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {

@@ -92,10 +92,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
         preferredSize: Size.fromHeight(55.0),
         child: new AppBar(
           leading: IconButton(
+            hoverColor: Colors.black38,
             icon: AnimatedIcon(
               icon: AnimatedIcons.menu_arrow,
               progress: _animationController,
-              color: Colors.black,
+              color: Theme.of(context).primaryColorDark,
             ),
             onPressed: () => _scaffoldKey.currentState.openDrawer(),
           ),
@@ -321,7 +322,7 @@ class _CustomSliverListState extends State<CustomSliverList>{
                 // reAnimateOnVisibility: true,
                 controller: controller,
                 showItemInterval: Duration(milliseconds: 200),
-                showItemDuration: Duration(milliseconds: 1000),
+                showItemDuration: Duration(milliseconds: 800),
                 itemCount: widget.data.length.toInt(),
                 itemBuilder: _buildAnimatedItem,
               ),
@@ -381,8 +382,9 @@ class _MenuListTileState extends State<MenuListTile> {
                       tag: widget.id.toString(),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: Theme.of(context).accentColor,
+                          color: Theme.of(context).primaryColor,
                           borderRadius: BorderRadius.circular(20.0),
+                          border: Border.all(width: 1.5, color: Theme.of(context).accentColor)
                         ),
                         child: AspectRatio(
                           aspectRatio: 1.0,
@@ -404,7 +406,7 @@ class _MenuListTileState extends State<MenuListTile> {
                               child: new Text("Job:  ${widget.description['firma']}"),
                               decoration: BoxDecoration(
                                 color: Colors.transparent,
-                                border: Border(bottom: BorderSide(width: 2.0, color: Theme.of(context).dividerColor))
+                                border: Border(bottom: BorderSide(width: 1.0, color: Theme.of(context).dividerColor))
                               ),
                             ),
                             Container(
