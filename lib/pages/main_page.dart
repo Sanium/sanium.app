@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:auto_animated/auto_animated.dart';
+import 'package:sanium_app/data/JobOffer.dart';
 import 'package:sanium_app/pages/job_offer_page.dart';
 import 'package:sanium_app/routes/fancy_page_route.dart';
 
@@ -28,15 +29,64 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
+  List<JobOffer> jobOfferList;
   Map<String, dynamic> data;
+
+  String extremeData = '''{
+    "1" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"5000.0", "currency":"PLN", "company" : "Google", "city" : "Warsaw", "email" : "abc@gmail.com", "phone" : "974637826", "technology" : "Python",
+    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
+    "2" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"5000.0", "currency":"PLN", "company" : "Facebook", "city" : "Warsaw", "email" : "fb@gmail.com", "phone" : "974637826", "technology" : "Python",
+    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
+    "3" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"5000.0", "currency":"PLN", "company" : "LinkedIN", "city" : "Poznan", "email" : "dc@gmail.com", "phone" : "974637226", "technology" : "Python",
+    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
+    "4" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"5000.0", "currency":"PLN", "company" : "Microsoft", "city" : "Krakow", "email" : "mcsoft@gmail.com", "phone" : "974637826", "technology" : "Python",
+    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
+    "5" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"5000.0", "currency":"PLN", "company" : "Google", "city" : "Warsaw", "email" : "abc@gmail.com", "phone" : "974637826", "technology" : "Python",
+    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
+    "6" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"5000.0", "currency":"PLN", "company" : "Facebook", "city" : "Warsaw", "email" : "fb@gmail.com", "phone" : "974637826", "technology" : "Python",
+    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
+    "7" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"5000.0", "currency":"PLN", "company" : "LinkedIN", "city" : "Poznan", "email" : "dc@gmail.com", "phone" : "974637226", "technology" : "Python",
+    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
+    "8" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"5000.0", "currency":"PLN", "company" : "Microsoft", "city" : "Krakow", "email" : "mcsoft@gmail.com", "phone" : "974637826", "technology" : "Python",
+    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
+    "9" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"5000.0", "currency":"PLN", "company" : "Google", "city" : "Warsaw", "email" : "abc@gmail.com", "phone" : "974637826", "technology" : "Python",
+    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
+    "10" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"5000.0", "currency":"PLN", "company" : "Facebook", "city" : "Warsaw", "email" : "fb@gmail.com", "phone" : "974637826", "technology" : "Python",
+    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
+    "11" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"5000.0", "currency":"PLN", "company" : "LinkedIN", "city" : "Poznan", "email" : "dc@gmail.com", "phone" : "974637226", "technology" : "Python",
+    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
+    "12" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"5000.0", "currency":"PLN", "company" : "Microsoft", "city" : "Krakow", "email" : "mcsoft@gmail.com", "phone" : "974637826", "technology" : "Python",
+    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"}
+  }''';
+
 
   AnimationController _animationController;
   bool returnFromDetailPage = false;
   ValueNotifier<bool> stateNotifier;
 
-  Future<String> getData() async {
+  // Future<String> getData() async {
+  //   this.setState(() {
+  //     data = json.decode(
+  //       '''{
+  //       "1" : {"company" : "Google"},
+  //       "2" : {"company" : "Facebook"},
+  //       "3" : {"company" : "Twitter"},
+  //       "4" : {"company" : "Google"},
+  //       "5" : {"company" : "Facebook"}, 
+  //       "6": {"company" : "Twitter"}, 
+  //       "7" : {"company" : "Google"}, 
+  //       "8": {"company" : "Facebook"}, 
+  //       "9" : {"company" : "Twitter"},  
+  //       "10": {"company" : "Facebook"}, 
+  //       "11" : {"company" : "Twitter"} }''');
+  //   });
+  //   return "Success!";
+  // }
+
+    Future<String> getData() async {
     this.setState(() {
-      data = json.decode('''{"1" : {"firma" : "Google"}, "2" : {"firma" : "Facebook"}, "3" : {"firma" : "Twitter"}, "4" : {"firma" : "Google"}, "5" : {"firma" : "Facebook"}, "6": {"firma" : "Twitter"}, "7" : {"firma" : "Google"}, "8": {"firma" : "Facebook"}, "9" : {"firma" : "Twitter"},  "10": {"firma" : "Facebook"}, "11" : {"firma" : "Twitter"} }''');
+      data = json.decode(extremeData);
+      jobOfferList = createJobList(data);
     });
     return "Success!";
   }
@@ -73,12 +123,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
     super.dispose();
   }
 
- void onSelected(Data tempData) async {
+ void onSelected(JobOffer tempData) async {
     _animationController.forward(from: 0.0);
     stateNotifier.value = await Navigator.of(context).push(
       FancyPageRoute(
         builder: (_) {
-          return JobDetailPage(id: tempData.id, img: tempData.img, data: tempData.data);
+          return JobDetailPage(id: tempData.id, img: tempData.img, data: tempData);
         },
       ),
     );
@@ -152,7 +202,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
       ),
       body: CustomSliverList(
         title: widget.title,
-        data: data,
+        data: jobOfferList,
         onSelected: onSelected,
       ),
     );
@@ -161,9 +211,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
 
 class CustomSliverList extends StatefulWidget{
   CustomSliverList({Key key, this.title, this.data, this.onSelected}) : super(key: key);
-  final Function(Data) onSelected;
+  final Function(JobOffer) onSelected;
   final String title;
-  final Map data;
+  final List data;
 
   @override
   _CustomSliverListState createState() => _CustomSliverListState();
@@ -182,8 +232,7 @@ class _CustomSliverListState extends State<CustomSliverList>{
           child: Center(
             child: MenuListTile(
               id: index,
-              description: widget.data[index.toString()],
-              salary: index.toString(),
+              data: widget.data[index-1],
               thumbnail: Icon(Icons.android),
               onSelected: widget.onSelected,
             ),
@@ -341,18 +390,14 @@ class MenuListTile extends StatefulWidget{
     Key key,
     this.id,
     this.thumbnail,
-    this.description,
-    this.salary,
-    this.viewCount,
+    this.data,
     this.onSelected
   }) : super(key: key);
 
-  final Function(Data) onSelected;
+  final Function(JobOffer) onSelected;
   final int id;
   final Widget thumbnail;
-  final Map description;
-  final String salary;
-  final int viewCount;
+  final JobOffer data;
 
   @override
   _MenuListTileState createState() => _MenuListTileState();
@@ -368,7 +413,7 @@ class _MenuListTileState extends State<MenuListTile> {
         elevation: 4.0,
         borderRadius: BorderRadius.circular(10.0),
         child: InkWell (
-          onTap: () => widget.onSelected(Data(widget.id, widget.thumbnail, widget.description)),
+          onTap: () => widget.onSelected(widget.data),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 5.0),
             child: SizedBox(
@@ -403,14 +448,14 @@ class _MenuListTileState extends State<MenuListTile> {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: <Widget>[
                             Container(
-                              child: new Text("Job:  ${widget.description['firma']}"),
+                              child: new Text("Job:  ${widget.data.company.name}"),
                               decoration: BoxDecoration(
                                 color: Colors.transparent,
                                 border: Border(bottom: BorderSide(width: 1.0, color: Theme.of(context).dividerColor))
                               ),
                             ),
                             Container(
-                              child: new Text("Salary: ${widget.salary*4}"),
+                              child: new Text("Salary: ${widget.data.salary.salaryMin} - ${widget.data.salary.salaryMax}"),
                               decoration: BoxDecoration(
                                 color: Colors.transparent,
                               ),
