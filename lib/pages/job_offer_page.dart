@@ -1,12 +1,10 @@
-
-
 import 'package:flutter/material.dart';
+import 'package:sanium_app/data/JobOffer.dart';
 
 class JobDetailPage extends StatefulWidget{
-  // final JobOffer data; 
   final int id;
-  final Map data;
-  final Widget img;
+  final JobOffer data; 
+  final String img;
   JobDetailPage({@required this.id, this.img, this.data});
 
   @override
@@ -47,7 +45,7 @@ class _JobDetailPageState extends State<JobDetailPage> with SingleTickerProvider
           ),
           title: Text(
             // widget.data,
-            "Sanium:  ${widget.data['firma']}",
+            "Sanium:  ${widget.data.company.name}",
             style: TextStyle(
               color: Theme.of(context).primaryColorDark,
             ),
@@ -89,7 +87,7 @@ class _JobDetailPageState extends State<JobDetailPage> with SingleTickerProvider
                           ),
                           child: AspectRatio(
                             aspectRatio: 3.0/1.0,
-                            child: widget.img,
+                            child: Icon(Icons.android),
                           ),
                         ),
                       ),
