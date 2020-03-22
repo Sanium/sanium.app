@@ -44,8 +44,7 @@ class _JobDetailPageState extends State<JobDetailPage> with SingleTickerProvider
             color: Theme.of(context).accentColor
           ),
           title: Text(
-            // widget.data,
-            "Sanium:  ${widget.data.company.name}",
+            "Sanium",
             style: TextStyle(
               color: Theme.of(context).primaryColorDark,
             ),
@@ -98,10 +97,10 @@ class _JobDetailPageState extends State<JobDetailPage> with SingleTickerProvider
                   SliverList(
                     delegate: SliverChildListDelegate(
                       [
-                        JobMainInfo(),
+                        JobMainInfo(name: widget.data.title, salary: "${widget.data.salary.salaryMin} - ${widget.data.salary.salaryMax}  ${widget.data.salary.currency} / miesiąc", city:widget.data.company.city),
                         JobAdditionalInfo(),
                         JobDetailInfo(),
-                        JobContactInfo(),
+                        JobContactInfo(email:widget.data.company.email, phone:widget.data.company.phone),
                       ],
                     ),
                   ),
@@ -115,10 +114,18 @@ class _JobDetailPageState extends State<JobDetailPage> with SingleTickerProvider
   }
 }
 
+
 class JobMainInfo extends StatelessWidget{
-  final String jobName = "Python Cloud Developer";
-  final String jobSalary = "6 600 - 11 000 PLN gross/month";
-  final String jobLocalization = "Warsaw";
+  String jobName;
+  String jobSalary;
+  String jobCity;
+
+  JobMainInfo({String name:"Developer",String salary:"3000 PLN", String city:"Warszawa"}){
+    this.jobName = name;
+    this.jobSalary = salary;
+    this.jobCity = city;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -208,7 +215,7 @@ class JobMainInfo extends StatelessWidget{
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(0.0, 0.0, 16.0, 0.0),
                         child: Text(
-                          jobLocalization,
+                          jobCity,
                           style: TextStyle(
                             fontWeight: FontWeight.w300,
                             fontFamily: 'Open Sans',
@@ -246,8 +253,6 @@ class JobAdditionalInfo extends StatelessWidget{
     return Card(
       elevation: 5.0,
       child: Container(
-        // height: 230.0,
-
         child: Column(
           mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -578,14 +583,56 @@ Open for new technologies''';
 
 class JobContactInfo extends StatelessWidget{
   final String cardTitle = "Contact info";
-  final String companyEmail = 'getjob@gmail.com';
+  String companyEmail;
+  int companyPhone;
+
+  JobContactInfo({String email:'getjob@gmail.com', int phone:900900900}){
+    this.companyEmail = email;
+    this.companyPhone = phone;
+  }
+
+  Widget createField(String title, String value, BuildContext context){
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.transparent
+        ),
+        child: Center(
+          child: Row(
+            children: <Widget>[
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 0.0),
+                  child: RichText(
+                    text: TextSpan(
+                      text: '$title:   ',
+                      style: TextStyle(
+                        color: Theme.of(context).primaryColorDark,
+                        fontWeight: FontWeight.w400,
+                        fontFamily: 'Open Sans',
+                        fontSize: 22,
+                      ),
+                      children: <TextSpan>[
+                        TextSpan(text: '$value', style: TextStyle(fontWeight: FontWeight.w500)),
+                      ],
+                    ),
+                  )
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: 5.0,
       child: Container(
-        height: 120,
+        height: 140,
         child: Column(
           mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -623,39 +670,9 @@ class JobContactInfo extends StatelessWidget{
               ),
             ),
 
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.transparent
-                ),
-                child: Center(
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 0.0),
-                          child: RichText(
-                            text: TextSpan(
-                              text: 'Email:   ',
-                              style: TextStyle(
-                                color: Theme.of(context).primaryColorDark,
-                                fontWeight: FontWeight.w400,
-                                fontFamily: 'Open Sans',
-                                fontSize: 22,
-                              ),
-                              children: <TextSpan>[
-                                TextSpan(text: '$companyEmail', style: TextStyle(fontWeight: FontWeight.w500)),
-                              ],
-                            ),
-                          )
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            createField("Email", "$companyEmail", context),
+
+            createField("Phone", "$companyPhone", context),
 
             Container(
               height: 5.0,
