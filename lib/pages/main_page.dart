@@ -1,25 +1,16 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-// import 'dart:html';
+import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_animated/auto_animated.dart';
-import 'package:sanium_app/data/JobOffer.dart';
+import 'package:sanium_app/tools/JobOffer.dart';
+import 'package:sanium_app/tools/filter.dart';
 import 'package:sanium_app/pages/job_offer_page.dart';
+import 'package:sanium_app/pages/filter_page.dart';
 import 'package:sanium_app/routes/fancy_page_route.dart';
 
-class Data{
-  int id;
-  Widget img;
-  Map data;
-
-  Data(int id, Widget thumbnail, Map description){
-    this.id = id;
-    this.img = thumbnail;
-    this.data = description;
-  }
-}
 
 class HomePage extends StatefulWidget {
   HomePage({Key key, this.title}) : super(key: key);
@@ -33,43 +24,94 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final GlobalKey<_CustomSliverListState> listKey = GlobalKey<_CustomSliverListState>();
 
-  List<JobOffer> jobOfferList;
-
-  String extremeData = '''{
-    "1" : {"title":"python Backend Dev", "salaryMin":"1000.0", "salaryMax":"5000.0", "currency":"PLN", "company" : "Google", "city" : "Warszawa", "email" : "abc@gmail.com", "phone" : "974637826", "technology" : "Python",
-    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
-    "2" : {"title":"Frontend Dev", "salaryMin":"1000.0", "salaryMax":"5100.0", "currency":"PLN", "company" : "Facebook", "city" : "Łódź", "email" : "fb@gmail.com", "phone" : "974637826", "technology" : "HTML",
-    "requirements":{"1":{"name":"HTML5", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
-    "3" : {"title":"C++ Backend Dev", "salaryMin":"1000.0", "salaryMax":"7000.0", "currency":"PLN", "company" : "LinkedIN", "city" : "Poznań", "email" : "dc@gmail.com", "phone" : "974637226", "technology" : "C++",
-    "requirements":{"1":{"name":"C++", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
-    "4" : {"title":"Python Frontend Dev", "salaryMin":"1000.0", "salaryMax":"5500.0", "currency":"PLN", "company" : "Microsoft", "city" : "Kraków", "email" : "mcsoft@gmail.com", "phone" : "974637826", "technology" : "Python",
-    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
-    "5" : {"title":"Java Backend Dev", "salaryMin":"1000.0", "salaryMax":"6000.0", "currency":"PLN", "company" : "Google", "city" : "Wrocław", "email" : "abc@gmail.com", "phone" : "974637826", "technology" : "Java",
-    "requirements":{"1":{"name":"Java", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
-    "6" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"15000.0", "currency":"PLN", "company" : "Facebook", "city" : "Legnica", "email" : "fb@gmail.com", "phone" : "974637826", "technology" : "Python",
-    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
-    "7" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"4500.0", "currency":"PLN", "company" : "LinkedIN", "city" : "Poznań", "email" : "dc@gmail.com", "phone" : "974637226", "technology" : "Python",
-    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
-    "8" : {"title":"Angular Dev", "salaryMin":"1000.0", "salaryMax":"7000.0", "currency":"PLN", "company" : "Microsoft", "city" : "Gdańsk", "email" : "mcsoft@gmail.com", "phone" : "974637826", "technology" : "Python",
-    "requirements":{"1":{"name":"Angular", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
-    "9" : {"title":"JavaScript Dev", "salaryMin":"1000.0", "salaryMax":"8000.0", "currency":"PLN", "company" : "Google", "city" : "Warszawa", "email" : "abc@gmail.com", "phone" : "974637826", "technology" : "Python",
-    "requirements":{"1":{"name":"JavaScript", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
-    "10" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"9000.0", "currency":"PLN", "company" : "Facebook", "city" : "Warszawa", "email" : "fb@gmail.com", "phone" : "974637826", "technology" : "Python",
-    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
-    "11" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"3900.0", "currency":"PLN", "company" : "LinkedIN", "city" : "Katowice", "email" : "dc@gmail.com", "phone" : "974637226", "technology" : "Python",
-    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
-    "12" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"5800.0", "currency":"PLN", "company" : "Microsoft", "city" : "Kraków", "email" : "mcsoft@gmail.com", "phone" : "974637826", "technology" : "Python",
-    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"}
-  }''';
+  Map<String,dynamic> filters = new Map(); //? lista filtrów
+  List<JobOffer> jobOfferList = new List();
 
   AnimationController _animationController;
   bool returnFromDetailPage = false;
   ValueNotifier<bool> stateNotifier;
 
+  String nextPage ='';
+
+  String extremeData = '''{
+    "1" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"5000.0", "currency":"PLN", "company" : "Google", "city" : "Warszawa", "email" : "abc@gmail.com", "phone" : "www.praca.pl", "technology" : "Python",
+    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
+    "2" : {"title":"Frontend Dev", "salaryMin":"1000.0", "salaryMax":"5100.0", "currency":"PLN", "company" : "Facebook", "city" : "Łódź", "email" : "fb@gmail.com", "phone" : "www.praca.pl", "technology" : "HTML",
+    "requirements":{"1":{"name":"HTML5", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
+    "3" : {"title":"C++ Backend Dev", "salaryMin":"1000.0", "salaryMax":"7000.0", "currency":"PLN", "company" : "LinkedIN", "city" : "Poznań", "email" : "dc@gmail.com", "phone" : "www.praca.pl", "technology" : "C++",
+    "requirements":{"1":{"name":"C++", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
+    "4" : {"title":"Python Frontend Dev", "salaryMin":"1000.0", "salaryMax":"5500.0", "currency":"PLN", "company" : "Microsoft", "city" : "Kraków", "email" : "mcsoft@gmail.com", "phone" : "www.praca.pl", "technology" : "Python",
+    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"2"}},"description":"defult"},
+    "5" : {"title":"Java Backend Dev", "salaryMin":"1000.0", "salaryMax":"6000.0", "currency":"PLN", "company" : "Google", "city" : "Wrocław", "email" : "abc@gmail.com", "phone" : "www.praca.pl", "technology" : "Java",
+    "requirements":{"1":{"name":"Java", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
+    "6" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"15000.0", "currency":"PLN", "company" : "Facebook", "city" : "Legnica", "email" : "fb@gmail.com", "phone" : "www.praca.pl", "technology" : "Python",
+    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
+    "7" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"4500.0", "currency":"PLN", "company" : "LinkedIN", "city" : "Poznań", "email" : "dc@gmail.com", "phone" : "www.praca.pl", "technology" : "Python",
+    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
+    "8" : {"title":"Angular Dev", "salaryMin":"1000.0", "salaryMax":"7000.0", "currency":"PLN", "company" : "Microsoft", "city" : "Gdańsk", "email" : "mcsoft@gmail.com", "phone" : "www.praca.pl", "technology" : "Angular",
+    "requirements":{"1":{"name":"Angular", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
+    "9" : {"title":"JavaScript Dev", "salaryMin":"1000.0", "salaryMax":"8000.0", "currency":"PLN", "company" : "Google", "city" : "Warszawa", "email" : "abc@gmail.com", "phone" : "www.praca.pl", "technology" : "JavaScript",
+    "requirements":{"1":{"name":"JavaScript", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
+    "10" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"9000.0", "currency":"PLN", "company" : "Facebook", "city" : "Warszawa", "email" : "fb@gmail.com", "phone" : "www.praca.pl", "technology" : "Python",
+    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
+    "11" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"3900.0", "currency":"PLN", "company" : "LinkedIN", "city" : "Katowice", "email" : "dc@gmail.com", "phone" : "www.praca.pl", "technology" : "Python",
+    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"2"}},"description":"defult"},
+    "12" : {"title":"PHP Backend Dev", "salaryMin":"1000.0", "salaryMax":"5800.0", "currency":"PLN", "company" : "Microsoft", "city" : "Kraków", "email" : "mcsoft@gmail.com", "phone" : "www.praca.pl", "technology" : "PHP",
+    "requirements":{"1":{"name":"PHP", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"}
+  }''';
+
+
+  Future<dynamic> getJSON(String httpLink) async {
+    final response = await http.get(httpLink);
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
+      throw Exception('Failed to load JSON');
+    }
+  }
+
   Future<String> getData() async {
+    var data;
+    try {
+      data = await getJSON('http://213.92.171.157/api/offers');
+    } catch (e) {
+      return "Fail!";
+    }
+    print("Page: ${json.decode(data)['meta']['current_page']} loading complete");
     this.setState(() {
-      jobOfferList = createJobList(json.decode(extremeData));
+      nextPage = json.decode(data)['links']['next'];
+      filters = json.decode(data)['filters'];
+      jobOfferList = createJobList2(json.decode(data));
     });
+    return "Success!";
+  }
+
+  Future<String> getNextData() async {
+    var data;
+    try {
+      data = await getJSON(nextPage);
+    } catch (e) {
+      return "Fail!";
+    }
+    print("Page: ${json.decode(data)['meta']['current_page']} loading complete");
+    this.setState(() {
+      nextPage = json.decode(data)['links']['next'];
+      filters = json.decode(data)['filters'];
+      jobOfferList = jobOfferList + createJobList2(json.decode(data));
+    });
+    return "Success!";
+  }
+
+
+  Future<String> placeholderData() async {
+    filters = {
+      'cities':["Poznań","Warszawa","Wrocław"],
+      'exp':["Junior","Mid","Senior"],
+      'tech':["Python","Java"],
+      'min_salary':0,
+      'max_salary':10000
+    };
+    jobOfferList = createJobList1(json.decode(extremeData)); // sorting data
     return "Success!";
   }
 
@@ -86,13 +128,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
       .replaceAll('ź', 'z')
       .replaceAll('ż', 'z');}
 
-    if(by == "title"){
-    jobOfferList.sort((a,b)=>normalize(a.title).compareTo(normalize(b.title)));
-    if(listKey.currentState.buttonsStates[0]==2){
-        jobOfferList = new List.from(jobOfferList.reversed);
-      }
-    }
-    else if(by == "salaryMin"){
+    if(by == "salaryMin"){
       jobOfferList.sort((a,b)=>a.salary.salaryMin.compareTo(b.salary.salaryMin));
       if(listKey.currentState.buttonsStates[2]==1){
         jobOfferList = new List.from(jobOfferList.reversed);
@@ -110,6 +146,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
         jobOfferList = new List.from(jobOfferList.reversed);
       }
     }
+    else if(by == "technology"){
+      jobOfferList.sort((a,b)=>normalize(a.mainTechnology).compareTo(normalize(b.mainTechnology)));
+      if(listKey.currentState.buttonsStates[0]==2){
+        jobOfferList = new List.from(jobOfferList.reversed);
+      }
+    }
   }
 
   Future<String> sortData(String by) async {
@@ -121,7 +163,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
 
   @override
   void initState(){
-    this.getData();
+    this.placeholderData(); // wczytanie placeholdera
+    this.getData(); // wszytanie danych z bazy danych
     super.initState();
     _initAnimationController();
   }
@@ -161,6 +204,25 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
     );
   }
 
+  void onFilter() async {
+    List tempList = [false,[],''];
+    _animationController.forward(from: 0.0);
+    tempList = await Navigator.of(context).push(
+      FancyPageRoute(
+        builder: (_) {
+          return FilterPage.fromMap(filters);
+        },
+      ),
+    );
+    if(tempList[1].length>0){
+      this.setState(() {
+        jobOfferList = tempList[1];
+      });
+    }
+    nextPage = tempList[2];
+    stateNotifier.value = tempList[0];
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -168,6 +230,19 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(55.0),
         child: new AppBar(
+          //! miejsce na przycisk (np. refresh)
+          // actions: <Widget>[
+          //   FlatButton(
+          //     padding: const EdgeInsets.fromLTRB(30, 0, 0, 0),
+          //     highlightColor: Colors.transparent,
+          //     splashColor: Colors.transparent,
+          //     child: Icon(
+          //       Icons.autorenew,
+          //       color: Colors.grey[200],
+          //     ), 
+          //     onPressed: () => getData(),
+          //   )
+          // ],
           leading: IconButton(
             hoverColor: Colors.black38,
             icon: AnimatedIcon(
@@ -189,6 +264,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
         ),
       ),
 
+      floatingActionButton: FloatingActionButton(
+          onPressed: () => onFilter(),
+          elevation: 10.0,
+          heroTag: 'filter',
+          child: Icon(Icons.filter_list),
+          backgroundColor: Theme.of(context).accentColor,
+          foregroundColor: Theme.of(context).primaryColor,
+      ),
+
       drawer: Container(
         width: MediaQuery.of(context).size.width * 0.65,
         child: Drawer(
@@ -197,23 +281,36 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
             children: <Widget>[
               DrawerHeader(
                 child: Text(
-                  'Drawer Header',
+                  'Sanium Creators:',
                   style: TextStyle(
                     color: Colors.black,
+                    fontSize: 30,
                   ),
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.grey[300],
+                  color: Colors.grey[200],
                 ),
               ),
               ListTile(
-                title: Text('Item 1'),
+                title: Text('Michał Popiel'),
                 onTap: () {
                   Navigator.pop(context);
                 },
               ),
               ListTile(
-                title: Text('Item 2'),
+                title: Text('Bartłomiej Olszanowski'),
+                onTap: () {
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: Text('Maciej Owsianny'),
+                onTap: () {
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: Text('Błażej Darul'),
                 onTap: () {
                   Navigator.pop(context);
                 },
@@ -228,15 +325,17 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
         data: jobOfferList,
         onSelected: onSelected,
         customSort: sortData,
+        loadNextData: getNextData,
       ),
     );
   }
 }
 
 class CustomSliverList extends StatefulWidget{
-  CustomSliverList({Key key, this.title, this.data, this.onSelected, this.customSort}) : super(key: key);
+  CustomSliverList({Key key, this.title, this.data, this.onSelected, this.customSort, this.loadNextData}) : super(key: key);
   final Function(JobOffer) onSelected;
   final Function(String) customSort;
+  final Function loadNextData;
   final String title;
   final List data;
 
@@ -249,6 +348,16 @@ class _CustomSliverListState extends State<CustomSliverList>{
   double appBarHeight = 45.0;
   double appBarMinHeight = 2.0;
   List<int> buttonsStates = [0,0,0];
+
+  @override
+  void initState(){
+    super.initState();
+    controller.addListener((){
+      if(controller.position.pixels==controller.position.maxScrollExtent){
+        widget.loadNextData();
+      }
+    });
+  }
 
   Future<String> setButtonState(int button) async {
     this.setState(() {
@@ -357,8 +466,7 @@ class _CustomSliverListState extends State<CustomSliverList>{
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: <Widget>[
                                           Text(
-                                            'Tytuł',
-                                            // style: Theme.of(context).textTheme.button.copyWith(),
+                                            'Technologia',
                                             style: TextStyle(
                                               fontSize: 18.0,
                                               fontWeight: FontWeight.w400,
@@ -382,7 +490,7 @@ class _CustomSliverListState extends State<CustomSliverList>{
                                   ),
                                 ],
                               ),
-                              onPressed: (){setButtonState(0); print('Tytuł'); widget.customSort("title");},
+                              onPressed: (){setButtonState(0); print('Technologia'); widget.customSort("technology");},
                             ),
                           ),
                         ),
@@ -405,7 +513,6 @@ class _CustomSliverListState extends State<CustomSliverList>{
                                         children: <Widget>[
                                           Text(
                                             'Lokalizacja',
-                                            // style: Theme.of(context).textTheme.button.copyWith(),
                                             style: TextStyle(
                                               fontSize: 20.0,
                                               fontWeight: FontWeight.w300,
@@ -451,9 +558,8 @@ class _CustomSliverListState extends State<CustomSliverList>{
                                         children: <Widget>[
                                           Text(
                                             'Płaca',
-                                            // style: Theme.of(context).textTheme.button.copyWith(),
                                             style: TextStyle(
-                                              fontSize: 20.0,
+                                              fontSize: 18.0,
                                               fontWeight: FontWeight.w300,
                                               fontFamily: 'Open Sans',
                                               color: Theme.of(context).primaryColorDark,
@@ -570,8 +676,41 @@ class _MenuListTileState extends State<MenuListTile> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: <Widget>[
-                                  Text("Job:  ${widget.data.title}"),
-                                  Text("City: ${widget.data.company.city}"),
+                                  Expanded(
+                                    flex: 5,
+                                      child: Text(
+                                      "${widget.data.title}",
+                                      style:TextStyle(
+                                        fontWeight: FontWeight.w400,
+                                        fontFamily: 'Open Sans',
+                                        fontSize: 22,
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex:2,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                      children: <Widget>[
+                                        Icon(
+                                          Icons.home,
+                                          size: 20.0,
+                                          color: Colors.grey[700],
+                                        ),
+                                        Expanded(
+                                          child: Text(
+                                            "${widget.data.company.city}",
+                                            style:TextStyle(
+                                              fontWeight: FontWeight.w400,
+                                              fontFamily: 'Open Sans',
+                                              fontSize: 15,
+                                            ),
+                                            textAlign: TextAlign.center
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 ],
                               ),
                               decoration: BoxDecoration(
@@ -580,7 +719,19 @@ class _MenuListTileState extends State<MenuListTile> {
                               ),
                             ),
                             Container(
-                              child: new Text("Salary: ${widget.data.salary.salaryMin} - ${widget.data.salary.salaryMax}  ${widget.data.salary.currency}"),
+                              child: new Text(
+                                "${widget.data.salary.salaryMin} - ${widget.data.salary.salaryMax}  ${widget.data.salary.currency}",
+                                style:TextStyle(
+                                  color: Colors.grey[800],
+                                  // color: Colors.teal[700],
+                                  // color: Colors.lightGreen[600],
+                                  // color: Colors.amber,
+                                  fontWeight: FontWeight.w400,
+                                  fontFamily: 'Open Sans',
+                                  fontSize: 20,
+                                ),
+                                textAlign: TextAlign.justify,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.transparent,
                               ),
