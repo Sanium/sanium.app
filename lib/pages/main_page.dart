@@ -1,22 +1,16 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_animated/auto_animated.dart';
-import 'package:sanium_app/data/JobOffer.dart';
+import 'package:sanium_app/tools/JobOffer.dart';
+import 'package:sanium_app/tools/filter.dart';
 import 'package:sanium_app/pages/job_offer_page.dart';
+import 'package:sanium_app/pages/filter_page.dart';
 import 'package:sanium_app/routes/fancy_page_route.dart';
 
-class Data{
-  int id;
-  Widget img;
-  Map data;
-
-  Data(int id, Widget thumbnail, Map description){
-    this.id = id;
-    this.img = thumbnail;
-    this.data = description;
-  }
-}
 
 class HomePage extends StatefulWidget {
   HomePage({Key key, this.title}) : super(key: key);
@@ -28,75 +22,151 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<_CustomSliverListState> listKey = GlobalKey<_CustomSliverListState>();
 
-  List<JobOffer> jobOfferList;
-  Map<String, dynamic> data;
-
-  String extremeData = '''{
-    "1" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"5000.0", "currency":"PLN", "company" : "Google", "city" : "Warsaw", "email" : "abc@gmail.com", "phone" : "974637826", "technology" : "Python",
-    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
-    "2" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"5000.0", "currency":"PLN", "company" : "Facebook", "city" : "Warsaw", "email" : "fb@gmail.com", "phone" : "974637826", "technology" : "Python",
-    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
-    "3" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"5000.0", "currency":"PLN", "company" : "LinkedIN", "city" : "Poznan", "email" : "dc@gmail.com", "phone" : "974637226", "technology" : "Python",
-    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
-    "4" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"5000.0", "currency":"PLN", "company" : "Microsoft", "city" : "Krakow", "email" : "mcsoft@gmail.com", "phone" : "974637826", "technology" : "Python",
-    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
-    "5" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"5000.0", "currency":"PLN", "company" : "Google", "city" : "Warsaw", "email" : "abc@gmail.com", "phone" : "974637826", "technology" : "Python",
-    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
-    "6" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"5000.0", "currency":"PLN", "company" : "Facebook", "city" : "Warsaw", "email" : "fb@gmail.com", "phone" : "974637826", "technology" : "Python",
-    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
-    "7" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"5000.0", "currency":"PLN", "company" : "LinkedIN", "city" : "Poznan", "email" : "dc@gmail.com", "phone" : "974637226", "technology" : "Python",
-    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
-    "8" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"5000.0", "currency":"PLN", "company" : "Microsoft", "city" : "Krakow", "email" : "mcsoft@gmail.com", "phone" : "974637826", "technology" : "Python",
-    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
-    "9" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"5000.0", "currency":"PLN", "company" : "Google", "city" : "Warsaw", "email" : "abc@gmail.com", "phone" : "974637826", "technology" : "Python",
-    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
-    "10" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"5000.0", "currency":"PLN", "company" : "Facebook", "city" : "Warsaw", "email" : "fb@gmail.com", "phone" : "974637826", "technology" : "Python",
-    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
-    "11" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"5000.0", "currency":"PLN", "company" : "LinkedIN", "city" : "Poznan", "email" : "dc@gmail.com", "phone" : "974637226", "technology" : "Python",
-    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
-    "12" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"5000.0", "currency":"PLN", "company" : "Microsoft", "city" : "Krakow", "email" : "mcsoft@gmail.com", "phone" : "974637826", "technology" : "Python",
-    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"}
-  }''';
-
+  Map<String,dynamic> filters = new Map(); //? lista filtrów
+  List<JobOffer> jobOfferList = new List();
 
   AnimationController _animationController;
   bool returnFromDetailPage = false;
   ValueNotifier<bool> stateNotifier;
 
-  // Future<String> getData() async {
-  //   this.setState(() {
-  //     data = json.decode(
-  //       '''{
-  //       "1" : {"company" : "Google"},
-  //       "2" : {"company" : "Facebook"},
-  //       "3" : {"company" : "Twitter"},
-  //       "4" : {"company" : "Google"},
-  //       "5" : {"company" : "Facebook"}, 
-  //       "6": {"company" : "Twitter"}, 
-  //       "7" : {"company" : "Google"}, 
-  //       "8": {"company" : "Facebook"}, 
-  //       "9" : {"company" : "Twitter"},  
-  //       "10": {"company" : "Facebook"}, 
-  //       "11" : {"company" : "Twitter"} }''');
-  //   });
-  //   return "Success!";
-  // }
+  String nextPage ='';
 
-    Future<String> getData() async {
+  String extremeData = '''{
+    "1" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"5000.0", "currency":"PLN", "company" : "Google", "city" : "Warszawa", "email" : "abc@gmail.com", "phone" : "www.praca.pl", "technology" : "Python",
+    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
+    "2" : {"title":"Frontend Dev", "salaryMin":"1000.0", "salaryMax":"5100.0", "currency":"PLN", "company" : "Facebook", "city" : "Łódź", "email" : "fb@gmail.com", "phone" : "www.praca.pl", "technology" : "HTML",
+    "requirements":{"1":{"name":"HTML5", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
+    "3" : {"title":"C++ Backend Dev", "salaryMin":"1000.0", "salaryMax":"7000.0", "currency":"PLN", "company" : "LinkedIN", "city" : "Poznań", "email" : "dc@gmail.com", "phone" : "www.praca.pl", "technology" : "C++",
+    "requirements":{"1":{"name":"C++", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
+    "4" : {"title":"Python Frontend Dev", "salaryMin":"1000.0", "salaryMax":"5500.0", "currency":"PLN", "company" : "Microsoft", "city" : "Kraków", "email" : "mcsoft@gmail.com", "phone" : "www.praca.pl", "technology" : "Python",
+    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"2"}},"description":"defult"},
+    "5" : {"title":"Java Backend Dev", "salaryMin":"1000.0", "salaryMax":"6000.0", "currency":"PLN", "company" : "Google", "city" : "Wrocław", "email" : "abc@gmail.com", "phone" : "www.praca.pl", "technology" : "Java",
+    "requirements":{"1":{"name":"Java", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
+    "6" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"15000.0", "currency":"PLN", "company" : "Facebook", "city" : "Legnica", "email" : "fb@gmail.com", "phone" : "www.praca.pl", "technology" : "Python",
+    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
+    "7" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"4500.0", "currency":"PLN", "company" : "LinkedIN", "city" : "Poznań", "email" : "dc@gmail.com", "phone" : "www.praca.pl", "technology" : "Python",
+    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
+    "8" : {"title":"Angular Dev", "salaryMin":"1000.0", "salaryMax":"7000.0", "currency":"PLN", "company" : "Microsoft", "city" : "Gdańsk", "email" : "mcsoft@gmail.com", "phone" : "www.praca.pl", "technology" : "Angular",
+    "requirements":{"1":{"name":"Angular", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
+    "9" : {"title":"JavaScript Dev", "salaryMin":"1000.0", "salaryMax":"8000.0", "currency":"PLN", "company" : "Google", "city" : "Warszawa", "email" : "abc@gmail.com", "phone" : "www.praca.pl", "technology" : "JavaScript",
+    "requirements":{"1":{"name":"JavaScript", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
+    "10" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"9000.0", "currency":"PLN", "company" : "Facebook", "city" : "Warszawa", "email" : "fb@gmail.com", "phone" : "www.praca.pl", "technology" : "Python",
+    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
+    "11" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"3900.0", "currency":"PLN", "company" : "LinkedIN", "city" : "Katowice", "email" : "dc@gmail.com", "phone" : "www.praca.pl", "technology" : "Python",
+    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"2"}},"description":"defult"},
+    "12" : {"title":"PHP Backend Dev", "salaryMin":"1000.0", "salaryMax":"5800.0", "currency":"PLN", "company" : "Microsoft", "city" : "Kraków", "email" : "mcsoft@gmail.com", "phone" : "www.praca.pl", "technology" : "PHP",
+    "requirements":{"1":{"name":"PHP", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"}
+  }''';
+
+
+  Future<dynamic> getJSON(String httpLink) async {
+    final response = await http.get(httpLink);
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
+      throw Exception('Failed to load JSON');
+    }
+  }
+
+  Future<String> getData() async {
+    var data;
+    try {
+      data = await getJSON('http://213.92.171.157/api/offers');
+    } catch (e) {
+      return "Fail!";
+    }
+    print("Page: ${json.decode(data)['meta']['current_page']} loading complete");
     this.setState(() {
-      data = json.decode(extremeData);
-      jobOfferList = createJobList(data);
+      nextPage = json.decode(data)['links']['next'];
+      filters = json.decode(data)['filters'];
+      jobOfferList = createJobList2(json.decode(data));
+    });
+    return "Success!";
+  }
+
+  Future<String> getNextData() async {
+    var data;
+    try {
+      data = await getJSON(nextPage);
+    } catch (e) {
+      return "Fail!";
+    }
+    print("Page: ${json.decode(data)['meta']['current_page']} loading complete");
+    this.setState(() {
+      nextPage = json.decode(data)['links']['next'];
+      filters = json.decode(data)['filters'];
+      jobOfferList = jobOfferList + createJobList2(json.decode(data));
+    });
+    return "Success!";
+  }
+
+
+  Future<String> placeholderData() async {
+    filters = {
+      'cities':["Poznań","Warszawa","Wrocław"],
+      'exp':["Junior","Mid","Senior"],
+      'tech':["Python","Java"],
+      'min_salary':0,
+      'max_salary':10000
+    };
+    jobOfferList = createJobList1(json.decode(extremeData)); // sorting data
+    return "Success!";
+  }
+
+  void customSort({String by:"title"}){
+    String normalize(String input){
+      return input.toLowerCase()
+      .replaceAll('ą', 'a')
+      .replaceAll('ć', 'c')
+      .replaceAll('ę', 'e')
+      .replaceAll('ł', 'l')
+      .replaceAll('ń', 'n')
+      .replaceAll('ó', 'o')
+      .replaceAll('ś', 's')
+      .replaceAll('ź', 'z')
+      .replaceAll('ż', 'z');}
+
+    if(by == "salaryMin"){
+      jobOfferList.sort((a,b)=>a.salary.salaryMin.compareTo(b.salary.salaryMin));
+      if(listKey.currentState.buttonsStates[2]==1){
+        jobOfferList = new List.from(jobOfferList.reversed);
+      }
+    }
+    else if(by == "salaryMax"){
+      jobOfferList.sort((a,b)=>a.salary.salaryMax.compareTo(b.salary.salaryMax));
+      if(listKey.currentState.buttonsStates[2]==1){
+        jobOfferList = new List.from(jobOfferList.reversed);
+      }
+    }
+    else if(by == "city"){
+      jobOfferList.sort((a,b)=>normalize(a.company.city).compareTo(normalize(b.company.city)));
+      if(listKey.currentState.buttonsStates[1]==2){
+        jobOfferList = new List.from(jobOfferList.reversed);
+      }
+    }
+    else if(by == "technology"){
+      jobOfferList.sort((a,b)=>normalize(a.mainTechnology).compareTo(normalize(b.mainTechnology)));
+      if(listKey.currentState.buttonsStates[0]==2){
+        jobOfferList = new List.from(jobOfferList.reversed);
+      }
+    }
+  }
+
+  Future<String> sortData(String by) async {
+    this.setState(() {
+      customSort(by:by);
     });
     return "Success!";
   }
 
   @override
   void initState(){
-    this.getData();
+    this.placeholderData(); // wczytanie placeholdera
+    this.getData(); // wszytanie danych z bazy danych
     super.initState();
     _initAnimationController();
-
   }
   
   void _initAnimationController() {
@@ -123,7 +193,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
     super.dispose();
   }
 
- void onSelected(JobOffer tempData) async {
+  void onSelected(JobOffer tempData) async {
     _animationController.forward(from: 0.0);
     stateNotifier.value = await Navigator.of(context).push(
       FancyPageRoute(
@@ -134,6 +204,25 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
     );
   }
 
+  void onFilter() async {
+    List tempList = [false,[],''];
+    _animationController.forward(from: 0.0);
+    tempList = await Navigator.of(context).push(
+      FancyPageRoute(
+        builder: (_) {
+          return FilterPage.fromMap(filters);
+        },
+      ),
+    );
+    if(tempList[1].length>0){
+      this.setState(() {
+        jobOfferList = tempList[1];
+      });
+    }
+    nextPage = tempList[2];
+    stateNotifier.value = tempList[0];
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -141,6 +230,19 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(55.0),
         child: new AppBar(
+          //! miejsce na przycisk (np. refresh)
+          // actions: <Widget>[
+          //   FlatButton(
+          //     padding: const EdgeInsets.fromLTRB(30, 0, 0, 0),
+          //     highlightColor: Colors.transparent,
+          //     splashColor: Colors.transparent,
+          //     child: Icon(
+          //       Icons.autorenew,
+          //       color: Colors.grey[200],
+          //     ), 
+          //     onPressed: () => getData(),
+          //   )
+          // ],
           leading: IconButton(
             hoverColor: Colors.black38,
             icon: AnimatedIcon(
@@ -162,37 +264,54 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
         ),
       ),
 
+      floatingActionButton: FloatingActionButton(
+          onPressed: () => onFilter(),
+          elevation: 10.0,
+          heroTag: 'filter',
+          child: Icon(Icons.filter_list),
+          backgroundColor: Theme.of(context).accentColor,
+          foregroundColor: Theme.of(context).primaryColor,
+      ),
+
       drawer: Container(
         width: MediaQuery.of(context).size.width * 0.65,
         child: Drawer(
           child: ListView(
-            // Important: Remove any padding from the ListView.
             padding: EdgeInsets.zero,
             children: <Widget>[
               DrawerHeader(
                 child: Text(
-                  'Drawer Header',
+                  'Sanium Creators:',
                   style: TextStyle(
                     color: Colors.black,
+                    fontSize: 30,
                   ),
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.grey[300],
+                  color: Colors.grey[200],
                 ),
               ),
               ListTile(
-                title: Text('Item 1'),
+                title: Text('Michał Popiel'),
                 onTap: () {
-                  // Update the state of the app.
-                  // ...
                   Navigator.pop(context);
                 },
               ),
               ListTile(
-                title: Text('Item 2'),
+                title: Text('Bartłomiej Olszanowski'),
                 onTap: () {
-                  // Update the state of the app.
-                  // ...
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: Text('Maciej Owsianny'),
+                onTap: () {
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: Text('Błażej Darul'),
+                onTap: () {
                   Navigator.pop(context);
                 },
               ),
@@ -201,17 +320,22 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
         ),
       ),
       body: CustomSliverList(
+        key: listKey,
         title: widget.title,
         data: jobOfferList,
         onSelected: onSelected,
+        customSort: sortData,
+        loadNextData: getNextData,
       ),
     );
   }
 }
 
 class CustomSliverList extends StatefulWidget{
-  CustomSliverList({Key key, this.title, this.data, this.onSelected}) : super(key: key);
+  CustomSliverList({Key key, this.title, this.data, this.onSelected, this.customSort, this.loadNextData}) : super(key: key);
   final Function(JobOffer) onSelected;
+  final Function(String) customSort;
+  final Function loadNextData;
   final String title;
   final List data;
 
@@ -221,8 +345,43 @@ class CustomSliverList extends StatefulWidget{
 
 class _CustomSliverListState extends State<CustomSliverList>{
   final controller = ScrollController();
-  double appBarHeight = 50.0;
+  double appBarHeight = 45.0;
   double appBarMinHeight = 2.0;
+  List<int> buttonsStates = [0,0,0];
+
+  @override
+  void initState(){
+    super.initState();
+    controller.addListener((){
+      if(controller.position.pixels==controller.position.maxScrollExtent){
+        widget.loadNextData();
+      }
+    });
+  }
+
+  Future<String> setButtonState(int button) async {
+    this.setState(() {
+      for(int i=0;i<buttonsStates.length;i++){
+        if (i==button){
+          if (buttonsStates[i]==0){ buttonsStates[i] = 1;}
+          else if (buttonsStates[i]==1){ buttonsStates[i] = 2;}
+          else if (buttonsStates[i]==2){ buttonsStates[i] = 1;}
+        }
+        else{ buttonsStates[i] = 0;
+      }}});
+    return "Success!";
+  }
+
+  Widget customIcon(int button){
+    if(buttonsStates[button]==0){
+      if(button==0){return Icon(Icons.title);}
+      else if(button==1){return Icon(Icons.place);}
+      else if(button==2){return Icon(Icons.attach_money);}
+    }
+    else if(buttonsStates[button]==1){return Icon(Icons.arrow_downward);}
+    else if(buttonsStates[button]==2){return Icon(Icons.arrow_upward);}
+    return Icon(Icons.attach_file);
+  }
 
   Widget _buildCard(int index) => Builder(
     builder: (context) => Container(
@@ -278,86 +437,151 @@ class _CustomSliverListState extends State<CustomSliverList>{
             slivers: <Widget>[
               SliverAppBar(
                 leading: new Container(),
-                backgroundColor: Colors.grey[300],
-                elevation: 10.0,
-                pinned: true,
+                backgroundColor: Colors.white,
+                elevation: 0.0,
+                pinned: false,
                 expandedHeight: appBarHeight,
-                bottom: PreferredSize(                  
-                  preferredSize: Size.fromHeight(appBarMinHeight),      
-                  child: Container(),                           
-                ),
                 floating: true,
                 flexibleSpace: Center(
                   child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        stops: [
-                          0.4,
-                          0.7,
-                          0.8
-                        ],
-                        colors: <Color>[
-                          Theme.of(context).primaryColor,
-                          Theme.of(context).primaryColor.withOpacity(0.38),
-                          Theme.of(context).primaryColor.withOpacity(0.24),
-                        ]
-                      )          
-                    ),
+                    height: appBarHeight,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: <Widget>[
                         Expanded(
                           child: Padding(
-                            padding: const EdgeInsets.fromLTRB(2.0, 0.0, 1.0, 0.0),
-                            child: FlatButton(
+                            padding: const EdgeInsets.fromLTRB(8.0, 0.0, 4.0, 2.0),
+                            child: FlatButton(  
+                              padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
                               color: Theme.of(context).primaryColor,
                               highlightColor: Colors.transparent,
                               splashColor: Colors.grey[200],
-                              child: Text(
-                                'Lokalizacja',
-                                // style: TextStyle(
-                                //   color: Colors.grey[700],
-                                // ),
+                              child: Column(
+                                children: <Widget>[
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(3.0),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: <Widget>[
+                                          Text(
+                                            'Technologia',
+                                            style: TextStyle(
+                                              fontSize: 18.0,
+                                              fontWeight: FontWeight.w400,
+                                              fontFamily: 'Open Sans',
+                                              color: Theme.of(context).primaryColorDark,
+                                            ),
+                                          ),
+                                          customIcon(0),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    height: 4.0,
+                                    width: 500,
+                                    decoration: BoxDecoration(
+                                      color: buttonsStates[0]==0 ? Colors.grey[500] : Theme.of(context).accentColor,
+                                      borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                                    ),
+                                    child: Container(height: 10.0,),
+                                  ),
+                                ],
                               ),
-                              onPressed: (){print('Lokalizacja');},
+                              onPressed: (){setButtonState(0); print('Technologia'); widget.customSort("technology");},
+                            ),
+                          ),
+                        ),
+                        
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(4.0, 0.0, 4.0, 2.0),
+                            child: FlatButton(  
+                              padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                              color: Theme.of(context).primaryColor,
+                              highlightColor: Colors.transparent,
+                              splashColor: Colors.grey[200],
+                              child: Column(
+                                children: <Widget>[
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(3.0),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: <Widget>[
+                                          Text(
+                                            'Lokalizacja',
+                                            style: TextStyle(
+                                              fontSize: 20.0,
+                                              fontWeight: FontWeight.w300,
+                                              fontFamily: 'Open Sans',
+                                              color: Theme.of(context).primaryColorDark,
+                                            ),
+                                          ),
+                                          customIcon(1),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    height: 4.0,
+                                    width: 500,
+                                    decoration: BoxDecoration(
+                                      color: buttonsStates[1]==0 ? Colors.grey[500] : Theme.of(context).accentColor,
+                                      borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                                    ),
+                                    child: Container(height: 10.0,),
+                                  ),
+                                ],
+                              ),
+                              onPressed: (){setButtonState(1); print('Lokalizacja'); widget.customSort("city");},
                             ),
                           ),
                         ),
                         Expanded(
                           child: Padding(
-                            padding: const EdgeInsets.fromLTRB(1.0, 0.0, 1.0, 0.0),
-                            child: FlatButton(
+                            padding: const EdgeInsets.fromLTRB(4.0, 0.0, 8.0, 2.0),
+                            child: FlatButton(  
+                              padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
                               color: Theme.of(context).primaryColor,
                               highlightColor: Colors.transparent,
                               splashColor: Colors.grey[200],
-                              child: Text(
-                                'Tech',
-                                style: Theme.of(context).textTheme.button.copyWith(),
-                                // style: TextStyle(
-                                //   color: Theme.of(context).primaryColorDark,
-                                //   // color: Colors.grey[700],
-                                // ),
+                              child: Column(
+                                children: <Widget>[
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(3.0),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: <Widget>[
+                                          Text(
+                                            'Płaca',
+                                            style: TextStyle(
+                                              fontSize: 18.0,
+                                              fontWeight: FontWeight.w300,
+                                              fontFamily: 'Open Sans',
+                                              color: Theme.of(context).primaryColorDark,
+                                            ),
+                                          ),
+                                          customIcon(2),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    height: 4.0,
+                                    width: 500,
+                                    decoration: BoxDecoration(
+                                      color: buttonsStates[2]==0 ? Colors.grey[500] : Theme.of(context).accentColor,
+                                      borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                                    ),
+                                    child: Container(height: 10.0,),
+                                  ),
+                                ],
                               ),
-                              onPressed: (){print('Tech');},
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(1.0, 0.0, 2.0, 0.0),
-                            child: FlatButton(
-                              color: Theme.of(context).primaryColor,
-                              highlightColor: Colors.transparent,
-                              splashColor: Colors.grey[200],
-                              child: Text(
-                                'Płaca',
-                                // style: TextStyle(
-                                //   color: Colors.grey[700],
-                                // ),
-                              ),
-                              onPressed: (){print('Płaca');},
+                              onPressed: (){setButtonState(2); print('Płaca'); widget.customSort("salaryMax");},
                             ),
                           ),
                         ),
@@ -368,13 +592,14 @@ class _CustomSliverListState extends State<CustomSliverList>{
               ),
 
               LiveSliverList(
-                // reAnimateOnVisibility: true,
+                reAnimateOnVisibility: true,
                 controller: controller,
                 showItemInterval: Duration(milliseconds: 200),
                 showItemDuration: Duration(milliseconds: 800),
                 itemCount: widget.data.length.toInt(),
                 itemBuilder: _buildAnimatedItem,
               ),
+
             ],
           ),
         ),
@@ -417,7 +642,7 @@ class _MenuListTileState extends State<MenuListTile> {
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 5.0),
             child: SizedBox(
-              height: 80,
+              height: 100,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
@@ -448,14 +673,65 @@ class _MenuListTileState extends State<MenuListTile> {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: <Widget>[
                             Container(
-                              child: new Text("Job:  ${widget.data.company.name}"),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  Expanded(
+                                    flex: 5,
+                                      child: Text(
+                                      "${widget.data.title}",
+                                      style:TextStyle(
+                                        fontWeight: FontWeight.w400,
+                                        fontFamily: 'Open Sans',
+                                        fontSize: 22,
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex:2,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                      children: <Widget>[
+                                        Icon(
+                                          Icons.home,
+                                          size: 20.0,
+                                          color: Colors.grey[700],
+                                        ),
+                                        Expanded(
+                                          child: Text(
+                                            "${widget.data.company.city}",
+                                            style:TextStyle(
+                                              fontWeight: FontWeight.w400,
+                                              fontFamily: 'Open Sans',
+                                              fontSize: 15,
+                                            ),
+                                            textAlign: TextAlign.center
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.transparent,
                                 border: Border(bottom: BorderSide(width: 1.0, color: Theme.of(context).dividerColor))
                               ),
                             ),
                             Container(
-                              child: new Text("Salary: ${widget.data.salary.salaryMin} - ${widget.data.salary.salaryMax}"),
+                              child: new Text(
+                                "${widget.data.salary.salaryMin} - ${widget.data.salary.salaryMax}  ${widget.data.salary.currency}",
+                                style:TextStyle(
+                                  color: Colors.grey[800],
+                                  // color: Colors.teal[700],
+                                  // color: Colors.lightGreen[600],
+                                  // color: Colors.amber,
+                                  fontWeight: FontWeight.w400,
+                                  fontFamily: 'Open Sans',
+                                  fontSize: 20,
+                                ),
+                                textAlign: TextAlign.justify,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.transparent,
                               ),

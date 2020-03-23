@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sanium_app/data/JobOffer.dart';
+import 'package:sanium_app/tools/JobOffer.dart';
 
 class JobDetailPage extends StatefulWidget{
   final int id;
@@ -44,8 +44,7 @@ class _JobDetailPageState extends State<JobDetailPage> with SingleTickerProvider
             color: Theme.of(context).accentColor
           ),
           title: Text(
-            // widget.data,
-            "Sanium:  ${widget.data.company.name}",
+            "Sanium",
             style: TextStyle(
               color: Theme.of(context).primaryColorDark,
             ),
@@ -98,10 +97,10 @@ class _JobDetailPageState extends State<JobDetailPage> with SingleTickerProvider
                   SliverList(
                     delegate: SliverChildListDelegate(
                       [
-                        JobMainInfo(),
-                        JobAdditionalInfo(),
+                        JobMainInfo(name: widget.data.title, salary: "${widget.data.salary.salaryMin} - ${widget.data.salary.salaryMax}  ${widget.data.salary.currency} / miesiąc", city:widget.data.company.city),
+                        JobRequirements(data: widget.data.requirements),
                         JobDetailInfo(),
-                        JobContactInfo(),
+                        JobContactInfo(email:widget.data.company.email, website:widget.data.company.website),
                       ],
                     ),
                   ),
@@ -115,10 +114,14 @@ class _JobDetailPageState extends State<JobDetailPage> with SingleTickerProvider
   }
 }
 
+
 class JobMainInfo extends StatelessWidget{
-  final String jobName = "Python Cloud Developer";
-  final String jobSalary = "6 600 - 11 000 PLN gross/month";
-  final String jobLocalization = "Warsaw";
+  final String name;
+  final String salary;
+  final String city;
+
+  JobMainInfo({this.name:"Developer",this.salary:"3000 PLN", this.city:"Warszawa"});
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -145,7 +148,7 @@ class JobMainInfo extends StatelessWidget{
                         child: Padding(
                           padding: const EdgeInsets.fromLTRB(0.0, 0.0, 16.0, 0.0),
                           child: Text(
-                            jobName,
+                            name,
                             style: TextStyle(
                               fontWeight: FontWeight.w400,
                               fontFamily: 'Open Sans',
@@ -177,7 +180,7 @@ class JobMainInfo extends StatelessWidget{
                         child: Padding(
                           padding: const EdgeInsets.fromLTRB(0.0, 0.0, 16.0, 0.0),
                           child: Text(
-                            jobSalary,
+                            salary,
                             style: TextStyle(
                               fontWeight: FontWeight.w300,
                               fontFamily: 'Open Sans',
@@ -208,7 +211,7 @@ class JobMainInfo extends StatelessWidget{
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(0.0, 0.0, 16.0, 0.0),
                         child: Text(
-                          jobLocalization,
+                          city,
                           style: TextStyle(
                             fontWeight: FontWeight.w300,
                             fontFamily: 'Open Sans',
@@ -238,16 +241,159 @@ class JobMainInfo extends StatelessWidget{
   }
 }
 
-class JobAdditionalInfo extends StatelessWidget{
+class JobRequirements extends StatelessWidget{
   final String jobName = "Requirements";
+  final List<Requirement> data;
+  JobRequirements({this.data});
+
+  Widget createLevelWidget({BuildContext context, int level, IconData tempIcon}){
+    if(level == 0){
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: <Widget>[
+          Icon(tempIcon, size: 25.0,),
+          Icon(tempIcon, size: 25.0,),
+          Icon(tempIcon, size: 25.0,),
+          Icon(tempIcon, size: 25.0,),
+          Icon(tempIcon, size: 25.0,),
+        ],
+      );
+    }
+    if(level == 1){
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: <Widget>[
+          Icon(tempIcon, size: 25.0, color: Theme.of(context).accentColor,),
+          Icon(tempIcon, size: 25.0,),
+          Icon(tempIcon, size: 25.0,),
+          Icon(tempIcon, size: 25.0,),
+          Icon(tempIcon, size: 25.0,),
+        ],
+      );
+    }
+    else if(level == 2){
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: <Widget>[ 
+          Icon(tempIcon, size: 25.0, color: Theme.of(context).accentColor,),
+          Icon(tempIcon, size: 25.0, color: Theme.of(context).accentColor,),
+          Icon(tempIcon, size: 25.0,),
+          Icon(tempIcon, size: 25.0,),
+          Icon(tempIcon, size: 25.0,),
+        ],
+      );
+    }
+    else if(level == 3){
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: <Widget>[
+          Icon(tempIcon, size: 25.0, color: Theme.of(context).accentColor,),
+          Icon(tempIcon, size: 25.0, color: Theme.of(context).accentColor,),
+          Icon(tempIcon, size: 25.0, color: Theme.of(context).accentColor,),
+          Icon(tempIcon, size: 25.0,),
+          Icon(tempIcon, size: 25.0,),
+        ],
+      );
+    }
+    else if(level == 4){
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: <Widget>[
+          Icon(tempIcon, size: 25.0, color: Theme.of(context).accentColor,),
+          Icon(tempIcon, size: 25.0, color: Theme.of(context).accentColor,),
+          Icon(tempIcon, size: 25.0, color: Theme.of(context).accentColor,),
+          Icon(tempIcon, size: 25.0, color: Theme.of(context).accentColor,),
+          Icon(tempIcon, size: 25.0,),
+        ],
+      );
+    }
+
+    else if(level == 5){
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: <Widget>[
+          Icon(tempIcon, size: 25.0, color: Theme.of(context).accentColor,),
+          Icon(tempIcon, size: 25.0, color: Theme.of(context).accentColor,),
+          Icon(tempIcon, size: 25.0, color: Theme.of(context).accentColor,),
+          Icon(tempIcon, size: 25.0, color: Theme.of(context).accentColor,),
+          Icon(tempIcon, size: 25.0, color: Theme.of(context).accentColor,),
+        ],
+      );
+    } 
+    else{
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: <Widget>[
+          Icon(tempIcon, size: 25.0, color: Colors.transparent,),
+          Icon(tempIcon, size: 25.0, color: Colors.transparent,),
+          Icon(tempIcon, size: 25.0, color: Colors.transparent,),
+          Icon(tempIcon, size: 25.0, color: Colors.transparent,),
+          Icon(tempIcon, size: 25.0, color: Colors.transparent,),
+        ],
+      );
+    } 
+  }
+
+  Widget createReqList(List requirements){
+    print(requirements);
+    return Container(
+      height: 200,
+      // color: Colors.red,
+      child: ListView.builder(
+        itemCount: requirements.length,
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              color: Colors.transparent,
+              child: Center(
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 0.0),
+                        child: Text(
+                          requirements[index].name,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w400,
+                            fontFamily: 'Open Sans',
+                            fontSize: 22,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 0.0),
+                        child: createLevelWidget(context: context, level:requirements[index].level,tempIcon: Icons.stars)
+                        // child: Row(
+                        //   mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        //   children: <Widget>[
+                        //     Icon(Icons.star,size: 25.0, color: Theme.of(context).accentColor,),
+                        //     Icon(Icons.star,size: 25.0, color: Theme.of(context).accentColor,),
+                        //     Icon(Icons.star,size: 25.0, color: Theme.of(context).accentColor,),
+                        //     Icon(Icons.star,size: 25.0,),
+                        //     Icon(Icons.star,size: 25.0,),
+                        //   ],
+                        // ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: 5.0,
       child: Container(
-        // height: 230.0,
-
         child: Column(
           mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -284,170 +430,171 @@ class JobAdditionalInfo extends StatelessWidget{
                 ),
               ),
             ),
+            createReqList(data),
 
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                color: Colors.transparent,
-                child: Center(
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 0.0),
-                          child: Text(
-                            'English',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w400,
-                              fontFamily: 'Open Sans',
-                              fontSize: 22,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 0.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: <Widget>[
-                              Icon(Icons.star,size: 25.0, color: Theme.of(context).accentColor,),
-                              Icon(Icons.star,size: 25.0, color: Theme.of(context).accentColor,),
-                              Icon(Icons.star,size: 25.0, color: Theme.of(context).accentColor,),
-                              Icon(Icons.star,size: 25.0,),
-                              Icon(Icons.star,size: 25.0,),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            // Padding(
+            //   padding: const EdgeInsets.all(8.0),
+            //   child: Container(
+            //     color: Colors.transparent,
+            //     child: Center(
+            //       child: Row(
+            //         children: <Widget>[
+            //           Expanded(
+            //             child: Padding(
+            //               padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 0.0),
+            //               child: Text(
+            //                 'English',
+            //                 style: TextStyle(
+            //                   fontWeight: FontWeight.w400,
+            //                   fontFamily: 'Open Sans',
+            //                   fontSize: 22,
+            //                 ),
+            //               ),
+            //             ),
+            //           ),
+            //           Expanded(
+            //             child: Padding(
+            //               padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 0.0),
+            //               child: Row(
+            //                 mainAxisAlignment: MainAxisAlignment.spaceAround,
+            //                 children: <Widget>[
+            //                   Icon(Icons.star,size: 25.0, color: Theme.of(context).accentColor,),
+            //                   Icon(Icons.star,size: 25.0, color: Theme.of(context).accentColor,),
+            //                   Icon(Icons.star,size: 25.0, color: Theme.of(context).accentColor,),
+            //                   Icon(Icons.star,size: 25.0,),
+            //                   Icon(Icons.star,size: 25.0,),
+            //                 ],
+            //               ),
+            //             ),
+            //           ),
+            //         ],
+            //       ),
+            //     ),
+            //   ),
+            // ),
 
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                color: Colors.transparent,
-                child: Center(
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 0.0),
-                          child: Text(
-                            'Python 3',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w400,
-                              fontFamily: 'Open Sans',
-                              fontSize: 22,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 0.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: <Widget>[
-                              Icon(Icons.star,size: 25.0,color: Theme.of(context).accentColor,),
-                              Icon(Icons.star,size: 25.0,color: Theme.of(context).accentColor,),
-                              Icon(Icons.star,size: 25.0,color: Theme.of(context).accentColor,),
-                              Icon(Icons.star,size: 25.0, color: Theme.of(context).accentColor,),
-                              Icon(Icons.star,size: 25.0,),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            // Padding(
+            //   padding: const EdgeInsets.all(8.0),
+            //   child: Container(
+            //     color: Colors.transparent,
+            //     child: Center(
+            //       child: Row(
+            //         children: <Widget>[
+            //           Expanded(
+            //             child: Padding(
+            //               padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 0.0),
+            //               child: Text(
+            //                 'Python 3',
+            //                 style: TextStyle(
+            //                   fontWeight: FontWeight.w400,
+            //                   fontFamily: 'Open Sans',
+            //                   fontSize: 22,
+            //                 ),
+            //               ),
+            //             ),
+            //           ),
+            //           Expanded(
+            //             child: Padding(
+            //               padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 0.0),
+            //               child: Row(
+            //                 mainAxisAlignment: MainAxisAlignment.spaceAround,
+            //                 children: <Widget>[
+            //                   Icon(Icons.star,size: 25.0,color: Theme.of(context).accentColor,),
+            //                   Icon(Icons.star,size: 25.0,color: Theme.of(context).accentColor,),
+            //                   Icon(Icons.star,size: 25.0,color: Theme.of(context).accentColor,),
+            //                   Icon(Icons.star,size: 25.0, color: Theme.of(context).accentColor,),
+            //                   Icon(Icons.star,size: 25.0,),
+            //                 ],
+            //               ),
+            //             ),
+            //           ),
+            //         ],
+            //       ),
+            //     ),
+            //   ),
+            // ),
 
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                color: Colors.transparent,
-                child: Center(
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 0.0),
-                          child: Text(
-                            'Unit Testing',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w400,
-                              fontFamily: 'Open Sans',
-                              fontSize: 22,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 0.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: <Widget>[
-                              Icon(Icons.star,size: 25.0, color: Theme.of(context).accentColor,),
-                              Icon(Icons.star,size: 25.0, color: Theme.of(context).accentColor,),
-                              Icon(Icons.star,size: 25.0,),
-                              Icon(Icons.star,size: 25.0,),
-                              Icon(Icons.star,size: 25.0,),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            // Padding(
+            //   padding: const EdgeInsets.all(8.0),
+            //   child: Container(
+            //     color: Colors.transparent,
+            //     child: Center(
+            //       child: Row(
+            //         children: <Widget>[
+            //           Expanded(
+            //             child: Padding(
+            //               padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 0.0),
+            //               child: Text(
+            //                 'Unit Testing',
+            //                 style: TextStyle(
+            //                   fontWeight: FontWeight.w400,
+            //                   fontFamily: 'Open Sans',
+            //                   fontSize: 22,
+            //                 ),
+            //               ),
+            //             ),
+            //           ),
+            //           Expanded(
+            //             child: Padding(
+            //               padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 0.0),
+            //               child: Row(
+            //                 mainAxisAlignment: MainAxisAlignment.spaceAround,
+            //                 children: <Widget>[
+            //                   Icon(Icons.star,size: 25.0, color: Theme.of(context).accentColor,),
+            //                   Icon(Icons.star,size: 25.0, color: Theme.of(context).accentColor,),
+            //                   Icon(Icons.star,size: 25.0,),
+            //                   Icon(Icons.star,size: 25.0,),
+            //                   Icon(Icons.star,size: 25.0,),
+            //                 ],
+            //               ),
+            //             ),
+            //           ),
+            //         ],
+            //       ),
+            //     ),
+            //   ),
+            // ),
 
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                color: Colors.transparent,
-                child: Center(
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 0.0),
-                          child: Text(
-                            'GIT',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w400,
-                              fontFamily: 'Open Sans',
-                              fontSize: 22,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 0.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: <Widget>[
-                              Icon(Icons.star,size: 25.0, color: Theme.of(context).accentColor,),
-                              Icon(Icons.star,size: 25.0, color: Theme.of(context).accentColor,),
-                              Icon(Icons.star,size: 25.0, color: Theme.of(context).accentColor,),
-                              Icon(Icons.star,size: 25.0,),
-                              Icon(Icons.star,size: 25.0,),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            // Padding(
+            //   padding: const EdgeInsets.all(8.0),
+            //   child: Container(
+            //     color: Colors.transparent,
+            //     child: Center(
+            //       child: Row(
+            //         children: <Widget>[
+            //           Expanded(
+            //             child: Padding(
+            //               padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 0.0),
+            //               child: Text(
+            //                 'GIT',
+            //                 style: TextStyle(
+            //                   fontWeight: FontWeight.w400,
+            //                   fontFamily: 'Open Sans',
+            //                   fontSize: 22,
+            //                 ),
+            //               ),
+            //             ),
+            //           ),
+            //           Expanded(
+            //             child: Padding(
+            //               padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 0.0),
+            //               child: Row(
+            //                 mainAxisAlignment: MainAxisAlignment.spaceAround,
+            //                 children: <Widget>[
+            //                   Icon(Icons.star,size: 25.0, color: Theme.of(context).accentColor,),
+            //                   Icon(Icons.star,size: 25.0, color: Theme.of(context).accentColor,),
+            //                   Icon(Icons.star,size: 25.0, color: Theme.of(context).accentColor,),
+            //                   Icon(Icons.star,size: 25.0,),
+            //                   Icon(Icons.star,size: 25.0,),
+            //                 ],
+            //               ),
+            //             ),
+            //           ),
+            //         ],
+            //       ),
+            //     ),
+            //   ),
+            // ),
 
 
             Container(
@@ -578,14 +725,56 @@ Open for new technologies''';
 
 class JobContactInfo extends StatelessWidget{
   final String cardTitle = "Contact info";
-  final String companyEmail = 'getjob@gmail.com';
+  String companyEmail;
+  String companyWebsite;
+
+  JobContactInfo({String email:'getjob@gmail.com', String website:'www.pracaXD.it'}){
+    this.companyEmail = email;
+    this.companyWebsite = website;
+  }
+
+  Widget createField(String title, String value, BuildContext context){
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.transparent
+        ),
+        child: Center(
+          child: Row(
+            children: <Widget>[
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 0.0),
+                  child: RichText(
+                    text: TextSpan(
+                      text: '$title:   ',
+                      style: TextStyle(
+                        color: Theme.of(context).primaryColorDark,
+                        fontWeight: FontWeight.w400,
+                        fontFamily: 'Open Sans',
+                        fontSize: 22,
+                      ),
+                      children: <TextSpan>[
+                        TextSpan(text: '$value', style: TextStyle(fontWeight: FontWeight.w500)),
+                      ],
+                    ),
+                  )
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: 5.0,
       child: Container(
-        height: 120,
+        height: 140,
         child: Column(
           mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -623,39 +812,9 @@ class JobContactInfo extends StatelessWidget{
               ),
             ),
 
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.transparent
-                ),
-                child: Center(
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 0.0),
-                          child: RichText(
-                            text: TextSpan(
-                              text: 'Email:   ',
-                              style: TextStyle(
-                                color: Theme.of(context).primaryColorDark,
-                                fontWeight: FontWeight.w400,
-                                fontFamily: 'Open Sans',
-                                fontSize: 22,
-                              ),
-                              children: <TextSpan>[
-                                TextSpan(text: '$companyEmail', style: TextStyle(fontWeight: FontWeight.w500)),
-                              ],
-                            ),
-                          )
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            createField("Email", "$companyEmail", context),
+
+            createField("WWW", "$companyWebsite", context),
 
             Container(
               height: 5.0,
