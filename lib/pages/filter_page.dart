@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -58,7 +57,7 @@ class _FilterPageState extends State<FilterPage>{
     String querry = f.createQuery();
     if(querry.length>1){
       try {
-        data = await getJSON('http://213.92.171.157/api/offers$querry');
+        data = await getJSON('http://sanium.olszanowski.it/api/offers$querry');
       } catch (e) {
         return "Fail!";
       }

@@ -73,7 +73,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
   Future<String> getData() async {
     var data;
     try {
-      data = await getJSON('http://213.92.171.157/api/offers');
+      data = await getJSON('http://sanium.olszanowski.it/api/offers');
     } catch (e) {
       return "Fail!";
     }
@@ -231,18 +231,18 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
         preferredSize: Size.fromHeight(55.0),
         child: new AppBar(
           //! miejsce na przycisk (np. refresh)
-          // actions: <Widget>[
-          //   FlatButton(
-          //     padding: const EdgeInsets.fromLTRB(30, 0, 0, 0),
-          //     highlightColor: Colors.transparent,
-          //     splashColor: Colors.transparent,
-          //     child: Icon(
-          //       Icons.autorenew,
-          //       color: Colors.grey[200],
-          //     ), 
-          //     onPressed: () => getData(),
-          //   )
-          // ],
+          actions: <Widget>[
+            FlatButton(
+              padding: const EdgeInsets.fromLTRB(30, 0, 0, 0),
+              highlightColor: Colors.transparent,
+              splashColor: Colors.transparent,
+              child: Icon(
+                Icons.autorenew,
+                color: Colors.grey[400],
+              ), 
+              onPressed: () => getData(),
+            )
+          ],
           leading: IconButton(
             hoverColor: Colors.black38,
             icon: AnimatedIcon(
