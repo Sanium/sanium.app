@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sanium_app/tools/JobOffer.dart';
+import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
+  
 
 class JobDetailPage extends StatefulWidget{
   final int id;
@@ -108,7 +110,7 @@ class _JobDetailPageState extends State<JobDetailPage> with SingleTickerProvider
                       [
                         JobMainInfo(name: widget.data.title, salary: "${widget.data.salary.salaryMin} - ${widget.data.salary.salaryMax}  ${widget.data.salary.currency} / miesiąc", city:widget.data.company.city),
                         widget.data.requirements.length>0?JobRequirements(data: widget.data.requirements,):Container(),
-                        JobDetailInfo(),
+                        JobDetailInfo(description: widget.data.description,),
                         JobContactInfo(email:widget.data.company.email, website:widget.data.company.website),
                       ],
                     ),
@@ -251,7 +253,7 @@ class JobMainInfo extends StatelessWidget{
 }
 
 class JobRequirements extends StatelessWidget{
-  final String jobName = "Requirements";
+  final String jobName = "Wymagania";
   final List<Requirement> data;
   JobRequirements({this.data});
 
@@ -445,27 +447,30 @@ class JobRequirements extends StatelessWidget{
 }
 
 class JobDetailInfo extends StatelessWidget{
-  final String cardTitle = "Detail info";
+  final String cardTitle = "Opis";
+  final String description;
   final String jobDetails = '''At Grape Up our mission is to help companies become cloud-native.
-Our current projects are based on cooperation with international clients from various industries such as automotive, telecommunication or finance from the United States, Europe, and Asia.
+    Our current projects are based on cooperation with international clients from various industries such as automotive, telecommunication or finance from the United States, Europe, and Asia.
 
-Responsibilities:
+    Responsibilities:
 
-Designing and building Cloud-Native Applications using Python/Flask and AWS services
-Migrating applications to modern microservices-based architectures
-Integrating various services (databases, storage, APIs) into cloud applications
-Creating pipelines and script for CI/CD using e.g. Jenkins and Terraform
+    Designing and building Cloud-Native Applications using Python/Flask and AWS services
+    Migrating applications to modern microservices-based architectures
+    Integrating various services (databases, storage, APIs) into cloud applications
+    Creating pipelines and script for CI/CD using e.g. Jenkins and Terraform
 
-Requirements:
+    Requirements:
 
-Understanding of web applications design principles (twelve-factor applications) and microservice-based architectures
-Knowledge of relational databases (PostgreSQL)
-Knowledge of unit testing and mocking libraries
-Experience with modern development tools (ideally pip, Git, pycharm, CI servers, Confluence (or other wikis), JIRA (or other trackers), code review tools, SCA tools)
-Bash basics
-Very good command of English
-Good communication skills
-Open for new technologies''';
+    Understanding of web applications design principles (twelve-factor applications) and microservice-based architectures
+    Knowledge of relational databases (PostgreSQL)
+    Knowledge of unit testing and mocking libraries
+    Experience with modern development tools (ideally pip, Git, pycharm, CI servers, Confluence (or other wikis), JIRA (or other trackers), code review tools, SCA tools)
+    Bash basics
+    Very good command of English
+    Good communication skills
+    Open for new technologies''';
+
+  JobDetailInfo({this.description});
 
 
   @override
@@ -522,7 +527,8 @@ Open for new technologies''';
                       Expanded(
                         child: Padding(
                           padding: const EdgeInsets.fromLTRB(2.0, 1.0, 2.0, 0.0),
-                          child: Text(
+                          child: description.length>1?HtmlWidget(description):
+                          Text(
                             jobDetails,
                             style: TextStyle(
                               fontWeight: FontWeight.w400,
@@ -555,7 +561,7 @@ Open for new technologies''';
 }
 
 class JobContactInfo extends StatelessWidget{
-  final String cardTitle = "Contact info";
+  final String cardTitle = "Dane kontaktowe";
   String companyEmail;
   String companyWebsite;
 
@@ -584,7 +590,7 @@ class JobContactInfo extends StatelessWidget{
                         color: Theme.of(context).primaryColorDark,
                         fontWeight: FontWeight.w400,
                         fontFamily: 'Open Sans',
-                        fontSize: 20,
+                        fontSize: 18,
                       ),
                       children: <TextSpan>[
                         TextSpan(text: '$value', style: TextStyle(fontWeight: FontWeight.w500)),
