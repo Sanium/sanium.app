@@ -213,13 +213,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
         },
       ),
     );
+    stateNotifier.value = tempList[0];
     if(tempList[1].length>0){
       this.setState(() {
         jobOfferList = tempList[1];
       });
     }
     nextPage = tempList[2];
-    stateNotifier.value = tempList[0];
   }
 
   @override
@@ -662,10 +662,10 @@ class _MenuListTileState extends State<MenuListTile> {
                             borderRadius: BorderRadius.circular(19.0),
                             clipBehavior: Clip.hardEdge,
                             color: Theme.of(context).accentColor,
-                            child: FadeInImage.assetNetwork(
+                            child: widget.data.logo.length>1?FadeInImage.assetNetwork(
                               placeholder: 'assets/placeholder.png',
                               image: widget.data.logo,
-                            ),
+                            ):Container(),
                           )
                         ),
                       ),

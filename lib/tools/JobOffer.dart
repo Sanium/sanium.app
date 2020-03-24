@@ -101,7 +101,7 @@ List<JobOffer> createJobList2(Map<String, dynamic> offers){
         v['technology'],
         createRequirementList2(v['tech_stack']),
         v['description'],
-        v['employer']['logo']
+        v['employer']['logo']==null?'':v['employer']['logo'],
       )
     );
   }

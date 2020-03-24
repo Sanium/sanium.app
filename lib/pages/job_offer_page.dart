@@ -91,10 +91,10 @@ class _JobDetailPageState extends State<JobDetailPage> with SingleTickerProvider
                               borderRadius: BorderRadius.circular(20.0),
                               clipBehavior: Clip.hardEdge,
                               color: Colors.transparent,
-                              child:FadeInImage.assetNetwork(
+                              child:widget.data.logo.length>1?FadeInImage.assetNetwork(
                                 placeholder: 'assets/placeholder.png',
                                 image: widget.data.logo,
-                              ),
+                              ):Container(),
                             )
                           ),
                         ),
@@ -344,10 +344,8 @@ class JobRequirements extends StatelessWidget{
   }
 
   Widget createReqList(List requirements){
-    print(requirements);
     return Container(
       height: 200,
-      // color: Colors.red,
       child: ListView.builder(
         physics: const NeverScrollableScrollPhysics(),
         itemCount: requirements.length,
