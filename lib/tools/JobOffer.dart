@@ -41,9 +41,9 @@ class JobOffer{
   String mainTechnology;
   List<Requirement> requirements;
   String description;
-  String img;
+  String logo;
 
-  JobOffer(int id, String title, Salary salary, Company company, String mainTechnology, List<Requirement> requirements, String description){
+  JobOffer(int id, String title, Salary salary, Company company, String mainTechnology, List<Requirement> requirements, String description, String logo){
     this.id = id;
     this.title = title;
     this.salary = salary;
@@ -51,6 +51,7 @@ class JobOffer{
     this.mainTechnology = mainTechnology;
     this.requirements = requirements;
     this.description = description;
+    this.logo = logo;
   }
 }
 
@@ -80,7 +81,8 @@ List<JobOffer> createJobList1(Map<String, dynamic> offers){
       new Company(v['company'], v['city'], v['email'], v['phone'].toString()), 
       v['technology'],
       createRequirementList1(v['requirements']),
-      v['description']
+      v['description'],
+      ''
     )
   ));
   return tempJobOfferList;
@@ -98,7 +100,8 @@ List<JobOffer> createJobList2(Map<String, dynamic> offers){
         new Company(v['employer']['name'], v['city'], v['contact'], v['employer']['website']), 
         v['technology'],
         createRequirementList2(v['tech_stack']),
-        v['description']
+        v['description'],
+        v['employer']['logo']
       )
     );
   }
