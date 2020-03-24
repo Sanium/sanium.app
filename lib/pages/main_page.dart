@@ -193,18 +193,25 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
   }
 
   void onSelected(JobOffer tempData) async {
+    List tempList = [false];
     _animationController.forward(from: 0.0);
-    stateNotifier.value = await Navigator.of(context).push(
+     tempList= await Navigator.of(context).push(
       FancyPageRoute(
         builder: (_) {
           return JobDetailPage(id: tempData.id, img: tempData.logo, data: tempData);
         },
       ),
     );
+    if(tempList != null){
+      stateNotifier.value = tempList[0];
+    }
+    else{
+      stateNotifier.value = true;
+    }    
   }
 
   void onFilter() async {
-    List tempList = [false,[],''];
+    dynamic tempList;
     _animationController.forward(from: 0.0);
     tempList = await Navigator.of(context).push(
       FancyPageRoute(
@@ -213,13 +220,20 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
         },
       ),
     );
-    stateNotifier.value = tempList[0];
-    if(tempList[1].length>0){
-      this.setState(() {
-        jobOfferList = tempList[1];
-      });
+    if(tempList != null){
+      
+      stateNotifier.value = tempList[0];
+      if(tempList[1].length>0){
+        this.setState(() {
+          jobOfferList = tempList[1];
+        });
+      }
+      nextPage = tempList[2];
     }
-    nextPage = tempList[2];
+    else{
+      tempList =[false,[],''];
+      stateNotifier.value = true;
+    }
   }
 
   @override
