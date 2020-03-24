@@ -6,7 +6,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_animated/auto_animated.dart';
 import 'package:sanium_app/tools/JobOffer.dart';
-import 'package:sanium_app/tools/filter.dart';
 import 'package:sanium_app/pages/job_offer_page.dart';
 import 'package:sanium_app/pages/filter_page.dart';
 import 'package:sanium_app/routes/fancy_page_route.dart';
@@ -198,7 +197,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
     stateNotifier.value = await Navigator.of(context).push(
       FancyPageRoute(
         builder: (_) {
-          return JobDetailPage(id: tempData.id, img: tempData.img, data: tempData);
+          return JobDetailPage(id: tempData.id, img: tempData.logo, data: tempData);
         },
       ),
     );
@@ -658,7 +657,16 @@ class _MenuListTileState extends State<MenuListTile> {
                         ),
                         child: AspectRatio(
                           aspectRatio: 1.0,
-                          child: widget.thumbnail,
+                          child: Material(
+                            elevation: 0.0,
+                            borderRadius: BorderRadius.circular(19.0),
+                            clipBehavior: Clip.hardEdge,
+                            color: Theme.of(context).accentColor,
+                            child: FadeInImage.assetNetwork(
+                              placeholder: 'assets/placeholder.png',
+                              image: widget.data.logo,
+                            ),
+                          )
                         ),
                       ),
                     ),
