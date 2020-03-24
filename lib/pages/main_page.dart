@@ -662,7 +662,10 @@ class _MenuListTileState extends State<MenuListTile> {
                             borderRadius: BorderRadius.circular(19.0),
                             clipBehavior: Clip.hardEdge,
                             color: Theme.of(context).accentColor,
-                            child: Image.network(widget.data.logo),
+                            child: FadeInImage.assetNetwork(
+                              placeholder: 'assets/placeholder.png',
+                              image: widget.data.logo,
+                            ),
                           )
                         ),
                       ),

@@ -80,13 +80,22 @@ class _JobDetailPageState extends State<JobDetailPage> with SingleTickerProvider
                         tag: widget.id.toString(),
                         child: Container(
                           decoration: BoxDecoration(
-                            color: Theme.of(context).primaryColor,
+                            color: Theme.of(context).accentColor,
                             borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20.0), bottomRight: Radius.circular(20.0)),
                             border: Border.all(width: 1.5, color: Theme.of(context).accentColor,)
                           ),
                           child: AspectRatio(
                             aspectRatio: 3.0/1.0,
-                            child: Icon(Icons.android),
+                            child: Material(
+                              elevation: 0.0,
+                              borderRadius: BorderRadius.circular(20.0),
+                              clipBehavior: Clip.hardEdge,
+                              color: Colors.transparent,
+                              child:FadeInImage.assetNetwork(
+                                placeholder: 'assets/placeholder.png',
+                                image: widget.data.logo,
+                              ),
+                            )
                           ),
                         ),
                       ),
@@ -98,7 +107,6 @@ class _JobDetailPageState extends State<JobDetailPage> with SingleTickerProvider
                     delegate: SliverChildListDelegate(
                       [
                         JobMainInfo(name: widget.data.title, salary: "${widget.data.salary.salaryMin} - ${widget.data.salary.salaryMax}  ${widget.data.salary.currency} / miesiąc", city:widget.data.company.city),
-                        JobRequirements(data: widget.data.requirements),
                         JobDetailInfo(),
                         JobContactInfo(email:widget.data.company.email, website:widget.data.company.website),
                       ],
