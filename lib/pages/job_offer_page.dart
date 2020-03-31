@@ -527,7 +527,7 @@ class JobDetailInfo extends StatelessWidget{
                       Expanded(
                         child: Padding(
                           padding: const EdgeInsets.fromLTRB(2.0, 1.0, 2.0, 0.0),
-                          child: description.length>1?HtmlWidget(description):
+                          child: description!='defult'?HtmlWidget(description):
                           Text(
                             jobDetails,
                             style: TextStyle(
