@@ -25,7 +25,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
   final GlobalKey<_CustomSliverListState> listKey = GlobalKey<_CustomSliverListState>();
 
   Map<String,dynamic> filters = new Map(); //? lista filtrów
-  List<JobOffer> jobOfferList = new List();
+  JobOfferList jobOfferList = new JobOfferList();
 
   AnimationController _animationController;
   bool returnFromDetailPage = false;
@@ -60,7 +60,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
     "requirements":{"1":{"name":"PHP", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"}
   }''';
 
-
   Future<dynamic> getJSON(String httpLink) async {
     final response = await http.get(httpLink);
     if (response.statusCode == 200) {
@@ -79,9 +78,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
     }
     print("Page: ${json.decode(data)['meta']['current_page']} loading complete");
     this.setState(() {
+      jobOfferList.sortController.resetStates();
       nextPage = json.decode(data)['links']['next'];
       filters = json.decode(data)['filters'];
-      jobOfferList = createJobList2(json.decode(data));
+      jobOfferList = JobOfferList(list:createJobList2(json.decode(data)));
     });
     return "Success!";
   }
@@ -97,7 +97,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
     this.setState(() {
       nextPage = json.decode(data)['links']['next'];
       filters = json.decode(data)['filters'];
-      jobOfferList = jobOfferList + createJobList2(json.decode(data));
+      jobOfferList.append(createJobList2(json.decode(data)));
     });
     return "Success!";
   }
@@ -111,52 +111,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
       'min_salary':0,
       'max_salary':10000
     };
-    jobOfferList = createJobList1(json.decode(extremeData)); // sorting data
+    jobOfferList = JobOfferList(list: createJobList1(json.decode(extremeData)));
     return "Success!";
   }
 
-  void customSort({String by:"title"}){
-    String normalize(String input){
-      return input.toLowerCase()
-      .replaceAll('ą', 'a')
-      .replaceAll('ć', 'c')
-      .replaceAll('ę', 'e')
-      .replaceAll('ł', 'l')
-      .replaceAll('ń', 'n')
-      .replaceAll('ó', 'o')
-      .replaceAll('ś', 's')
-      .replaceAll('ź', 'z')
-      .replaceAll('ż', 'z');}
-
-    if(by == "salaryMin"){
-      jobOfferList.sort((a,b)=>a.salary.salaryMin.compareTo(b.salary.salaryMin));
-      if(listKey.currentState.buttonsStates[2]==1){
-        jobOfferList = new List.from(jobOfferList.reversed);
-      }
-    }
-    else if(by == "salaryMax"){
-      jobOfferList.sort((a,b)=>a.salary.salaryMax.compareTo(b.salary.salaryMax));
-      if(listKey.currentState.buttonsStates[2]==1){
-        jobOfferList = new List.from(jobOfferList.reversed);
-      }
-    }
-    else if(by == "city"){
-      jobOfferList.sort((a,b)=>normalize(a.company.city).compareTo(normalize(b.company.city)));
-      if(listKey.currentState.buttonsStates[1]==2){
-        jobOfferList = new List.from(jobOfferList.reversed);
-      }
-    }
-    else if(by == "technology"){
-      jobOfferList.sort((a,b)=>normalize(a.mainTechnology).compareTo(normalize(b.mainTechnology)));
-      if(listKey.currentState.buttonsStates[0]==2){
-        jobOfferList = new List.from(jobOfferList.reversed);
-      }
-    }
-  }
-
-  Future<String> sortData(String by) async {
+  Future<String> sortData(String by, int id) async {
     this.setState(() {
-      customSort(by:by);
+      jobOfferList.sortController.setState(id);
+      jobOfferList.sort(by: by);
     });
     return "Success!";
   }
@@ -226,7 +188,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
       stateNotifier.value = tempList[0];
       if(tempList[1].length>0){
         this.setState(() {
-          jobOfferList = tempList[1];
+          jobOfferList.sortController.resetStates();
+          jobOfferList.replace(tempList[1]);
         });
       }
       nextPage = tempList[2];
@@ -335,7 +298,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
       body: CustomSliverList(
         key: listKey,
         title: widget.title,
-        data: jobOfferList,
+        list: jobOfferList,
         onSelected: onSelected,
         customSort: sortData,
         loadNextData: getNextData,
@@ -345,12 +308,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
 }
 
 class CustomSliverList extends StatefulWidget{
-  CustomSliverList({Key key, this.title, this.data, this.onSelected, this.customSort, this.loadNextData}) : super(key: key);
+  CustomSliverList({Key key, this.title, this.list, this.onSelected, this.customSort, this.loadNextData}) : super(key: key);
   final Function(JobOffer) onSelected;
-  final Function(String) customSort;
+  final Function(String, int) customSort;
   final Function loadNextData;
   final String title;
-  final List data;
+  final JobOfferList list;
 
   @override
   _CustomSliverListState createState() => _CustomSliverListState();
@@ -360,7 +323,6 @@ class _CustomSliverListState extends State<CustomSliverList>{
   final controller = ScrollController();
   double appBarHeight = 45.0;
   double appBarMinHeight = 2.0;
-  List<int> buttonsStates = [0,0,0];
 
   @override
   void initState(){
@@ -372,27 +334,14 @@ class _CustomSliverListState extends State<CustomSliverList>{
     });
   }
 
-  Future<String> setButtonState(int button) async {
-    this.setState(() {
-      for(int i=0;i<buttonsStates.length;i++){
-        if (i==button){
-          if (buttonsStates[i]==0){ buttonsStates[i] = 1;}
-          else if (buttonsStates[i]==1){ buttonsStates[i] = 2;}
-          else if (buttonsStates[i]==2){ buttonsStates[i] = 1;}
-        }
-        else{ buttonsStates[i] = 0;
-      }}});
-    return "Success!";
-  }
-
   Widget customIcon(int button, double size){
-    if(buttonsStates[button]==0){
+    if(widget.list.sortController.getState(button)==0){
       if(button==0){return Icon(Icons.title, size: size,);}
       else if(button==1){return Icon(Icons.place, size: size,);}
       else if(button==2){return Icon(Icons.attach_money, size: size,);}
     }
-    else if(buttonsStates[button]==1){return Icon(Icons.arrow_downward, size: size,);}
-    else if(buttonsStates[button]==2){return Icon(Icons.arrow_upward, size: size,);}
+    else if(widget.list.sortController.getState(button)==1){return Icon(Icons.arrow_downward, size: size,);}
+    else if(widget.list.sortController.getState(button)==2){return Icon(Icons.arrow_upward, size: size,);}
     return Icon(Icons.attach_file, size: size,);
   }
 
@@ -405,7 +354,7 @@ class _CustomSliverListState extends State<CustomSliverList>{
           child: Center(
             child: MenuListTile(
               id: index,
-              data: widget.data[index-1],
+              data: widget.list.get()[index-1],
               thumbnail: Icon(Icons.android),
               onSelected: widget.onSelected,
             ),
@@ -506,14 +455,17 @@ class _CustomSliverListState extends State<CustomSliverList>{
                                       height: 4.0,
                                       width: 500,
                                       decoration: BoxDecoration(
-                                        color: buttonsStates[0]==0 ? Colors.grey[500] : Theme.of(context).accentColor,
+                                        color: widget.list.sortController.getState(0)==0 ? Colors.grey[500] : Theme.of(context).accentColor,
                                         borderRadius: BorderRadius.all(Radius.circular(20.0)),
                                       ),
                                       child: Container(height: 10.0,),
                                     ),
                                   ],
                                 ),
-                                onPressed: (){setButtonState(0); print('Technologia'); widget.customSort("technology");},
+                                onPressed: (){
+                                  print('Technologia'); 
+                                  widget.customSort("technology",0);
+                                },
                               ),
                             ),
                           ),
@@ -559,14 +511,17 @@ class _CustomSliverListState extends State<CustomSliverList>{
                                       height: 4.0,
                                       width: 500,
                                       decoration: BoxDecoration(
-                                        color: buttonsStates[1]==0 ? Colors.grey[500] : Theme.of(context).accentColor,
+                                        color: widget.list.sortController.getState(1)==0 ? Colors.grey[500] : Theme.of(context).accentColor,
                                         borderRadius: BorderRadius.all(Radius.circular(20.0)),
                                       ),
                                       child: Container(height: 10.0,),
                                     ),
                                   ],
                                 ),
-                                onPressed: (){setButtonState(1); print('Lokalizacja'); widget.customSort("city");},
+                                onPressed: (){
+                                  print('Lokalizacja'); 
+                                  widget.customSort("city",1);
+                                },
                               ),
                             ),
                           ),
@@ -611,14 +566,17 @@ class _CustomSliverListState extends State<CustomSliverList>{
                                       height: 4.0,
                                       width: 500,
                                       decoration: BoxDecoration(
-                                        color: buttonsStates[2]==0 ? Colors.grey[500] : Theme.of(context).accentColor,
+                                        color: widget.list.sortController.getState(2)==0 ? Colors.grey[500] : Theme.of(context).accentColor,
                                         borderRadius: BorderRadius.all(Radius.circular(20.0)),
                                       ),
                                       child: Container(height: 10.0,),
                                     ),
                                   ],
                                 ),
-                                onPressed: (){setButtonState(2); print('Płaca'); widget.customSort("salaryMax");},
+                                onPressed: (){
+                                  print('Płaca'); 
+                                  widget.customSort("salaryMax",2);
+                                },
                               ),
                             ),
                           ),
@@ -633,7 +591,7 @@ class _CustomSliverListState extends State<CustomSliverList>{
                   controller: controller,
                   showItemInterval: Duration(milliseconds: 200),
                   showItemDuration: Duration(milliseconds: 800),
-                  itemCount: widget.data.length.toInt(),
+                  itemCount: widget.list.get().length.toInt(),
                   itemBuilder: _buildAnimatedItem,
                 ),
 
