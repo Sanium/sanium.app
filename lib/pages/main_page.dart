@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +25,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
   final GlobalKey<_CustomSliverListState> listKey = GlobalKey<_CustomSliverListState>();
 
   Map<String,dynamic> filters = new Map(); //? lista filtrów
-  List<JobOffer> jobOfferList = new List();
+  JobOfferList jobOfferList = new JobOfferList();
 
   AnimationController _animationController;
   bool returnFromDetailPage = false;
@@ -59,7 +60,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
     "requirements":{"1":{"name":"PHP", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"}
   }''';
 
-
   Future<dynamic> getJSON(String httpLink) async {
     final response = await http.get(httpLink);
     if (response.statusCode == 200) {
@@ -78,9 +78,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
     }
     print("Page: ${json.decode(data)['meta']['current_page']} loading complete");
     this.setState(() {
+      jobOfferList.sortController.resetStates();
       nextPage = json.decode(data)['links']['next'];
       filters = json.decode(data)['filters'];
-      jobOfferList = createJobList2(json.decode(data));
+      jobOfferList = JobOfferList(list:createJobList2(json.decode(data)));
     });
     return "Success!";
   }
@@ -96,7 +97,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
     this.setState(() {
       nextPage = json.decode(data)['links']['next'];
       filters = json.decode(data)['filters'];
-      jobOfferList = jobOfferList + createJobList2(json.decode(data));
+      jobOfferList.append(createJobList2(json.decode(data)));
     });
     return "Success!";
   }
@@ -110,52 +111,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
       'min_salary':0,
       'max_salary':10000
     };
-    jobOfferList = createJobList1(json.decode(extremeData)); // sorting data
+    jobOfferList = JobOfferList(list: createJobList1(json.decode(extremeData)));
     return "Success!";
   }
 
-  void customSort({String by:"title"}){
-    String normalize(String input){
-      return input.toLowerCase()
-      .replaceAll('ą', 'a')
-      .replaceAll('ć', 'c')
-      .replaceAll('ę', 'e')
-      .replaceAll('ł', 'l')
-      .replaceAll('ń', 'n')
-      .replaceAll('ó', 'o')
-      .replaceAll('ś', 's')
-      .replaceAll('ź', 'z')
-      .replaceAll('ż', 'z');}
-
-    if(by == "salaryMin"){
-      jobOfferList.sort((a,b)=>a.salary.salaryMin.compareTo(b.salary.salaryMin));
-      if(listKey.currentState.buttonsStates[2]==1){
-        jobOfferList = new List.from(jobOfferList.reversed);
-      }
-    }
-    else if(by == "salaryMax"){
-      jobOfferList.sort((a,b)=>a.salary.salaryMax.compareTo(b.salary.salaryMax));
-      if(listKey.currentState.buttonsStates[2]==1){
-        jobOfferList = new List.from(jobOfferList.reversed);
-      }
-    }
-    else if(by == "city"){
-      jobOfferList.sort((a,b)=>normalize(a.company.city).compareTo(normalize(b.company.city)));
-      if(listKey.currentState.buttonsStates[1]==2){
-        jobOfferList = new List.from(jobOfferList.reversed);
-      }
-    }
-    else if(by == "technology"){
-      jobOfferList.sort((a,b)=>normalize(a.mainTechnology).compareTo(normalize(b.mainTechnology)));
-      if(listKey.currentState.buttonsStates[0]==2){
-        jobOfferList = new List.from(jobOfferList.reversed);
-      }
-    }
-  }
-
-  Future<String> sortData(String by) async {
+  Future<String> sortData(String by, int id) async {
     this.setState(() {
-      customSort(by:by);
+      jobOfferList.sortController.setState(id);
+      jobOfferList.sort(by: by);
     });
     return "Success!";
   }
@@ -193,18 +156,25 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
   }
 
   void onSelected(JobOffer tempData) async {
+    dynamic tempList;
     _animationController.forward(from: 0.0);
-    stateNotifier.value = await Navigator.of(context).push(
+     tempList= await Navigator.of(context).push(
       FancyPageRoute(
         builder: (_) {
           return JobDetailPage(id: tempData.id, img: tempData.logo, data: tempData);
         },
       ),
     );
+    if(tempList != null){
+      stateNotifier.value = tempList;
+    }
+    else{
+      stateNotifier.value = true;
+    }    
   }
 
   void onFilter() async {
-    List tempList = [false,[],''];
+    dynamic tempList;
     _animationController.forward(from: 0.0);
     tempList = await Navigator.of(context).push(
       FancyPageRoute(
@@ -213,13 +183,21 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
         },
       ),
     );
-    stateNotifier.value = tempList[0];
-    if(tempList[1].length>0){
-      this.setState(() {
-        jobOfferList = tempList[1];
-      });
+    if(tempList != null){
+      
+      stateNotifier.value = tempList[0];
+      if(tempList[1].length>0){
+        this.setState(() {
+          jobOfferList.sortController.resetStates();
+          jobOfferList.replace(tempList[1]);
+        });
+      }
+      nextPage = tempList[2];
     }
-    nextPage = tempList[2];
+    else{
+      tempList =[false,[],''];
+      stateNotifier.value = true;
+    }
   }
 
   @override
@@ -229,7 +207,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(55.0),
         child: new AppBar(
-          //! miejsce na przycisk (np. refresh)
           actions: <Widget>[
             FlatButton(
               padding: const EdgeInsets.fromLTRB(30, 0, 0, 0),
@@ -321,7 +298,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
       body: CustomSliverList(
         key: listKey,
         title: widget.title,
-        data: jobOfferList,
+        list: jobOfferList,
         onSelected: onSelected,
         customSort: sortData,
         loadNextData: getNextData,
@@ -331,12 +308,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
 }
 
 class CustomSliverList extends StatefulWidget{
-  CustomSliverList({Key key, this.title, this.data, this.onSelected, this.customSort, this.loadNextData}) : super(key: key);
+  CustomSliverList({Key key, this.title, this.list, this.onSelected, this.customSort, this.loadNextData}) : super(key: key);
   final Function(JobOffer) onSelected;
-  final Function(String) customSort;
+  final Function(String, int) customSort;
   final Function loadNextData;
   final String title;
-  final List data;
+  final JobOfferList list;
 
   @override
   _CustomSliverListState createState() => _CustomSliverListState();
@@ -346,7 +323,6 @@ class _CustomSliverListState extends State<CustomSliverList>{
   final controller = ScrollController();
   double appBarHeight = 45.0;
   double appBarMinHeight = 2.0;
-  List<int> buttonsStates = [0,0,0];
 
   @override
   void initState(){
@@ -358,28 +334,15 @@ class _CustomSliverListState extends State<CustomSliverList>{
     });
   }
 
-  Future<String> setButtonState(int button) async {
-    this.setState(() {
-      for(int i=0;i<buttonsStates.length;i++){
-        if (i==button){
-          if (buttonsStates[i]==0){ buttonsStates[i] = 1;}
-          else if (buttonsStates[i]==1){ buttonsStates[i] = 2;}
-          else if (buttonsStates[i]==2){ buttonsStates[i] = 1;}
-        }
-        else{ buttonsStates[i] = 0;
-      }}});
-    return "Success!";
-  }
-
-  Widget customIcon(int button){
-    if(buttonsStates[button]==0){
-      if(button==0){return Icon(Icons.title);}
-      else if(button==1){return Icon(Icons.place);}
-      else if(button==2){return Icon(Icons.attach_money);}
+  Widget customIcon(int button, double size){
+    if(widget.list.sortController.getState(button)==0){
+      if(button==0){return Icon(Icons.title, size: size,);}
+      else if(button==1){return Icon(Icons.place, size: size,);}
+      else if(button==2){return Icon(Icons.attach_money, size: size,);}
     }
-    else if(buttonsStates[button]==1){return Icon(Icons.arrow_downward);}
-    else if(buttonsStates[button]==2){return Icon(Icons.arrow_upward);}
-    return Icon(Icons.attach_file);
+    else if(widget.list.sortController.getState(button)==1){return Icon(Icons.arrow_downward, size: size,);}
+    else if(widget.list.sortController.getState(button)==2){return Icon(Icons.arrow_upward, size: size,);}
+    return Icon(Icons.attach_file, size: size,);
   }
 
   Widget _buildCard(int index) => Builder(
@@ -387,10 +350,11 @@ class _CustomSliverListState extends State<CustomSliverList>{
       child: ClipRRect(
         borderRadius: BorderRadius.circular(4),
         child: Material(
+          color: Colors.transparent,
           child: Center(
             child: MenuListTile(
               id: index,
-              data: widget.data[index-1],
+              data: widget.list.get()[index-1],
               thumbnail: Icon(Icons.android),
               onSelected: widget.onSelected,
             ),
@@ -431,175 +395,208 @@ class _CustomSliverListState extends State<CustomSliverList>{
           color: Colors.red[100],
           showLeading: false,
           showTrailing: false,
-          child: CustomScrollView(
-            controller: controller,
-            slivers: <Widget>[
-              SliverAppBar(
-                leading: new Container(),
-                backgroundColor: Colors.white,
-                elevation: 0.0,
-                pinned: false,
-                expandedHeight: appBarHeight,
-                floating: true,
-                flexibleSpace: Center(
-                  child: Container(
-                    height: appBarHeight,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: <Widget>[
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(8.0, 0.0, 4.0, 2.0),
-                            child: FlatButton(  
-                              padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-                              color: Theme.of(context).primaryColor,
-                              highlightColor: Colors.transparent,
-                              splashColor: Colors.grey[200],
-                              child: Column(
-                                children: <Widget>[
-                                  Expanded(
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(3.0),
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: <Widget>[
-                                          Text(
-                                            'Technologia',
-                                            style: TextStyle(
-                                              fontSize: 18.0,
-                                              fontWeight: FontWeight.w400,
-                                              fontFamily: 'Open Sans',
-                                              color: Theme.of(context).primaryColorDark,
-                                            ),
+          child: Container(
+            color: Colors.blueGrey[50],
+            child: CustomScrollView(
+              controller: controller,
+              slivers: <Widget>[
+                SliverAppBar(
+                  leading: new Container(),
+                  backgroundColor: Colors.white,
+                  elevation: 0.0,
+                  pinned: false,
+                  expandedHeight: appBarHeight,
+                  floating: true,
+                  flexibleSpace: Center(
+                    child: Container(
+                      height: appBarHeight,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: <Widget>[
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(8.0, 0.0, 4.0, 2.0),
+                              child: FlatButton(  
+                                padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                                color: Theme.of(context).primaryColor,
+                                highlightColor: Colors.transparent,
+                                splashColor: Colors.grey[200],
+                                child: Column(
+                                  children: <Widget>[
+                                    Expanded(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(3.0),
+                                        child: Container(
+                                          width: MediaQuery.of(context).size.width * 0.30,
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: <Widget>[
+                                              Container(
+                                                width: MediaQuery.of(context).size.width * 0.22,
+                                                child: AutoSizeText(
+                                                  'Technologia',
+                                                  style: TextStyle(
+                                                    fontSize: 18.0,
+                                                    fontWeight: FontWeight.w400,
+                                                    fontFamily: 'Open Sans',
+                                                    color: Theme.of(context).primaryColorDark,
+                                                  ),
+                                                  maxLines: 1,
+                                                ),
+                                              ),
+                                              customIcon(0,18),
+                                            ],
                                           ),
-                                          customIcon(0),
-                                        ],
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  Container(
-                                    height: 4.0,
-                                    width: 500,
-                                    decoration: BoxDecoration(
-                                      color: buttonsStates[0]==0 ? Colors.grey[500] : Theme.of(context).accentColor,
-                                      borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                                    Container(
+                                      height: 4.0,
+                                      width: 500,
+                                      decoration: BoxDecoration(
+                                        color: widget.list.sortController.getState(0)==0 ? Colors.grey[500] : Theme.of(context).accentColor,
+                                        borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                                      ),
+                                      child: Container(height: 10.0,),
                                     ),
-                                    child: Container(height: 10.0,),
-                                  ),
-                                ],
+                                  ],
+                                ),
+                                onPressed: (){
+                                  print('Technologia'); 
+                                  widget.customSort("technology",0);
+                                },
                               ),
-                              onPressed: (){setButtonState(0); print('Technologia'); widget.customSort("technology");},
                             ),
                           ),
-                        ),
-                        
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(4.0, 0.0, 4.0, 2.0),
-                            child: FlatButton(  
-                              padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-                              color: Theme.of(context).primaryColor,
-                              highlightColor: Colors.transparent,
-                              splashColor: Colors.grey[200],
-                              child: Column(
-                                children: <Widget>[
-                                  Expanded(
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(3.0),
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: <Widget>[
-                                          Text(
-                                            'Lokalizacja',
-                                            style: TextStyle(
-                                              fontSize: 20.0,
-                                              fontWeight: FontWeight.w300,
-                                              fontFamily: 'Open Sans',
-                                              color: Theme.of(context).primaryColorDark,
-                                            ),
+                          
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(4.0, 0.0, 4.0, 2.0),
+                              child: FlatButton(  
+                                padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                                color: Theme.of(context).primaryColor,
+                                highlightColor: Colors.transparent,
+                                splashColor: Colors.grey[200],
+                                child: Column(
+                                  children: <Widget>[
+                                    Expanded(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(3.0),
+                                        child: Container(
+                                          width: MediaQuery.of(context).size.width * 0.30,
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: <Widget>[
+                                              Container(
+                                                width: MediaQuery.of(context).size.width * 0.22,
+                                                child: AutoSizeText(
+                                                  'Lokalizacja',
+                                                  style: TextStyle(
+                                                    fontSize: 20.0,
+                                                    fontWeight: FontWeight.w300,
+                                                    fontFamily: 'Open Sans',
+                                                    color: Theme.of(context).primaryColorDark,
+                                                  ),
+                                                  maxLines: 1,
+                                                ),
+                                              ),
+                                              customIcon(1,18),
+                                            ],
                                           ),
-                                          customIcon(1),
-                                        ],
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  Container(
-                                    height: 4.0,
-                                    width: 500,
-                                    decoration: BoxDecoration(
-                                      color: buttonsStates[1]==0 ? Colors.grey[500] : Theme.of(context).accentColor,
-                                      borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                                    Container(
+                                      height: 4.0,
+                                      width: 500,
+                                      decoration: BoxDecoration(
+                                        color: widget.list.sortController.getState(1)==0 ? Colors.grey[500] : Theme.of(context).accentColor,
+                                        borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                                      ),
+                                      child: Container(height: 10.0,),
                                     ),
-                                    child: Container(height: 10.0,),
-                                  ),
-                                ],
+                                  ],
+                                ),
+                                onPressed: (){
+                                  print('Lokalizacja'); 
+                                  widget.customSort("city",1);
+                                },
                               ),
-                              onPressed: (){setButtonState(1); print('Lokalizacja'); widget.customSort("city");},
                             ),
                           ),
-                        ),
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(4.0, 0.0, 8.0, 2.0),
-                            child: FlatButton(  
-                              padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-                              color: Theme.of(context).primaryColor,
-                              highlightColor: Colors.transparent,
-                              splashColor: Colors.grey[200],
-                              child: Column(
-                                children: <Widget>[
-                                  Expanded(
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(3.0),
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: <Widget>[
-                                          Text(
-                                            'Płaca',
-                                            style: TextStyle(
-                                              fontSize: 18.0,
-                                              fontWeight: FontWeight.w300,
-                                              fontFamily: 'Open Sans',
-                                              color: Theme.of(context).primaryColorDark,
-                                            ),
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(4.0, 0.0, 8.0, 2.0),
+                              child: FlatButton(  
+                                padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                                color: Theme.of(context).primaryColor,
+                                highlightColor: Colors.transparent,
+                                splashColor: Colors.grey[200],
+                                child: Column(
+                                  children: <Widget>[
+                                    Expanded(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(3.0),
+                                        child: Container(
+                                          width: MediaQuery.of(context).size.width * 0.30,
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: <Widget>[
+                                              Container(
+                                                width: MediaQuery.of(context).size.width * 0.22,
+                                                child: AutoSizeText(
+                                                  'Płaca',
+                                                  style: TextStyle(
+                                                    fontSize: 18.0,
+                                                    fontWeight: FontWeight.w300,
+                                                    fontFamily: 'Open Sans',
+                                                    color: Theme.of(context).primaryColorDark,
+                                                  ),
+                                                  maxLines: 1,
+                                                ),
+                                              ),
+                                              customIcon(2,18),
+                                            ],
                                           ),
-                                          customIcon(2),
-                                        ],
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  Container(
-                                    height: 4.0,
-                                    width: 500,
-                                    decoration: BoxDecoration(
-                                      color: buttonsStates[2]==0 ? Colors.grey[500] : Theme.of(context).accentColor,
-                                      borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                                    Container(
+                                      height: 4.0,
+                                      width: 500,
+                                      decoration: BoxDecoration(
+                                        color: widget.list.sortController.getState(2)==0 ? Colors.grey[500] : Theme.of(context).accentColor,
+                                        borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                                      ),
+                                      child: Container(height: 10.0,),
                                     ),
-                                    child: Container(height: 10.0,),
-                                  ),
-                                ],
+                                  ],
+                                ),
+                                onPressed: (){
+                                  print('Płaca'); 
+                                  widget.customSort("salaryMax",2);
+                                },
                               ),
-                              onPressed: (){setButtonState(2); print('Płaca'); widget.customSort("salaryMax");},
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                )
-              ),
+                  )
+                ),
 
-              LiveSliverList(
-                reAnimateOnVisibility: true,
-                controller: controller,
-                showItemInterval: Duration(milliseconds: 200),
-                showItemDuration: Duration(milliseconds: 800),
-                itemCount: widget.data.length.toInt(),
-                itemBuilder: _buildAnimatedItem,
-              ),
+                LiveSliverList(
+                  reAnimateOnVisibility: true,
+                  controller: controller,
+                  showItemInterval: Duration(milliseconds: 200),
+                  showItemDuration: Duration(milliseconds: 800),
+                  itemCount: widget.list.get().length.toInt(),
+                  itemBuilder: _buildAnimatedItem,
+                ),
 
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -629,125 +626,168 @@ class MenuListTile extends StatefulWidget{
 
 class _MenuListTileState extends State<MenuListTile> {
 
+  Widget createBottomTag(String text, IconData icon, double width, double height){
+    return  Padding(
+      padding: const EdgeInsets.all(1.0),
+      child: Container(
+        height: height,
+        child: Padding(
+          padding: const EdgeInsets.all(5.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              Icon(
+                icon,
+                size: 20.0,
+                color: Colors.grey[600],
+              ),
+              Container(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
+                  child: AutoSizeText(
+                    "$text",
+                    style:TextStyle(
+                      color: Colors.grey[700],
+                      fontWeight: FontWeight.w400,
+                      fontFamily: 'Open Sans',
+                      fontSize: 20,
+                    ),
+                    maxFontSize: 20,
+                    minFontSize: 10,
+                    maxLines: 1,
+                    textAlign: TextAlign.start
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 7.0, horizontal: 5.0),
+      padding: const EdgeInsets.symmetric(vertical: 7.0, horizontal: 7.0),
       child: Material(
-        elevation: 4.0,
+        color: Colors.white,
+        elevation: 2.0,
         borderRadius: BorderRadius.circular(10.0),
         child: InkWell (
           onTap: () => widget.onSelected(widget.data),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 5.0),
             child: SizedBox(
-              height: 100,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              // height: MediaQuery.of(context).size.height * 0.15,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(5.0, 0.0, 5.0, 0.0),
-                    child: Hero(
-                      tag: widget.id.toString(),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor,
-                          borderRadius: BorderRadius.circular(20.0),
-                          border: Border.all(width: 1.5, color: Theme.of(context).accentColor)
-                        ),
-                        child: AspectRatio(
-                          aspectRatio: 1.0,
-                          child: Material(
-                            elevation: 0.0,
-                            borderRadius: BorderRadius.circular(19.0),
-                            clipBehavior: Clip.hardEdge,
-                            color: Theme.of(context).accentColor,
-                            child: widget.data.logo.length>1?FadeInImage.assetNetwork(
-                              placeholder: 'assets/placeholder.png',
-                              image: widget.data.logo,
-                            ):Container(),
-                          )
-                        ),
-                      ),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.transparent,
                     ),
-                  ),
-                  
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(5.0, 5.0, 5.0, 5.0),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: <Widget>[
-                            Container(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Expanded(
-                                    flex: 5,
-                                      child: Text(
-                                      "${widget.data.title}",
-                                      style:TextStyle(
-                                        fontWeight: FontWeight.w400,
-                                        fontFamily: 'Open Sans',
-                                        fontSize: 22,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 10.0),
+                          child: Hero(
+                            tag: widget.id.toString(),
+                            child: Container(
+                              height: MediaQuery.of(context).orientation == Orientation.portrait? MediaQuery.of(context).size.height * 0.10:MediaQuery.of(context).size.height * 0.20,
+                              child: AspectRatio(
+                                aspectRatio: 1.0,
+                                child: Material(
+                                  borderRadius: BorderRadius.circular(20.0),//! tu się zmienia kółeczko
+                                  clipBehavior: Clip.hardEdge,
+                                  color: Theme.of(context).accentColor,
+                                  child: widget.data.logo.length>1?FadeInImage.assetNetwork(
+                                    placeholder: 'assets/placeholder.png',
+                                    image: widget.data.logo,
+                                  ):Container(),
+                                )
+                              ),
+                            ),
+                          ),
+                        ),
+                        
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(10.0, 5.0, 5.0, 10.0),
+                              child: Container(
+                                height: MediaQuery.of(context).orientation == Orientation.portrait? MediaQuery.of(context).size.height * 0.10:MediaQuery.of(context).size.height * 0.20,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.max,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: <Widget>[
+                                    Container(
+                                      child: Padding(
+                                        padding: const EdgeInsets.fromLTRB(0.0, 5.0, 0.0, 5.0),
+                                        child: AutoSizeText(
+                                          "${widget.data.title}",
+                                          style:TextStyle(
+                                            fontWeight: FontWeight.w400,
+                                            fontFamily: 'Open Sans',
+                                            fontSize: 22,
+                                          ),
+                                          maxLines: 1,
+                                        ),
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.transparent,
+                                        border: Border(bottom: BorderSide(width: 1.0, color: Theme.of(context).dividerColor))
                                       ),
                                     ),
-                                  ),
-                                  Expanded(
-                                    flex:2,
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                      children: <Widget>[
-                                        Icon(
-                                          Icons.home,
-                                          size: 20.0,
+                                    widget.data.salary.salaryMin != 0.0 || widget.data.salary.salaryMax != 0.0 ? Container(
+                                      child: AutoSizeText.rich(
+                                        TextSpan(
+                                          text: "${widget.data.salary.salaryMin.toInt()} - ${widget.data.salary.salaryMax.toInt()} ",
+                                          children: <TextSpan>[
+                                            TextSpan(
+                                              text: " ${widget.data.salary.currency}",
+                                              style: TextStyle(
+                                                color: Theme.of(context).accentColor,
+                                                fontWeight: FontWeight.w600,
+                                                fontFamily: 'Open Sans',
+                                                fontSize: 15,
+                                              ),
+                                            )
+                                          ]
+                                        ),
+                                        style:TextStyle(
                                           color: Colors.grey[700],
+                                          fontWeight: FontWeight.w600,
+                                          fontFamily: 'Open Sans',
+                                          fontSize: 15,
                                         ),
-                                        Expanded(
-                                          child: Text(
-                                            "${widget.data.company.city}",
-                                            style:TextStyle(
-                                              fontWeight: FontWeight.w400,
-                                              fontFamily: 'Open Sans',
-                                              fontSize: 15,
-                                            ),
-                                            textAlign: TextAlign.center
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.transparent,
-                                border: Border(bottom: BorderSide(width: 1.0, color: Theme.of(context).dividerColor))
-                              ),
-                            ),
-                            Container(
-                              child: new Text(
-                                "${widget.data.salary.salaryMin} - ${widget.data.salary.salaryMax}  ${widget.data.salary.currency}",
-                                style:TextStyle(
-                                  color: Colors.grey[800],
-                                  // color: Colors.teal[700],
-                                  // color: Colors.lightGreen[600],
-                                  // color: Colors.amber,
-                                  fontWeight: FontWeight.w400,
-                                  fontFamily: 'Open Sans',
-                                  fontSize: 20,
+                                        maxLines: 1,
+                                        textAlign: TextAlign.justify,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.transparent,
+                                      ),
+                                    ):Container(child:Text('')),
+                                  ],
                                 ),
-                                textAlign: TextAlign.justify,
                               ),
-                              decoration: BoxDecoration(
-                                color: Colors.transparent,
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        )
+                      ],
                     ),
-                  )
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Row(
+                        children: <Widget>[
+                          createBottomTag(widget.data.company.name, Icons.home, MediaQuery.of(context).size.width * 0.3, 25),
+                          createBottomTag(widget.data.company.city, Icons.pin_drop, MediaQuery.of(context).size.width * 0.3, 25),
+                        ],
+                      ),
+                      createBottomTag(widget.data.mainTechnology, Icons.bug_report, MediaQuery.of(context).size.width * 0.3, 25),
+                  ]),
                 ],
               ),
             ),

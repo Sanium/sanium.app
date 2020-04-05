@@ -1,3 +1,5 @@
+import 'package:sanium_app/tools/sort_controller.dart';
+
 class Requirement{
   String name;
   int level;//1-5
@@ -52,6 +54,67 @@ class JobOffer{
     this.requirements = requirements;
     this.description = description;
     this.logo = logo;
+  }
+}
+
+class JobOfferList{
+  List<JobOffer> list;
+  SortController sortController;
+  JobOfferList({List<JobOffer> list}){
+    this.list = list;
+    this.sortController = SortController();
+  }
+
+  List<JobOffer> get(){
+    return this.list;
+  }
+
+  void replace(List<JobOffer> newList){
+    this.list = newList;
+  }
+
+  void append(List<JobOffer> nextPart){
+    this.list = this.list + nextPart;
+  }
+
+  void sort({String by:"title"}){
+    String normalize(String input){
+      return input.toLowerCase()
+      .replaceAll('ą', 'a')
+      .replaceAll('ć', 'c')
+      .replaceAll('ę', 'e')
+      .replaceAll('ł', 'l')
+      .replaceAll('ń', 'n')
+      .replaceAll('ó', 'o')
+      .replaceAll('ś', 's')
+      .replaceAll('ź', 'z')
+      .replaceAll('ż', 'z');
+    }
+
+    if(by == "salaryMin"){
+      list.sort((a,b)=>a.salary.salaryMin.compareTo(b.salary.salaryMin));
+      if(sortController.getState(2)==1){
+        list = new List.from(list.reversed);
+      }
+    }
+    else if(by == "salaryMax"){
+      list.sort((a,b)=>a.salary.salaryMax.compareTo(b.salary.salaryMax));
+      if(sortController.getState(2)==1){
+        list = new List.from(list.reversed);
+      }
+    }
+    else if(by == "city"){
+      list.sort((a,b)=>normalize(a.company.city).compareTo(normalize(b.company.city)));
+      if(sortController.getState(1)==2){
+        list = new List.from(list.reversed);
+      }
+    }
+    else if(by == "technology"){
+      list.sort((a,b)=>normalize(a.mainTechnology).compareTo(normalize(b.mainTechnology)));
+      if(sortController.getState(0)==2){
+        list = new List.from(list.reversed);
+      }
+    }
   }
 }
 
