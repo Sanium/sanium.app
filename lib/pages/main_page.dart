@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_animated/auto_animated.dart';
+import 'package:sanium_app/pages/map_page.dart';
 import 'package:sanium_app/tools/JobOffer.dart';
 import 'package:sanium_app/pages/job_offer_page.dart';
 import 'package:sanium_app/pages/filter_page.dart';
@@ -172,6 +173,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
       stateNotifier.value = true;
     }    
   }
+  void onMap() async {
+    _animationController.forward(from: 0.0);
+    stateNotifier.value = await Navigator.of(context).push(
+      FancyPageRoute(
+        builder: (_) {
+          return MapPage();
+        },
+      ),
+    );
+  }
 
   void onFilter() async {
     dynamic tempList;
@@ -240,13 +251,30 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
         ),
       ),
 
-      floatingActionButton: FloatingActionButton(
-          onPressed: () => onFilter(),
-          elevation: 10.0,
-          heroTag: 'filter',
-          child: Icon(Icons.filter_list),
-          backgroundColor: Theme.of(context).accentColor,
-          foregroundColor: Theme.of(context).primaryColor,
+      floatingActionButton: Container(
+        width: MediaQuery.of(context).size.width-MediaQuery.of(context).size.width*0.07,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            FloatingActionButton(
+                onPressed: () => onMap(),
+                elevation: 10.0,
+                heroTag: 'map',
+                child: Icon(Icons.map),
+                backgroundColor: Theme.of(context).accentColor,
+                foregroundColor: Theme.of(context).primaryColor,
+            ),
+            FloatingActionButton(
+
+                onPressed: () => onFilter(),
+                elevation: 10.0,
+                heroTag: 'filter',
+                child: Icon(Icons.filter_list),
+                backgroundColor: Theme.of(context).accentColor,
+                foregroundColor: Theme.of(context).primaryColor,
+            ),
+          ],
+        ),
       ),
 
       drawer: Container(
