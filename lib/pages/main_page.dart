@@ -714,9 +714,9 @@ class _MenuListTileState extends State<MenuListTile> {
                         
                         Expanded(
                           child: Padding(
-                            padding: const EdgeInsets.fromLTRB(10.0, 5.0, 5.0, 5.0),
+                            padding: const EdgeInsets.fromLTRB(10.0, 5.0, 5.0, 10.0),
                               child: Container(
-                                height: MediaQuery.of(context).orientation == Orientation.portrait? MediaQuery.of(context).size.height * 0.09:MediaQuery.of(context).size.height * 0.20,
+                                height: MediaQuery.of(context).orientation == Orientation.portrait? MediaQuery.of(context).size.height * 0.10:MediaQuery.of(context).size.height * 0.20,
                                 child: Column(
                                   mainAxisSize: MainAxisSize.max,
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -751,7 +751,7 @@ class _MenuListTileState extends State<MenuListTile> {
                                                 color: Theme.of(context).accentColor,
                                                 fontWeight: FontWeight.w600,
                                                 fontFamily: 'Open Sans',
-                                                fontSize: 16,
+                                                fontSize: 15,
                                               ),
                                             )
                                           ]
@@ -760,7 +760,7 @@ class _MenuListTileState extends State<MenuListTile> {
                                           color: Colors.grey[700],
                                           fontWeight: FontWeight.w600,
                                           fontFamily: 'Open Sans',
-                                          fontSize: 16,
+                                          fontSize: 15,
                                         ),
                                         maxLines: 1,
                                         textAlign: TextAlign.justify,
