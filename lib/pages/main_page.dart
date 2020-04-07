@@ -174,14 +174,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
     }    
   }
   void onMap() async {
+    dynamic value = true;
     _animationController.forward(from: 0.0);
-    stateNotifier.value = await Navigator.of(context).push(
+    value = await Navigator.of(context).push(
       FancyPageRoute(
         builder: (_) {
-          return MapPage();
+          return MapPage(offerList: jobOfferList.list);
         },
       ),
     );
+    stateNotifier.value = true;
   }
 
   void onFilter() async {
@@ -256,19 +258,18 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            FloatingActionButton(
+            new FloatingActionButton(
                 onPressed: () => onMap(),
                 elevation: 10.0,
-                heroTag: 'map',
-                child: Icon(Icons.map),
+                heroTag: null,
+                child: Container(child:Icon(Icons.map)),
                 backgroundColor: Theme.of(context).accentColor,
                 foregroundColor: Theme.of(context).primaryColor,
             ),
-            FloatingActionButton(
-
+            new FloatingActionButton(
                 onPressed: () => onFilter(),
                 elevation: 10.0,
-                heroTag: 'filter',
+                heroTag: null,
                 child: Icon(Icons.filter_list),
                 backgroundColor: Theme.of(context).accentColor,
                 foregroundColor: Theme.of(context).primaryColor,
@@ -811,7 +812,7 @@ class _MenuListTileState extends State<MenuListTile> {
                       Row(
                         children: <Widget>[
                           createBottomTag(widget.data.company.name, Icons.home, MediaQuery.of(context).size.width * 0.3, 25),
-                          createBottomTag(widget.data.company.city, Icons.pin_drop, MediaQuery.of(context).size.width * 0.3, 25),
+                          createBottomTag(widget.data.company.local.city, Icons.pin_drop, MediaQuery.of(context).size.width * 0.3, 25),
                         ],
                       ),
                       createBottomTag(widget.data.mainTechnology, Icons.bug_report, MediaQuery.of(context).size.width * 0.3, 25),

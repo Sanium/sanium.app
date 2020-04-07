@@ -108,7 +108,7 @@ class _JobDetailPageState extends State<JobDetailPage> with SingleTickerProvider
                   SliverList(
                     delegate: SliverChildListDelegate(
                       [
-                        JobMainInfo(name: widget.data.title, salary: "${widget.data.salary.salaryMin} - ${widget.data.salary.salaryMax}  ${widget.data.salary.currency} / miesiąc", city:widget.data.company.city),
+                        JobMainInfo(name: widget.data.title, salary: "${widget.data.salary.salaryMin} - ${widget.data.salary.salaryMax}  ${widget.data.salary.currency} / miesiąc", city:widget.data.company.local.city),
                         widget.data.requirements.length>0?JobRequirements(data: widget.data.requirements,):Container(),
                         JobDetailInfo(description: widget.data.description,),
                         JobContactInfo(email:widget.data.company.email, website:widget.data.company.website),

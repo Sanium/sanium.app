@@ -23,6 +23,8 @@ dependencies:
   searchable_dropdown: ^1.1.2
   auto_size_text: ^2.1.0
   flutter_map: any
+  flutter_map_marker_cluster: any
+  geocoder: ^0.2.1
   
   flutter:
     sdk: flutter

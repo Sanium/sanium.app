@@ -1,3 +1,5 @@
+import 'package:flutter/services.dart';
+import 'package:geocoder/geocoder.dart';
 import 'package:sanium_app/tools/sort_controller.dart';
 
 class Requirement{
@@ -23,15 +25,44 @@ class Salary{
 
 class Company{
   String name;
-  String city;
+  Localization local;
   String email;
   String website;
-  Company(String companyName, String city, String email, String website){
-    this.name = companyName;
-    this.city = city;
-    this.email = email;
-    this.website = website;
-    // print('${this.name} - ${this.city} ${this.email} ${this.website}');
+  Company({this.name,this.local,this.email,this.website});
+}
+
+class Localization{
+  String city;
+  String street;
+  double latitude;
+  double longnitude;
+  Localization({this.city, this.street}){
+    this.latitude = null;
+    this.longnitude = null;
+    setLocation();
+  }
+  void setLocation() async{
+    try{
+      if(this.city!=null && this.street==null){
+        var addresses = await Geocoder.local.findAddressesFromQuery(this.city);
+        var first = addresses.first;
+        this.latitude = first.coordinates.latitude;
+        this.longnitude = first.coordinates.longitude;
+        // print("${first.featureName} : ${first.coordinates}");
+      }
+      else if (this.city!=null && this.street!=null){
+        var addresses = await Geocoder.local.findAddressesFromQuery("${this.city}  ${this.street}");
+        var first = addresses.first;
+        this.latitude = first.coordinates.latitude;
+        this.longnitude = first.coordinates.longitude;
+        // print("${first.featureName} : ${first.coordinates}");
+      }
+    }
+    on PlatformException{
+      // print('[!] PlatformException ${this.city}  ${this.street}');
+      this.latitude = null;
+      this.longnitude = null;
+    }
   }
 }
 
@@ -104,7 +135,7 @@ class JobOfferList{
       }
     }
     else if(by == "city"){
-      list.sort((a,b)=>normalize(a.company.city).compareTo(normalize(b.company.city)));
+      list.sort((a,b)=>normalize(a.company.local.city).compareTo(normalize(b.company.local.city)));
       if(sortController.getState(1)==2){
         list = new List.from(list.reversed);
       }
@@ -141,7 +172,7 @@ List<JobOffer> createJobList1(Map<String, dynamic> offers){
       int.parse(k),
       v['title'], 
       new Salary(salaryFrom: v['salaryMin'], salaryTo: v['salaryMax'], currency: v['currency']),
-      new Company(v['company'], v['city'], v['email'], v['phone'].toString()), 
+      new Company(name:v['company'],local:Localization(city:v['city']), email:v['email'], website:v['phone'].toString()), 
       v['technology'],
       createRequirementList1(v['requirements']),
       v['description'],
@@ -160,7 +191,7 @@ List<JobOffer> createJobList2(Map<String, dynamic> offers){
         v['id'],
         v['name'], 
         new Salary(salaryFrom: v['salary_from'] == null ? '0.0': v['salary_from'].toString(), salaryTo: v['salary_to'] == null ? '0.0' : v['salary_to'].toString(), currency: v['currency'] == null ? 'PLN' : v['currency'].toString()),
-        new Company(v['employer']['name'], v['city'], v['contact'], v['employer']['website']), 
+        new Company(name:v['employer']['name'],local:Localization(city: v['city'],street: v['street']), email:v['contact'], website:v['employer']['website']), 
         v['technology'],
         createRequirementList2(v['tech_stack']),
         v['description'],

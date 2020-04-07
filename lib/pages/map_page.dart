@@ -1,16 +1,57 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:latlong/latlong.dart';
+import 'package:sanium_app/tools/JobOffer.dart';
 
 
 class MapPage extends StatefulWidget{
+  final List<JobOffer> offerList;
+  MapPage({this.offerList});
 
   @override
   _MapPageState createState() => _MapPageState();
 }
 
+
 class _MapPageState extends State<MapPage>{
+  List<Marker> markerlist;
+
+
+  @override
+  void initState(){
+    markerlist = createMarkerList();
+    super.initState();
+  }
+
+  List<Marker> createMarkerList(){
+    List<Marker> output = new List();
+    for(JobOffer o in widget.offerList){
+      if(o.company.local.latitude!=null && o.company.local.longnitude!=null){
+        output.add(new Marker(
+          width: 50.0,
+          height: 50.0,
+          point: new LatLng(o.company.local.latitude, o.company.local.longnitude),
+          builder: (ctx) =>
+          Material(
+            elevation: 20.0,
+            borderRadius: BorderRadius.circular(50.0),
+            clipBehavior: Clip.hardEdge,                  
+            child: new Container(
+              color: Colors.amberAccent,
+              child: o.logo.length>1?FadeInImage.assetNetwork(
+                placeholder: 'assets/placeholder.png',
+                image: o.logo,
+              ):Container(),
+            ),
+          ),
+        ));
+      }
+    }
+    return output;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,33 +81,39 @@ class _MapPageState extends State<MapPage>{
 
       body: new FlutterMap(
         options: new MapOptions(
-          center: new LatLng(52.4, 16.9),
+          center: markerlist.length==1?LatLng(markerlist[0].point.latitude,markerlist[0].point.longitude):LatLng(52.4, 16.9),
           zoom: 6.0,
           minZoom: 5.0,
           maxZoom: 19.0,
+          plugins: [
+            MarkerClusterPlugin(),
+          ],
         ),
         layers: [
           new TileLayerOptions(
             urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
             subdomains: ['a', 'b', 'c']
           ),
-          new MarkerLayerOptions(
-            markers: [
-              new Marker(
-                width: 60.0,
-                height: 60.0,
-                point: new LatLng(52.4081017, 16.9337332),
-                builder: (ctx) =>
-                Material(
-                    borderRadius: BorderRadius.circular(50.0),
-                    clipBehavior: Clip.hardEdge,                  
-                    child: new Container(
-                    color: Colors.lightGreen,
-                    child: new FlutterLogo(),
-                  ),
-                ),
-              ),
-            ],
+          new MarkerClusterLayerOptions(
+            maxClusterRadius: 80,
+            size: Size(40, 40),
+            fitBoundsOptions: FitBoundsOptions(
+              padding: EdgeInsets.all(100),
+            ),
+            markers: markerlist,
+            polygonOptions: PolygonOptions(
+                borderColor: Colors.transparent,
+                color: Colors.transparent,
+                borderStrokeWidth: 1
+            ),
+            builder: (context, markers) {
+              return FloatingActionButton(
+                backgroundColor: Colors.amber,
+                child: Text(markers.length.toString()),
+                onPressed: null,
+                heroTag: null,
+              );
+            },
           ),
         ],
       )
