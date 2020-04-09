@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:latlong/latlong.dart';
+import 'package:sanium_app/pages/job_offer_page.dart';
+import 'package:sanium_app/routes/fancy_page_route.dart';
 import 'package:sanium_app/tools/JobOffer.dart';
 
 
@@ -25,6 +27,16 @@ class _MapPageState extends State<MapPage>{
     super.initState();
   }
 
+  void onSelected(JobOffer tempData) async {
+    await Navigator.of(context).push(
+      FancyPageRoute(
+        builder: (_) {
+          return JobDetailPage(id: tempData.id, img: tempData.logo, data: tempData);
+        },
+      ),
+    );  
+  }
+
   List<Marker> createMarkerList(){
     List<Marker> output = new List();
     for(JobOffer o in widget.offerList){
@@ -34,16 +46,20 @@ class _MapPageState extends State<MapPage>{
           height: 50.0,
           point: new LatLng(o.company.local.latitude, o.company.local.longnitude),
           builder: (ctx) =>
-          Material(
-            elevation: 20.0,
-            borderRadius: BorderRadius.circular(50.0),
-            clipBehavior: Clip.hardEdge,                  
-            child: new Container(
+          Hero(
+            tag: o.id.toString(),
+            child: Material(
+              elevation: 20.0,
               color: Colors.amberAccent,
-              child: o.logo.length>1?FadeInImage.assetNetwork(
+              borderRadius: BorderRadius.circular(50.0),
+              clipBehavior: Clip.hardEdge,                  
+              child: new InkWell(
+                onTap: ()=>onSelected(o),
+                child: o.logo.length>1?FadeInImage.assetNetwork(
                 placeholder: 'assets/placeholder.png',
                 image: o.logo,
-              ):Container(),
+                ):Container(),
+              ),
             ),
           ),
         ));

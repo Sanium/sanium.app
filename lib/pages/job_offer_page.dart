@@ -79,10 +79,10 @@ class _JobDetailPageState extends State<JobDetailPage> with SingleTickerProvider
                          Navigator.of(context).pop(true);
                       },
                       child: Hero(
-                        tag: widget.id.toString(),
+                        tag: widget.data.id.toString(),
                         child: Container(
                           decoration: BoxDecoration(
-                            color: Theme.of(context).accentColor,
+                            color: Theme.of(context).primaryColor,
                             borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20.0), bottomRight: Radius.circular(20.0)),
                             border: Border.all(width: 1.5, color: Theme.of(context).accentColor,)
                           ),
@@ -96,7 +96,7 @@ class _JobDetailPageState extends State<JobDetailPage> with SingleTickerProvider
                               child:widget.data.logo.length>1?FadeInImage.assetNetwork(
                                 placeholder: 'assets/placeholder.png',
                                 image: widget.data.logo,
-                              ):Container(),
+                              ):Container(child:Image.asset('assets/placeholder.png')),
                             )
                           ),
                         ),

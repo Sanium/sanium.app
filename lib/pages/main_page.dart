@@ -174,16 +174,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
     }    
   }
   void onMap() async {
-    dynamic value = true;
     _animationController.forward(from: 0.0);
-    value = await Navigator.of(context).push(
+    stateNotifier.value = await Navigator.of(context).push(
       FancyPageRoute(
         builder: (_) {
           return MapPage(offerList: jobOfferList.list);
         },
       ),
-    );
-    stateNotifier.value = true;
+    )??true;
   }
 
   void onFilter() async {
@@ -722,7 +720,7 @@ class _MenuListTileState extends State<MenuListTile> {
                         Padding(
                           padding: const EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 10.0),
                           child: Hero(
-                            tag: widget.id.toString(),
+                            tag: widget.data.id.toString(),
                             child: Container(
                               height: MediaQuery.of(context).orientation == Orientation.portrait? MediaQuery.of(context).size.height * 0.10:MediaQuery.of(context).size.height * 0.20,
                               child: AspectRatio(
@@ -730,11 +728,11 @@ class _MenuListTileState extends State<MenuListTile> {
                                 child: Material(
                                   borderRadius: BorderRadius.circular(20.0),//! tu się zmienia kółeczko
                                   clipBehavior: Clip.hardEdge,
-                                  color: Theme.of(context).accentColor,
+                                  color: Theme.of(context).primaryColor,
                                   child: widget.data.logo.length>1?FadeInImage.assetNetwork(
                                     placeholder: 'assets/placeholder.png',
                                     image: widget.data.logo,
-                                  ):Container(),
+                                  ):Container(child:Image.asset('assets/placeholder.png')),
                                 )
                               ),
                             ),
