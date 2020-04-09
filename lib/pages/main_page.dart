@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_animated/auto_animated.dart';
+import 'package:sanium_app/pages/map_page.dart';
 import 'package:sanium_app/tools/JobOffer.dart';
 import 'package:sanium_app/pages/job_offer_page.dart';
 import 'package:sanium_app/pages/filter_page.dart';
@@ -172,6 +173,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
       stateNotifier.value = true;
     }    
   }
+  void onMap() async {
+    _animationController.forward(from: 0.0);
+    stateNotifier.value = await Navigator.of(context).push(
+      FancyPageRoute(
+        builder: (_) {
+          return MapPage(offerList: jobOfferList.list);
+        },
+      ),
+    )??true;
+  }
 
   void onFilter() async {
     dynamic tempList;
@@ -240,13 +251,29 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
         ),
       ),
 
-      floatingActionButton: FloatingActionButton(
-          onPressed: () => onFilter(),
-          elevation: 10.0,
-          heroTag: 'filter',
-          child: Icon(Icons.filter_list),
-          backgroundColor: Theme.of(context).accentColor,
-          foregroundColor: Theme.of(context).primaryColor,
+      floatingActionButton: Container(
+        width: MediaQuery.of(context).size.width-MediaQuery.of(context).size.width*0.07,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            new FloatingActionButton(
+                onPressed: () => onMap(),
+                elevation: 10.0,
+                heroTag: null,
+                child: Container(child:Icon(Icons.map)),
+                backgroundColor: Theme.of(context).accentColor,
+                foregroundColor: Theme.of(context).primaryColor,
+            ),
+            new FloatingActionButton(
+                onPressed: () => onFilter(),
+                elevation: 10.0,
+                heroTag: null,
+                child: Icon(Icons.filter_list),
+                backgroundColor: Theme.of(context).accentColor,
+                foregroundColor: Theme.of(context).primaryColor,
+            ),
+          ],
+        ),
       ),
 
       drawer: Container(
@@ -693,7 +720,7 @@ class _MenuListTileState extends State<MenuListTile> {
                         Padding(
                           padding: const EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 10.0),
                           child: Hero(
-                            tag: widget.id.toString(),
+                            tag: widget.data.id.toString(),
                             child: Container(
                               height: MediaQuery.of(context).orientation == Orientation.portrait? MediaQuery.of(context).size.height * 0.10:MediaQuery.of(context).size.height * 0.20,
                               child: AspectRatio(
@@ -701,11 +728,11 @@ class _MenuListTileState extends State<MenuListTile> {
                                 child: Material(
                                   borderRadius: BorderRadius.circular(20.0),//! tu się zmienia kółeczko
                                   clipBehavior: Clip.hardEdge,
-                                  color: Theme.of(context).accentColor,
+                                  color: Theme.of(context).primaryColor,
                                   child: widget.data.logo.length>1?FadeInImage.assetNetwork(
                                     placeholder: 'assets/placeholder.png',
                                     image: widget.data.logo,
-                                  ):Container(),
+                                  ):Container(child:Image.asset('assets/placeholder.png')),
                                 )
                               ),
                             ),
@@ -783,7 +810,7 @@ class _MenuListTileState extends State<MenuListTile> {
                       Row(
                         children: <Widget>[
                           createBottomTag(widget.data.company.name, Icons.home, MediaQuery.of(context).size.width * 0.3, 25),
-                          createBottomTag(widget.data.company.city, Icons.pin_drop, MediaQuery.of(context).size.width * 0.3, 25),
+                          createBottomTag(widget.data.company.local.city, Icons.pin_drop, MediaQuery.of(context).size.width * 0.3, 25),
                         ],
                       ),
                       createBottomTag(widget.data.mainTechnology, Icons.bug_report, MediaQuery.of(context).size.width * 0.3, 25),
