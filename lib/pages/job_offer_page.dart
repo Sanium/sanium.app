@@ -74,31 +74,61 @@ class _JobDetailPageState extends State<JobDetailPage> with SingleTickerProvider
                     pinned: true,
                     expandedHeight: appBarHeight,
                     floating: false,
+                    
                     flexibleSpace: GestureDetector(
-                      onTap: () {
-                         Navigator.of(context).pop(true);
-                      },
-                      child: Hero(
-                        tag: widget.data.id.toString(),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).primaryColor,
-                            borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20.0), bottomRight: Radius.circular(20.0)),
-                            border: Border.all(width: 1.5, color: Theme.of(context).accentColor,)
-                          ),
-                          child: AspectRatio(
-                            aspectRatio: 3.0/1.0,
-                            child: Material(
-                              elevation: 0.0,
-                              borderRadius: BorderRadius.circular(20.0),
-                              clipBehavior: Clip.hardEdge,
-                              color: Colors.transparent,
-                              child:widget.data.logo.length>1?FadeInImage.assetNetwork(
-                                placeholder: 'assets/placeholder.png',
-                                image: widget.data.logo,
-                              ):Container(child:Image.asset('assets/placeholder.png')),
-                            )
-                          ),
+                      // onTap: () {
+                      //    Navigator.of(context).pop(true);
+                      // },
+                      // onPanUpdate: (details) {
+                      //   if (details.delta.dx > 1) {
+                      //     Navigator.of(context).pop(true);
+                      //   }
+                      // },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).primaryColor,
+                          borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20.0), bottomRight: Radius.circular(20.0)),
+                          border: Border.all(width: 1.5, color: Colors.grey)
+                        ),
+                        child: AspectRatio(
+                          aspectRatio: 3.0/1.0,
+                          child: Container(
+                            child: Row(
+                              children: <Widget>[
+                                Hero(
+                                  tag: widget.data.id.toString(),
+                                  child: Material(
+                                    elevation: 0.0,
+                                    borderRadius: BorderRadius.only(bottomLeft: Radius.circular(19.0)),
+                                    clipBehavior: Clip.hardEdge,
+                                    color: Colors.transparent,
+                                    child:widget.data.logo.length>1?FadeInImage.assetNetwork(
+                                      placeholder: 'assets/placeholder.png',
+                                      image: widget.data.logo,
+                                    ):Container(child:Image.asset('assets/placeholder.png')),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Center(
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.transparent
+                                      ),
+                                      child:Text(
+                                        widget.data.title,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w400,
+                                          fontFamily: 'Open Sans',
+                                          fontSize: 28,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+
+                              ],
+                            ),
+                          )
                         ),
                       ),
                     ),
@@ -108,7 +138,7 @@ class _JobDetailPageState extends State<JobDetailPage> with SingleTickerProvider
                   SliverList(
                     delegate: SliverChildListDelegate(
                       [
-                        JobMainInfo(name: widget.data.title, salary: "${widget.data.salary.salaryMin} - ${widget.data.salary.salaryMax}  ${widget.data.salary.currency} / miesiąc", city:widget.data.company.local.city),
+                        JobMainInfo(tech: widget.data.mainTechnology,salary: "${widget.data.salary.salaryMin} - ${widget.data.salary.salaryMax}  ${widget.data.salary.currency} / miesiąc", city:widget.data.company.local.city),
                         widget.data.requirements.length>0?JobRequirements(data: widget.data.requirements,):Container(),
                         JobDetailInfo(description: widget.data.description,),
                         JobContactInfo(email:widget.data.company.email, website:widget.data.company.website),
@@ -127,11 +157,11 @@ class _JobDetailPageState extends State<JobDetailPage> with SingleTickerProvider
 
 
 class JobMainInfo extends StatelessWidget{
-  final String name;
+  final String tech;
   final String salary;
   final String city;
 
-  JobMainInfo({this.name:"Developer",this.salary:"3000 PLN", this.city:"Warszawa"});
+  JobMainInfo({this.tech:"Developer",this.salary:"3000 PLN", this.city:"Warszawa"});
 
   @override
   Widget build(BuildContext context) {
@@ -142,38 +172,6 @@ class JobMainInfo extends StatelessWidget{
           mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.transparent
-                ),
-                child: Center(
-                  child: Row(
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 0.0),
-                        child: Icon(Icons.work, size: 30.0, color: Colors.brown[800],),
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(0.0, 0.0, 16.0, 0.0),
-                          child: Text(
-                            name,
-                            style: TextStyle(
-                              fontWeight: FontWeight.w400,
-                              fontFamily: 'Open Sans',
-                              fontSize: 24,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Container(
@@ -223,6 +221,36 @@ class JobMainInfo extends StatelessWidget{
                         padding: const EdgeInsets.fromLTRB(0.0, 0.0, 16.0, 0.0),
                         child: Text(
                           city,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w300,
+                            fontFamily: 'Open Sans',
+                            fontSize: 20,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.transparent
+                ),
+                child: Row(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 0.0),
+                      child: Icon(Icons.bug_report,size: 30.0,),
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(0.0, 0.0, 16.0, 0.0),
+                        child: Text(
+                          tech,
                           style: TextStyle(
                             fontWeight: FontWeight.w300,
                             fontFamily: 'Open Sans',

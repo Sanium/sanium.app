@@ -27,7 +27,7 @@ class _MapPageState extends State<MapPage>{
     super.initState();
   }
 
-  void onSelected(JobOffer tempData) async {
+  void showDatail(JobOffer tempData) async {
     await Navigator.of(context).push(
       FancyPageRoute(
         builder: (_) {
@@ -54,7 +54,7 @@ class _MapPageState extends State<MapPage>{
               borderRadius: BorderRadius.circular(50.0),
               clipBehavior: Clip.hardEdge,                  
               child: new InkWell(
-                onTap: ()=>onSelected(o),
+                onTap: ()=>showDatail(o),
                 child: o.logo.length>1?FadeInImage.assetNetwork(
                 placeholder: 'assets/placeholder.png',
                 image: o.logo,
