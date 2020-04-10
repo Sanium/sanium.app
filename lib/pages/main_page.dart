@@ -173,6 +173,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
       stateNotifier.value = true;
     }    
   }
+
   void onMap() async {
     _animationController.forward(from: 0.0);
     stateNotifier.value = await Navigator.of(context).push(
@@ -258,18 +259,19 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
           children: <Widget>[
             new FloatingActionButton(
                 onPressed: () => onMap(),
-                elevation: 10.0,
+                elevation: 15.0,
                 heroTag: null,
-                child: Container(child:Icon(Icons.map)),
-                backgroundColor: Theme.of(context).accentColor,
+                child: Container(child:Icon(Icons.map, color:Theme.of(context).accentColor,)),
+                backgroundColor: Theme.of(context).primaryColor,
                 foregroundColor: Theme.of(context).primaryColor,
+                
             ),
             new FloatingActionButton(
                 onPressed: () => onFilter(),
-                elevation: 10.0,
+                elevation: 15.0,
                 heroTag: null,
-                child: Icon(Icons.filter_list),
-                backgroundColor: Theme.of(context).accentColor,
+                child: Icon(Icons.filter_list,color: Theme.of(context).accentColor,),
+                backgroundColor: Theme.of(context).primaryColor,
                 foregroundColor: Theme.of(context).primaryColor,
             ),
           ],
@@ -429,7 +431,7 @@ class _CustomSliverListState extends State<CustomSliverList>{
               slivers: <Widget>[
                 SliverAppBar(
                   leading: new Container(),
-                  backgroundColor: Colors.white,
+                  backgroundColor: Theme.of(context).primaryColor,
                   elevation: 0.0,
                   pinned: false,
                   expandedHeight: appBarHeight,
@@ -698,7 +700,7 @@ class _MenuListTileState extends State<MenuListTile> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 7.0, horizontal: 7.0),
       child: Material(
-        color: Colors.white,
+        color:  Theme.of(context).primaryColor,
         elevation: 2.0,
         borderRadius: BorderRadius.circular(10.0),
         child: InkWell (

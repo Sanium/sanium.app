@@ -1,5 +1,10 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:sanium_app/pages/map_page.dart';
+import 'package:sanium_app/routes/fancy_page_route.dart';
 import 'package:sanium_app/tools/JobOffer.dart';
+import 'package:latlong/latlong.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
   
 
@@ -7,7 +12,8 @@ class JobDetailPage extends StatefulWidget{
   final int id;
   final JobOffer data; 
   final String img;
-  JobDetailPage({@required this.id, this.img, this.data});
+  final bool isFromMap;
+  JobDetailPage({@required this.id, this.img, this.data,this.isFromMap:false});
 
   @override
   _JobDetailPageState createState() => _JobDetailPageState();
@@ -26,6 +32,18 @@ class _JobDetailPageState extends State<JobDetailPage> with SingleTickerProvider
   @override
   void dispose() {
     super.dispose();
+  }
+
+  void showMap() async {
+    if(widget.isFromMap==false){
+      await Navigator.of(context).push(
+        FancyPageRoute(
+          builder: (_) {
+            return MapPage(offerList: [widget.data], isFromDetail: true,);
+          },
+        ),
+      );
+    }
   }
 
   @override
@@ -56,7 +74,7 @@ class _JobDetailPageState extends State<JobDetailPage> with SingleTickerProvider
 
       body: SafeArea(
         child: Container(
-          color: Theme.of(context).primaryColor,
+          color: Colors.blueGrey[50],
           child: ScrollConfiguration(
             behavior: ScrollBehavior(),
             child: GlowingOverscrollIndicator(
@@ -76,9 +94,6 @@ class _JobDetailPageState extends State<JobDetailPage> with SingleTickerProvider
                     floating: false,
                     
                     flexibleSpace: GestureDetector(
-                      // onTap: () {
-                      //    Navigator.of(context).pop(true);
-                      // },
                       // onPanUpdate: (details) {
                       //   if (details.delta.dx > 1) {
                       //     Navigator.of(context).pop(true);
@@ -111,16 +126,18 @@ class _JobDetailPageState extends State<JobDetailPage> with SingleTickerProvider
                                 Expanded(
                                   child: Center(
                                     child: Container(
+                                      width: MediaQuery.of(context).size.width*0.7,
                                       decoration: BoxDecoration(
                                         color: Colors.transparent
                                       ),
-                                      child:Text(
+                                      child:AutoSizeText(
                                         widget.data.title,
                                         style: TextStyle(
-                                          fontWeight: FontWeight.w400,
+                                          fontWeight: FontWeight.w300,
                                           fontFamily: 'Open Sans',
-                                          fontSize: 28,
+                                          fontSize: 30,
                                         ),
+                                        maxLines: 1,
                                       ),
                                     ),
                                   ),
@@ -141,7 +158,14 @@ class _JobDetailPageState extends State<JobDetailPage> with SingleTickerProvider
                         JobMainInfo(tech: widget.data.mainTechnology,salary: "${widget.data.salary.salaryMin} - ${widget.data.salary.salaryMax}  ${widget.data.salary.currency} / miesiąc", city:widget.data.company.local.city),
                         widget.data.requirements.length>0?JobRequirements(data: widget.data.requirements,):Container(),
                         JobDetailInfo(description: widget.data.description,),
-                        JobContactInfo(email:widget.data.company.email, website:widget.data.company.website),
+                        widget.data.company.local.latitude!=null && widget.data.company.local.longnitude!=null? JobLocalization(
+                          id:widget.data.id, 
+                          logo: widget.data.logo,
+                          latitude: widget.data.company.local.latitude,
+                          longnitude: widget.data.company.local.longnitude,
+                          show:showMap
+                        ):Container(),
+                        JobContactInfo(companyEmail:widget.data.company.email, companyWebsite:widget.data.company.website),
                       ],
                     ),
                   ),
@@ -168,6 +192,7 @@ class JobMainInfo extends StatelessWidget{
     return Card(
       elevation: 5.0,
       child: Container(
+        color:  Theme.of(context).primaryColor,
         child: Column(
           mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -499,13 +524,12 @@ class JobDetailInfo extends StatelessWidget{
     Open for new technologies''';
 
   JobDetailInfo({this.description});
-
-
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: 5.0,
       child: Container(
+        color:  Theme.of(context).primaryColor,
         child: Column(
           mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -590,13 +614,10 @@ class JobDetailInfo extends StatelessWidget{
 
 class JobContactInfo extends StatelessWidget{
   final String cardTitle = "Dane kontaktowe";
-  String companyEmail;
-  String companyWebsite;
+  final String companyEmail;
+  final String companyWebsite;
 
-  JobContactInfo({String email:'getjob@gmail.com', String website:'www.pracaXD.it'}){
-    this.companyEmail = email;
-    this.companyWebsite = website;
-  }
+  JobContactInfo({this.companyEmail:'getjob@gmail.com', this.companyWebsite:'www.pracaXD.it'});
 
   Widget createField(String title, String value, BuildContext context){
     return Padding(
@@ -639,6 +660,7 @@ class JobContactInfo extends StatelessWidget{
     return Card(
       elevation: 5.0,
       child: Container(
+        color:  Theme.of(context).primaryColor,
         height: 140,
         child: Column(
           mainAxisSize: MainAxisSize.max,
@@ -688,6 +710,137 @@ class JobContactInfo extends StatelessWidget{
                 borderRadius: BorderRadius.all(Radius.circular(20.0)),
               ),
               child: Container(height: 0.0,),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class JobLocalization extends StatelessWidget{
+  final String cardTitle = "Lokalizacja";
+  final int id;
+  final double latitude;
+  final double longnitude;
+  final String logo;
+  final Function show;
+
+  JobLocalization({this.id,this.latitude,this.longnitude,this.logo, this.show});
+
+  Widget createMap(String logo, double latitude, double longnitude){
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 0, 8, 5),
+      child: Container(
+        height: 400,
+        child: Stack( children: <Widget>[
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.red,
+              borderRadius: BorderRadius.all(Radius.circular(150.0)),
+            ),
+            child: FlutterMap(
+              options: new MapOptions(
+                center: new LatLng(latitude, longnitude),
+                zoom: 17.0,
+              ),
+              layers: [
+                new TileLayerOptions(
+                  urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                  subdomains: ['a', 'b', 'c']
+                ),
+                new MarkerLayerOptions(
+                  markers: [
+                    Marker(
+                      width: 50.0,
+                      height: 50.0,
+                      point: new LatLng(latitude, longnitude),
+                      builder: (ctx) =>Hero(     
+                        tag: "map_$id",  
+                        child:Material(
+                          elevation: 20.0,
+                          color: Colors.transparent,
+                          borderRadius: BorderRadius.circular(50.0),
+                          clipBehavior: Clip.hardEdge,  
+                          child:logo.length>1?FadeInImage.assetNetwork(
+                            placeholder: 'assets/placeholder.png',
+                            image: logo,
+                          ):Container(child:Image.asset('assets/placeholder.png')),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          GestureDetector(
+          onTap: () {
+            show();
+          },
+            child: Container(height: 400, color: Colors.transparent,)
+          )
+
+        ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 3.0,
+      child: Container(
+        color:  Theme.of(context).primaryColor,
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.transparent
+                ),
+                child: Center(
+                  child: Row(
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 0.0),
+                        child: Icon(Icons.map, size: 30.0),
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(0.0, 0.0, 16.0, 0.0),
+                          child: Text(
+                            cardTitle,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w400,
+                              fontFamily: 'Open Sans',
+                              fontSize: 24,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            createMap(logo, latitude, longnitude),
+
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 5.0),
+              height: 4.0,
+              decoration: BoxDecoration(
+                // color: Theme.of(context).primaryColorDark, //!  create accentColorLight
+                color: Colors.grey[600],
+                borderRadius: BorderRadius.all(Radius.circular(20.0)),
+              ),
+              child: Container(height: 0.0),
             ),
           ],
         ),
