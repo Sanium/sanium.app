@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
         textTheme: TextTheme(title: TextStyle(color: Colors.white),),
       ),
       // themeMode: ThemeMode.dark,
-       themeMode: ThemeMode.light,
+      themeMode: ThemeMode.light,
       home: HomePage(title: 'Sanium'),
     );
   }

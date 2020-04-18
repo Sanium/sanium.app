@@ -9,8 +9,9 @@ import 'package:sanium_app/tools/JobOffer.dart';
 
 
 class MapPage extends StatefulWidget{
+  final bool isFromDetail;
   final List<JobOffer> offerList;
-  MapPage({this.offerList});
+  MapPage({this.offerList,this.isFromDetail:false});
 
   @override
   _MapPageState createState() => _MapPageState();
@@ -27,11 +28,11 @@ class _MapPageState extends State<MapPage>{
     super.initState();
   }
 
-  void onSelected(JobOffer tempData) async {
+  void showDatail(JobOffer tempData) async {
     await Navigator.of(context).push(
       FancyPageRoute(
         builder: (_) {
-          return JobDetailPage(id: tempData.id, img: tempData.logo, data: tempData);
+          return JobDetailPage(id: tempData.id, img: tempData.logo, data: tempData,isFromMap: true,);
         },
       ),
     );  
@@ -45,20 +46,19 @@ class _MapPageState extends State<MapPage>{
           width: 50.0,
           height: 50.0,
           point: new LatLng(o.company.local.latitude, o.company.local.longnitude),
-          builder: (ctx) =>
-          Hero(
-            tag: o.id.toString(),
+          builder: (ctx) => Hero(
+            tag: "map_${o.id}",
             child: Material(
               elevation: 20.0,
-              color: Colors.amberAccent,
+              color: Colors.transparent,
               borderRadius: BorderRadius.circular(50.0),
               clipBehavior: Clip.hardEdge,                  
               child: new InkWell(
-                onTap: ()=>onSelected(o),
+                onTap: ()=>widget.isFromDetail==false?showDatail(o):null,
                 child: o.logo.length>1?FadeInImage.assetNetwork(
                 placeholder: 'assets/placeholder.png',
                 image: o.logo,
-                ):Container(),
+                ):Container(child:Image.asset('assets/placeholder.png')),
               ),
             ),
           ),
@@ -75,6 +75,37 @@ class _MapPageState extends State<MapPage>{
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(55.0),
         child: new AppBar(
+           actions: <Widget>[
+            widget.isFromDetail==true?Container(
+              decoration: BoxDecoration(
+                border: Border(left: BorderSide(width: 2.0, color: Theme.of(context).dividerColor))
+              ),
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
+                        child: Icon(Icons.home, color: Theme.of(context).primaryColorDark),
+                      ),
+                      AutoSizeText(
+                        widget.offerList[0].company.local.city,
+                        style: TextStyle(
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.w300,
+                          fontFamily: 'Open Sans',
+                          color: Theme.of(context).primaryColorDark,
+                        ),
+                        maxLines: 1,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ):Container(),
+          ],
           leading: IconButton(
             icon: Icon(
               Icons.arrow_back,
@@ -98,7 +129,7 @@ class _MapPageState extends State<MapPage>{
       body: new FlutterMap(
         options: new MapOptions(
           center: markerlist.length==1?LatLng(markerlist[0].point.latitude,markerlist[0].point.longitude):LatLng(52.4, 16.9),
-          zoom: 6.0,
+          zoom: widget.isFromDetail==false?6.0:15.0,
           minZoom: 5.0,
           maxZoom: 19.0,
           plugins: [
@@ -107,8 +138,8 @@ class _MapPageState extends State<MapPage>{
         ),
         layers: [
           new TileLayerOptions(
-            urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-            subdomains: ['a', 'b', 'c']
+            urlTemplate: "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
+            subdomains: ['a', 'b']
           ),
           new MarkerClusterLayerOptions(
             maxClusterRadius: 80,
