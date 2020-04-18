@@ -11,6 +11,7 @@ import 'package:sanium_app/tools/JobOffer.dart';
 import 'package:sanium_app/pages/job_offer_page.dart';
 import 'package:sanium_app/pages/filter_page.dart';
 import 'package:sanium_app/routes/fancy_page_route.dart';
+import 'package:sanium_app/tools/drawer.dart';
 
 
 class HomePage extends StatefulWidget {
@@ -251,79 +252,42 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
           ),
         ),
       ),
+      floatingActionButton: new FloatingActionButton(
+        onPressed: () => onFilter(),
+        elevation: 15.0,
+        heroTag: null,
+        child: Icon(Icons.filter_list,color: Theme.of(context).accentColor,),
+        backgroundColor: Theme.of(context).primaryColor,
+        foregroundColor: Theme.of(context).primaryColor,
+      ),
 
-      floatingActionButton: Container(
-        width: MediaQuery.of(context).size.width-MediaQuery.of(context).size.width*0.07,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            new FloatingActionButton(
-                onPressed: () => onMap(),
-                elevation: 15.0,
-                heroTag: null,
-                child: Container(child:Icon(Icons.map, color:Theme.of(context).accentColor,)),
-                backgroundColor: Theme.of(context).primaryColor,
-                foregroundColor: Theme.of(context).primaryColor,
+      // floatingActionButton: Container(
+      //   width: MediaQuery.of(context).size.width-MediaQuery.of(context).size.width*0.07,
+      //   child: Row(
+      //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      //     children: <Widget>[
+      //       new FloatingActionButton(
+      //           onPressed: () => onMap(),
+      //           elevation: 15.0,
+      //           heroTag: null,
+      //           child: Container(child:Icon(Icons.map, color:Theme.of(context).accentColor,)),
+      //           backgroundColor: Theme.of(context).primaryColor,
+      //           foregroundColor: Theme.of(context).primaryColor,
                 
-            ),
-            new FloatingActionButton(
-                onPressed: () => onFilter(),
-                elevation: 15.0,
-                heroTag: null,
-                child: Icon(Icons.filter_list,color: Theme.of(context).accentColor,),
-                backgroundColor: Theme.of(context).primaryColor,
-                foregroundColor: Theme.of(context).primaryColor,
-            ),
-          ],
-        ),
-      ),
+      //       ),
+      //       new FloatingActionButton(
+      //           onPressed: () => onFilter(),
+      //           elevation: 15.0,
+      //           heroTag: null,
+      //           child: Icon(Icons.filter_list,color: Theme.of(context).accentColor,),
+      //           backgroundColor: Theme.of(context).primaryColor,
+      //           foregroundColor: Theme.of(context).primaryColor,
+      //       ),
+      //     ],
+      //   ),
+      // ),
 
-      drawer: Container(
-        width: MediaQuery.of(context).size.width * 0.65,
-        child: Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: <Widget>[
-              DrawerHeader(
-                child: Text(
-                  'Sanium Creators:',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 30,
-                  ),
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                ),
-              ),
-              ListTile(
-                title: Text('Michał Popiel'),
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                title: Text('Bartłomiej Olszanowski'),
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                title: Text('Maciej Owsianny'),
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                title: Text('Błażej Darul'),
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
+      drawer: mainDrawer(context,onMap),
       body: CustomSliverList(
         key: listKey,
         title: widget.title,
