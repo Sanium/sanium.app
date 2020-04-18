@@ -138,8 +138,8 @@ class _MapPageState extends State<MapPage>{
         ),
         layers: [
           new TileLayerOptions(
-            urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-            subdomains: ['a', 'b', 'c']
+            urlTemplate: "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
+            subdomains: ['a', 'b']
           ),
           new MarkerClusterLayerOptions(
             maxClusterRadius: 80,

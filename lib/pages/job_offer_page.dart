@@ -736,18 +736,19 @@ class JobLocalization extends StatelessWidget{
         child: Stack( children: <Widget>[
           Container(
             decoration: BoxDecoration(
-              color: Colors.red,
+              color: Colors.transparent,
               borderRadius: BorderRadius.all(Radius.circular(150.0)),
             ),
             child: FlutterMap(
               options: new MapOptions(
                 center: new LatLng(latitude, longnitude),
-                zoom: 17.0,
+                zoom: 16.0,
               ),
               layers: [
                 new TileLayerOptions(
-                  urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                  subdomains: ['a', 'b', 'c']
+                  urlTemplate: "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
+                  subdomains: ['a', 'b']
+
                 ),
                 new MarkerLayerOptions(
                   markers: [
