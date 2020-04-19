@@ -619,7 +619,7 @@ class _MenuListTileState extends State<MenuListTile> {
             children: <Widget>[
               Icon(
                 icon,
-                size: 20.0,
+                size: 18.0,
                 color: Colors.grey[600],
               ),
               Container(
@@ -763,7 +763,7 @@ class _MenuListTileState extends State<MenuListTile> {
                     children: <Widget>[
                       Row(
                         children: <Widget>[
-                          createBottomTag(widget.data.company.name, Icons.home, MediaQuery.of(context).size.width * 0.3, 25),
+                          createBottomTag(widget.data.company.name, Icons.location_city, MediaQuery.of(context).size.width * 0.3, 25),
                           createBottomTag(widget.data.company.local.city, Icons.place, MediaQuery.of(context).size.width * 0.3, 25),
                         ],
                       ),

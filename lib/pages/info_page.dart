@@ -38,7 +38,7 @@ class _InfoPageState extends State<InfoPage>{
         color: Colors.blueGrey[50],
         child: Padding(
           padding: const EdgeInsets.all(5.0),
-          child: Column(
+          child: ListView(
             children: <Widget>[
               Card(
                 child: Row(
@@ -77,63 +77,31 @@ class _InfoPageState extends State<InfoPage>{
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: <Widget>[
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: AutoSizeText(                    
-                              'WWW :',
-                              style: TextStyle( 
-                                fontSize: 20.0,     
-                                fontWeight: FontWeight.w400,     
-                                fontFamily: 'Open Sans',    
-                                color: Theme.of(context).primaryColorDark,
-                              ),
-                              maxLines: 1,     
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: AutoSizeText(
-                              'GitHub :',
-                              style: TextStyle(
-                                fontSize: 20.0,
-                                fontWeight: FontWeight.w400,
-                                fontFamily: 'Open Sans',
-                                color: Theme.of(context).primaryColorDark,
-                              ),
-                              maxLines: 1,
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      Padding(
-                        padding: const EdgeInsets.all(10.0),
+                      Expanded(
+                        flex: 1,
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: <Widget>[
                             Padding(
                               padding: const EdgeInsets.all(8.0),
-                              child: AutoSizeText(
-                                'http://sanium.olszanowski.it/',
-                                style: TextStyle(
-                                  fontSize: 20.0,
-                                  fontWeight: FontWeight.w300,
-                                  fontFamily: 'Open Sans',
+                              child: AutoSizeText(                    
+                                'WWW :',
+                                style: TextStyle( 
+                                  fontSize: 15.0,     
+                                  fontWeight: FontWeight.w400,     
+                                  fontFamily: 'Open Sans',    
                                   color: Theme.of(context).primaryColorDark,
                                 ),
-                                maxLines: 1,
+                                maxLines: 1,     
                               ),
                             ),
                             Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: AutoSizeText(
-                                'https://github.com/Sanium',
+                                'GitHub :',
                                 style: TextStyle(
-                                  fontSize: 20.0,
-                                  fontWeight: FontWeight.w300,
+                                  fontSize: 15.0,
+                                  fontWeight: FontWeight.w400,
                                   fontFamily: 'Open Sans',
                                   color: Theme.of(context).primaryColorDark,
                                 ),
@@ -141,6 +109,44 @@ class _InfoPageState extends State<InfoPage>{
                               ),
                             ),
                           ],
+                        ),
+                      ),
+
+                      Expanded(
+                        flex: 3,
+                        child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                                child: AutoSizeText(
+                                  'http://sanium.olszanowski.it/',
+                                  style: TextStyle(
+                                    fontSize: 15.0,
+                                    fontWeight: FontWeight.w300,
+                                    fontFamily: 'Open Sans',
+                                    color: Theme.of(context).primaryColorDark,
+                                  ),
+                                  maxLines: 1,
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                                child: AutoSizeText(
+                                  'https://github.com/Sanium',
+                                  style: TextStyle(
+                                    fontSize: 15.0,
+                                    fontWeight: FontWeight.w300,
+                                    fontFamily: 'Open Sans',
+                                    color: Theme.of(context).primaryColorDark,
+                                  ),
+                                  maxLines: 1,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ]

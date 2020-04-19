@@ -103,7 +103,12 @@ class _JobDetailPageState extends State<JobDetailPage> with SingleTickerProvider
                         decoration: BoxDecoration(
                           color: Theme.of(context).primaryColor,
                           borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20.0), bottomRight: Radius.circular(20.0)),
-                          border: Border.all(width: 1.5, color: Colors.grey)
+                          border: Border(
+                            bottom: BorderSide(width: 3.5, color: Theme.of(context).dividerColor),
+                            top: BorderSide(width: 3.5, color: Theme.of(context).dividerColor),
+                            left: BorderSide(width: 3.5, color: Theme.of(context).dividerColor),
+                            right: BorderSide(width: 3.5, color: Theme.of(context).dividerColor),
+                          )
                         ),
                         child: AspectRatio(
                           aspectRatio: 3.0/1.0,
@@ -114,7 +119,7 @@ class _JobDetailPageState extends State<JobDetailPage> with SingleTickerProvider
                                   tag: widget.data.id.toString(),
                                   child: Material(
                                     elevation: 0.0,
-                                    borderRadius: BorderRadius.only(bottomLeft: Radius.circular(19.0)),
+                                    borderRadius: BorderRadius.only(bottomLeft: Radius.circular(17.0)),
                                     clipBehavior: Clip.hardEdge,
                                     color: Colors.transparent,
                                     child:widget.data.logo.length>1?FadeInImage.assetNetwork(
@@ -155,7 +160,12 @@ class _JobDetailPageState extends State<JobDetailPage> with SingleTickerProvider
                   SliverList(
                     delegate: SliverChildListDelegate(
                       [
-                        JobMainInfo(tech: widget.data.mainTechnology,salary: "${widget.data.salary.salaryMin} - ${widget.data.salary.salaryMax}  ${widget.data.salary.currency} / miesiąc", city:widget.data.company.local.city),
+                        JobMainInfo(
+                          tech: widget.data.mainTechnology,
+                          salary: "${widget.data.salary.salaryMin} - ${widget.data.salary.salaryMax}  ${widget.data.salary.currency} / miesiąc", 
+                          employer: widget.data.company.name,
+                          city: widget.data.company.local.city
+                        ),
                         widget.data.requirements.length>0?JobRequirements(data: widget.data.requirements,):Container(),
                         JobDetailInfo(description: widget.data.description,),
                         widget.data.company.local.latitude!=null && widget.data.company.local.longnitude!=null? JobLocalization(
@@ -183,9 +193,10 @@ class _JobDetailPageState extends State<JobDetailPage> with SingleTickerProvider
 class JobMainInfo extends StatelessWidget{
   final String tech;
   final String salary;
+  final String employer;
   final String city;
 
-  JobMainInfo({this.tech:"Developer",this.salary:"3000 PLN", this.city:"Warszawa"});
+  JobMainInfo({this.tech:"Developer",this.salary:"3000 PLN", this.employer:"Google", this.city:"Warszawa"});
 
   @override
   Widget build(BuildContext context) {
@@ -239,13 +250,13 @@ class JobMainInfo extends StatelessWidget{
                   children: <Widget>[
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 0.0),
-                      child: Icon(Icons.home,size: 30.0,),
+                      child: Icon(Icons.location_city, size: 30.0,),
                     ),
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(0.0, 0.0, 16.0, 0.0),
                         child: Text(
-                          city,
+                          '$employer $city',
                           style: TextStyle(
                             fontWeight: FontWeight.w300,
                             fontFamily: 'Open Sans',
@@ -632,8 +643,8 @@ class JobContactInfo extends StatelessWidget{
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 0.0),
-                  child: RichText(
-                    text: TextSpan(
+                  child: AutoSizeText.rich(
+                    TextSpan(
                       text: '$title:   ',
                       style: TextStyle(
                         color: Theme.of(context).primaryColorDark,
@@ -645,7 +656,13 @@ class JobContactInfo extends StatelessWidget{
                         TextSpan(text: '$value', style: TextStyle(fontWeight: FontWeight.w500)),
                       ],
                     ),
-                  )
+                    style: TextStyle(
+                      fontWeight: FontWeight.w300,
+                      fontFamily: 'Open Sans',
+                      fontSize: 30,
+                    ),
+                    maxLines: 1,
+                  ),
                 ),
               ),
             ],
