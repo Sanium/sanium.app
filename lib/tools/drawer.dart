@@ -2,7 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
 
-Widget mainDrawer(BuildContext context, Function onMap) {
+Widget mainDrawer(BuildContext context, Function onMap, Function onInfo) {
   return Container(
       width: MediaQuery.of(context).size.width * 0.65,
       child: Drawer(
@@ -12,42 +12,48 @@ Widget mainDrawer(BuildContext context, Function onMap) {
             DrawerHeader(
               child: Image.asset('assets/sanium.png'),
               decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor,
                 border: Border(bottom: BorderSide(width: 3.0, color: Theme.of(context).dividerColor)),
               ),
             ),
-            ListTile(
-              title: AutoSizeText(
-                'Mapa',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.w400,
-                  fontFamily: 'Open Sans',
-                  color: Theme.of(context).primaryColorDark,
+            Card(
+              child: ListTile(
+                title: AutoSizeText(
+                  'Mapa',
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.w400,
+                    fontFamily: 'Open Sans',
+                    color: Theme.of(context).primaryColorDark,
+                  ),
+                  maxLines: 1,
                 ),
-                maxLines: 1,
+                leading: Icon(Icons.map, color: Theme.of(context).accentColor),
+                onTap: () {
+                  Navigator.pop(context);
+                  onMap();
+                }
+                  
               ),
-              trailing: Icon(Icons.map, color: Theme.of(context).accentColor),
-              onTap: () {
-                Navigator.pop(context);
-                onMap();
-              }
-                
             ),
-            ListTile(
-              title: AutoSizeText(
-                'Informacje',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.w400,
-                  fontFamily: 'Open Sans',
-                  color: Theme.of(context).primaryColorDark,
+            Card(
+              child: ListTile(
+                title: AutoSizeText(
+                  'Informacje',
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.w400,
+                    fontFamily: 'Open Sans',
+                    color: Theme.of(context).primaryColorDark,
+                  ),
+                  maxLines: 1,
                 ),
-                maxLines: 1,
+                leading: Icon(Icons.info_outline),
+                onTap: () {
+                  Navigator.pop(context);
+                  onInfo();
+                },
               ),
-              trailing: Icon(Icons.info_outline),
-              onTap: () {
-                Navigator.pop(context);
-              },
             ),
 
           ],

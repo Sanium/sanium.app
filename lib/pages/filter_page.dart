@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:sanium_app/tools/filter.dart';
 import 'package:sanium_app/tools/JobOffer.dart';
-// import 'package:sanium_app/tools/data_search.dart';
 import 'package:searchable_dropdown/searchable_dropdown.dart';
 
 
@@ -87,7 +86,6 @@ class _FilterPageState extends State<FilterPage>{
     return Padding(
       padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
       child: Container(
-        // height: height,
         decoration: BoxDecoration(
           color: Theme.of(context).primaryColor,
           borderRadius: BorderRadius.all(Radius.circular(10.0)),
@@ -186,128 +184,131 @@ class _FilterPageState extends State<FilterPage>{
                 slivers: <Widget>[
                   SliverList(
                     delegate: SliverChildListDelegate([
-                      Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      mainAxisSize: MainAxisSize.max,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: <Widget>[
-                        Column(
-                          children: <Widget>[
-                            createSearcher("Miasto", widget.cities, MediaQuery.of(context).size.height * 0.17),
-                            createSearcher("Doświadczenie", widget.exp, MediaQuery.of(context).size.height * 0.17),
-                            createSearcher("Technologia", widget.tech, MediaQuery.of(context).size.height * 0.17),
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                    Center(
+                    child: Container(
+                      color: Colors.blueGrey[50],
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisSize: MainAxisSize.max,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: <Widget>[
+                          Column(
+                            children: <Widget>[
+                              createSearcher("Miasto", widget.cities, MediaQuery.of(context).size.height * 0.17),
+                              createSearcher("Doświadczenie", widget.exp, MediaQuery.of(context).size.height * 0.17),
+                              createSearcher("Technologia", widget.tech, MediaQuery.of(context).size.height * 0.17),
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                                child: Container(
+                                  height: MediaQuery.of(context).size.height * 0.17,
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).primaryColor,
+                                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                    border: Border.all(width: 1.5, color: Colors.grey[400],)
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(3.0),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                                      children: <Widget>[
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            color: Theme.of(context).primaryColor,
+                                            border: Border(
+                                              top: BorderSide(width: 0.0, color: Theme.of(context).primaryColor,),
+                                              bottom: BorderSide(width: 2.0, color: Theme.of(context).accentColor),
+                                              left: BorderSide(width: 0.0, color: Theme.of(context).primaryColor,),
+                                              right: BorderSide(width: 0.0, color: Theme.of(context).primaryColor,),
+                                            )
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: AutoSizeText(
+                                              "Płaca",
+                                              style: TextStyle(
+                                                fontSize: 18.0,
+                                                fontWeight: FontWeight.w400,
+                                                fontFamily: 'Open Sans',
+                                                color: Theme.of(context).primaryColorDark,
+                                              ),
+                                              maxLines: 1,
+                                            ),
+                                          ),
+                                        ),
+                                        Expanded(
+                                            child: RangeSlider(
+                                            values: values,
+                                            onChanged: (RangeValues value) {
+                                              setState(() => values = value);
+                                            },
+                                            divisions: divisions,
+                                            min: widget.min,
+                                            max: widget.max,
+                                            labels: RangeLabels('MIN: ${(values.start.toInt()~/100)*100}','MAX: ${(values.end.toInt()~/100)*100}'),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Container(
+                            height: MediaQuery.of(context).size.height * 0.11,
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
                               child: Container(
-                                height: MediaQuery.of(context).size.height * 0.17,
                                 decoration: BoxDecoration(
                                   color: Theme.of(context).primaryColor,
                                   borderRadius: BorderRadius.all(Radius.circular(10.0)),
                                   border: Border.all(width: 1.5, color: Colors.grey[400],)
                                 ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                                    children: <Widget>[
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          color: Theme.of(context).primaryColor,
-                                          border: Border(
-                                            top: BorderSide(width: 0.0, color: Theme.of(context).primaryColor,),
-                                            bottom: BorderSide(width: 2.0, color: Theme.of(context).accentColor),
-                                            left: BorderSide(width: 0.0, color: Theme.of(context).primaryColor,),
-                                            right: BorderSide(width: 0.0, color: Theme.of(context).primaryColor,),
-                                          )
-                                        ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: AutoSizeText(
-                                            "Płaca",
-                                            style: TextStyle(
-                                              fontSize: 18.0,
-                                              fontWeight: FontWeight.w400,
-                                              fontFamily: 'Open Sans',
-                                              color: Theme.of(context).primaryColorDark,
+                                child: Center(
+                                  child: FlatButton(
+                                    shape: RoundedRectangleBorder(borderRadius: new BorderRadius.circular(9.0)),
+                                    padding: const EdgeInsets.fromLTRB(30, 0, 0, 0),
+                                    highlightColor: Colors.transparent,
+                                    splashColor: Colors.amberAccent,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                                      children: <Widget>[
+                                        Container(
+                                          child: Center(
+                                            child: AutoSizeText(
+                                              "Filtruj",
+                                              style: TextStyle(
+                                                fontSize: 35.0,
+                                                fontWeight: FontWeight.w300,
+                                                fontFamily: 'Open Sans',
+                                                color: Theme.of(context).primaryColorDark,
+                                              ),
+                                              textAlign: TextAlign.center,
                                             ),
-                                            maxLines: 1,
                                           ),
                                         ),
-                                      ),
-                                      Expanded(
-                                          child: RangeSlider(
-                                          values: values,
-                                          onChanged: (RangeValues value) {
-                                            setState(() => values = value);
-                                          },
-                                          divisions: divisions,
-                                          min: widget.min,
-                                          max: widget.max,
-                                          labels: RangeLabels('MIN: ${(values.start.toInt()~/100)*100}','MAX: ${(values.end.toInt()~/100)*100}'),
+                                        Icon(
+                                          Icons.filter_list,
+                                          size: 35,
+                                          color: Theme.of(context).accentColor,
                                         ),
-                                      )
-                                    ],
+                                      ],
+                                    ), 
+                                    onPressed: () => getData(
+                                      city: selectedValues['Miasto'],
+                                      exp: selectedValues['Doświadczenie'],
+                                      tech: selectedValues['Technologia'],
+                                      salaryFrom: values.start!=widget.min?(values.start.toInt()~/100*100).toString():values.end==widget.max?'':(values.start.toInt()~/100*100).toString(),
+                                      salaryTo: values.end!=widget.max?(values.end.toInt()~/100*100).toString():values.start==widget.min?'':(values.end.toInt()~/100*100).toString()
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ],
-                        ),
-                        Container(
-                          height: MediaQuery.of(context).size.height * 0.11,
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).primaryColor,
-                                borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                                border: Border.all(width: 1.5, color: Colors.grey[400],)
-                              ),
-                              child: Center(
-                                child: FlatButton(
-                                  shape: RoundedRectangleBorder(borderRadius: new BorderRadius.circular(9.0)),
-                                  padding: const EdgeInsets.fromLTRB(30, 0, 0, 0),
-                                  highlightColor: Colors.transparent,
-                                  splashColor: Colors.amberAccent,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                                    children: <Widget>[
-                                      Container(
-                                        child: Center(
-                                          child: AutoSizeText(
-                                            "Filtruj",
-                                            style: TextStyle(
-                                              fontSize: 35.0,
-                                              fontWeight: FontWeight.w300,
-                                              fontFamily: 'Open Sans',
-                                              color: Theme.of(context).primaryColorDark,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        ),
-                                      ),
-                                      Icon(
-                                        Icons.filter_list,
-                                        size: 35,
-                                        color: Theme.of(context).accentColor,
-                                      ),
-                                    ],
-                                  ), 
-                                  onPressed: () => getData(
-                                    city: selectedValues['Miasto'],
-                                    exp: selectedValues['Doświadczenie'],
-                                    tech: selectedValues['Technologia'],
-                                    salaryFrom: values.start!=widget.min?(values.start.toInt()~/100*100).toString():values.end==widget.max?'':(values.start.toInt()~/100*100).toString(),
-                                    salaryTo: values.end!=widget.max?(values.end.toInt()~/100*100).toString():values.start==widget.min?'':(values.end.toInt()~/100*100).toString()
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        )
-                      ],
+                          )
+                        ],
+                      ),
                     ),
                   ),
                 ],
