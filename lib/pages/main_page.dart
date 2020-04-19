@@ -6,11 +6,13 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_animated/auto_animated.dart';
+import 'package:sanium_app/pages/info_page.dart';
 import 'package:sanium_app/pages/map_page.dart';
 import 'package:sanium_app/tools/JobOffer.dart';
 import 'package:sanium_app/pages/job_offer_page.dart';
 import 'package:sanium_app/pages/filter_page.dart';
 import 'package:sanium_app/routes/fancy_page_route.dart';
+import 'package:sanium_app/tools/drawer.dart';
 
 
 class HomePage extends StatefulWidget {
@@ -185,6 +187,17 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
     )??true;
   }
 
+  void onInfo() async {
+    _animationController.forward(from: 0.0);
+    stateNotifier.value = await Navigator.of(context).push(
+      FancyPageRoute(
+        builder: (_) {
+          return InfoPage();
+        },
+      ),
+    )??true;
+  }
+
   void onFilter() async {
     dynamic tempList;
     _animationController.forward(from: 0.0);
@@ -252,78 +265,17 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
         ),
       ),
 
-      floatingActionButton: Container(
-        width: MediaQuery.of(context).size.width-MediaQuery.of(context).size.width*0.07,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            new FloatingActionButton(
-                onPressed: () => onMap(),
-                elevation: 15.0,
-                heroTag: null,
-                child: Container(child:Icon(Icons.map, color:Theme.of(context).accentColor,)),
-                backgroundColor: Theme.of(context).primaryColor,
-                foregroundColor: Theme.of(context).primaryColor,
-                
-            ),
-            new FloatingActionButton(
-                onPressed: () => onFilter(),
-                elevation: 15.0,
-                heroTag: null,
-                child: Icon(Icons.filter_list,color: Theme.of(context).accentColor,),
-                backgroundColor: Theme.of(context).primaryColor,
-                foregroundColor: Theme.of(context).primaryColor,
-            ),
-          ],
-        ),
+      floatingActionButton: new FloatingActionButton(
+        onPressed: () => onFilter(),
+        elevation: 15.0,
+        heroTag: null,
+        child: Icon(Icons.filter_list,color: Theme.of(context).accentColor,),
+        backgroundColor: Theme.of(context).primaryColor,
+        foregroundColor: Theme.of(context).primaryColor,
       ),
 
-      drawer: Container(
-        width: MediaQuery.of(context).size.width * 0.65,
-        child: Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: <Widget>[
-              DrawerHeader(
-                child: Text(
-                  'Sanium Creators:',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 30,
-                  ),
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                ),
-              ),
-              ListTile(
-                title: Text('Michał Popiel'),
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                title: Text('Bartłomiej Olszanowski'),
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                title: Text('Maciej Owsianny'),
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                title: Text('Błażej Darul'),
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
+      drawer: mainDrawer(context,onMap,onInfo),
+
       body: CustomSliverList(
         key: listKey,
         title: widget.title,
@@ -466,8 +418,8 @@ class _CustomSliverListState extends State<CustomSliverList>{
                                                 child: AutoSizeText(
                                                   'Technologia',
                                                   style: TextStyle(
-                                                    fontSize: 18.0,
-                                                    fontWeight: FontWeight.w400,
+                                                    fontSize: 20.0,
+                                                    fontWeight: FontWeight.w300,
                                                     fontFamily: 'Open Sans',
                                                     color: Theme.of(context).primaryColorDark,
                                                   ),
@@ -577,7 +529,7 @@ class _CustomSliverListState extends State<CustomSliverList>{
                                                 child: AutoSizeText(
                                                   'Płaca',
                                                   style: TextStyle(
-                                                    fontSize: 18.0,
+                                                    fontSize: 20.0,
                                                     fontWeight: FontWeight.w300,
                                                     fontFamily: 'Open Sans',
                                                     color: Theme.of(context).primaryColorDark,
@@ -667,7 +619,7 @@ class _MenuListTileState extends State<MenuListTile> {
             children: <Widget>[
               Icon(
                 icon,
-                size: 20.0,
+                size: 18.0,
                 color: Colors.grey[600],
               ),
               Container(
@@ -811,8 +763,8 @@ class _MenuListTileState extends State<MenuListTile> {
                     children: <Widget>[
                       Row(
                         children: <Widget>[
-                          createBottomTag(widget.data.company.name, Icons.home, MediaQuery.of(context).size.width * 0.3, 25),
-                          createBottomTag(widget.data.company.local.city, Icons.pin_drop, MediaQuery.of(context).size.width * 0.3, 25),
+                          createBottomTag(widget.data.company.name, Icons.location_city, MediaQuery.of(context).size.width * 0.3, 25),
+                          createBottomTag(widget.data.company.local.city, Icons.place, MediaQuery.of(context).size.width * 0.3, 25),
                         ],
                       ),
                       createBottomTag(widget.data.mainTechnology, Icons.bug_report, MediaQuery.of(context).size.width * 0.3, 25),
