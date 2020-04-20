@@ -115,18 +115,15 @@ class _JobDetailPageState extends State<JobDetailPage> with SingleTickerProvider
                           child: Container(
                             child: Row(
                               children: <Widget>[
-                                Hero(
-                                  tag: widget.data.id.toString(),
-                                  child: Material(
-                                    elevation: 0.0,
-                                    borderRadius: BorderRadius.only(bottomLeft: Radius.circular(17.0)),
-                                    clipBehavior: Clip.hardEdge,
-                                    color: Colors.transparent,
-                                    child:widget.data.logo.length>1?FadeInImage.assetNetwork(
-                                      placeholder: 'assets/placeholder.png',
-                                      image: widget.data.logo,
-                                    ):Container(child:Image.asset('assets/placeholder.png')),
-                                  ),
+                                Material(
+                                  elevation: 0.0,
+                                  borderRadius: BorderRadius.only(bottomLeft: Radius.circular(17.0)),
+                                  clipBehavior: Clip.hardEdge,
+                                  color: Colors.transparent,
+                                  child:widget.data.logo.length>1?FadeInImage.assetNetwork(
+                                    placeholder: 'assets/placeholder.png',
+                                    image: widget.data.logo,
+                                  ):Container(child:Image.asset('assets/placeholder.png')),
                                 ),
                                 Expanded(
                                   child: Center(
