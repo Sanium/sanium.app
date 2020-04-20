@@ -117,7 +117,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
       'min_salary':0,
       'max_salary':10000
     };
-    jobOfferList = JobOfferList(list: createJobList1(json.decode(extremeData)));
+    jobOfferList = JobOfferList(list: createPlaceholderList(json.decode(extremeData)));
     return "Success!";
   }
 
@@ -141,7 +141,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
   void _initAnimationControllers() {
     _animationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 550),
+      duration: Duration(milliseconds: 400),
     )..addListener(() {
         setState(() {});
       });
