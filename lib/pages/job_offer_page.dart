@@ -115,18 +115,15 @@ class _JobDetailPageState extends State<JobDetailPage> with SingleTickerProvider
                           child: Container(
                             child: Row(
                               children: <Widget>[
-                                Hero(
-                                  tag: widget.data.id.toString(),
-                                  child: Material(
-                                    elevation: 0.0,
-                                    borderRadius: BorderRadius.only(bottomLeft: Radius.circular(17.0)),
-                                    clipBehavior: Clip.hardEdge,
-                                    color: Colors.transparent,
-                                    child:widget.data.logo.length>1?FadeInImage.assetNetwork(
-                                      placeholder: 'assets/placeholder.png',
-                                      image: widget.data.logo,
-                                    ):Container(child:Image.asset('assets/placeholder.png')),
-                                  ),
+                                Material(
+                                  elevation: 0.0,
+                                  borderRadius: BorderRadius.only(bottomLeft: Radius.circular(17.0)),
+                                  clipBehavior: Clip.hardEdge,
+                                  color: Colors.transparent,
+                                  child:widget.data.logo.length>1?FadeInImage.assetNetwork(
+                                    placeholder: 'assets/placeholder.png',
+                                    image: widget.data.logo,
+                                  ):Container(child:Image.asset('assets/placeholder.png')),
                                 ),
                                 Expanded(
                                   child: Center(
@@ -163,6 +160,7 @@ class _JobDetailPageState extends State<JobDetailPage> with SingleTickerProvider
                         JobMainInfo(
                           tech: widget.data.mainTechnology,
                           salary: "${widget.data.salary.salaryMin} - ${widget.data.salary.salaryMax}  ${widget.data.salary.currency} / miesiąc", 
+                          employment: widget.data.employment,
                           employer: widget.data.company.name,
                           city: widget.data.company.local.city
                         ),
@@ -193,10 +191,11 @@ class _JobDetailPageState extends State<JobDetailPage> with SingleTickerProvider
 class JobMainInfo extends StatelessWidget{
   final String tech;
   final String salary;
+  final String employment;
   final String employer;
   final String city;
 
-  JobMainInfo({this.tech:"Developer",this.salary:"3000 PLN", this.employer:"Google", this.city:"Warszawa"});
+  JobMainInfo({this.tech:"Developer",this.salary:"3000 PLN", this.employment:"Normal", this.employer:"Google", this.city:"Warszawa"});
 
   @override
   Widget build(BuildContext context) {
@@ -300,6 +299,36 @@ class JobMainInfo extends StatelessWidget{
               ),
             ),
 
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.transparent
+                ),
+                child: Row(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 0.0),
+                      child: Icon(Icons.access_time,size: 30.0,),
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(0.0, 0.0, 16.0, 0.0),
+                        child: Text(
+                          employment,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w300,
+                            fontFamily: 'Open Sans',
+                            fontSize: 20,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
             Container(
               margin: EdgeInsets.symmetric(horizontal: 5.0),
               height: 3.0,
@@ -317,7 +346,7 @@ class JobMainInfo extends StatelessWidget{
 }
 
 class JobRequirements extends StatelessWidget{
-  final String jobName = "Wymagania";
+  final String jobName = "Umiejętności";
   final List<Requirement> data;
   JobRequirements({this.data});
 
@@ -411,44 +440,31 @@ class JobRequirements extends StatelessWidget{
 
   Widget createReqList(List requirements){
     return Container(
-      height: 200,
-      child: ListView.builder(
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: requirements.length,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-              color: Colors.transparent,
-              child: Center(
-                child: Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 0.0),
-                        child: Text(
-                          requirements[index].name,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w400,
-                            fontFamily: 'Open Sans',
-                            fontSize: 22,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 0.0),
-                        child: createLevelWidget(context: context, level:requirements[index].level,tempIcon: Icons.stars)
-                      ),
-                    ),
-                  ],
+      height: requirements.length*50.0,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+        child: ListView.builder(
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: requirements.length,
+          itemBuilder: (context, index) {
+            return Card(
+              elevation: 1.0,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: AutoSizeText(
+                  requirements[index].name,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w300,
+                    fontFamily: 'Open Sans',
+                    fontSize: 20,
+                  ),
+                  maxLines: 1,
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
 
+        ),
       ),
     );
   }
@@ -746,6 +762,7 @@ class JobLocalization extends StatelessWidget{
   JobLocalization({this.id,this.latitude,this.longnitude,this.logo, this.show});
 
   Widget createMap(String logo, double latitude, double longnitude){
+    print('$latitude $longnitude');
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 0, 8, 5),
       child: Container(

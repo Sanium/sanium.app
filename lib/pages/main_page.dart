@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
+import 'dart:math';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
@@ -13,6 +13,7 @@ import 'package:sanium_app/pages/job_offer_page.dart';
 import 'package:sanium_app/pages/filter_page.dart';
 import 'package:sanium_app/routes/fancy_page_route.dart';
 import 'package:sanium_app/tools/drawer.dart';
+import 'package:sanium_app/tools/rotate_trans.dart';
 
 
 class HomePage extends StatefulWidget {
@@ -31,6 +32,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
   JobOfferList jobOfferList = new JobOfferList();
 
   AnimationController _animationController;
+  AnimationController _refreshController;
+  Animation<double> _refreshAnimation;
   bool returnFromDetailPage = false;
   ValueNotifier<bool> stateNotifier;
 
@@ -114,7 +117,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
       'min_salary':0,
       'max_salary':10000
     };
-    jobOfferList = JobOfferList(list: createJobList1(json.decode(extremeData)));
+    jobOfferList = JobOfferList(list: createPlaceholderList(json.decode(extremeData)));
     return "Success!";
   }
 
@@ -131,13 +134,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
     this.placeholderData(); // wczytanie placeholdera
     this.getData(); // wszytanie danych z bazy danych
     super.initState();
-    _initAnimationController();
+    _initAnimationControllers();
+    _initAnimations();
   }
   
-  void _initAnimationController() {
+  void _initAnimationControllers() {
     _animationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 550),
+      duration: Duration(milliseconds: 400),
     )..addListener(() {
         setState(() {});
       });
@@ -149,10 +153,17 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
           stateNotifier.value = false;
         }
       });
+
+    _refreshController = AnimationController(vsync: this, duration: Duration(milliseconds: 400));
+  }
+
+  void _initAnimations(){
+    _refreshAnimation = Tween<double>(begin: 0, end: pi + pi).animate(_refreshController);
   }
 
   @override
   void dispose() {
+    _refreshController.dispose();
     _animationController.dispose();
     stateNotifier.dispose();
     super.dispose();
@@ -234,14 +245,20 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
         child: new AppBar(
           actions: <Widget>[
             FlatButton(
-              padding: const EdgeInsets.fromLTRB(30, 0, 0, 0),
+              padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
               highlightColor: Colors.transparent,
               splashColor: Colors.transparent,
-              child: Icon(
-                Icons.autorenew,
-                color: Colors.grey[400],
-              ), 
-              onPressed: () => getData(),
+              onPressed: (){
+                _refreshController.forward(from: 0);
+                getData();
+              },
+              child: RotateTrans(
+                Icon(
+                  Icons.autorenew,
+                  color: Colors.grey[400],
+                ),
+                _refreshAnimation
+              ),
             )
           ],
           leading: IconButton(
@@ -570,8 +587,8 @@ class _CustomSliverListState extends State<CustomSliverList>{
                 LiveSliverList(
                   reAnimateOnVisibility: true,
                   controller: controller,
-                  showItemInterval: Duration(milliseconds: 200),
-                  showItemDuration: Duration(milliseconds: 800),
+                  showItemInterval: Duration(milliseconds: 100),
+                  showItemDuration: Duration(milliseconds: 400),
                   itemCount: widget.list.get().length.toInt(),
                   itemBuilder: _buildAnimatedItem,
                 ),
@@ -673,22 +690,19 @@ class _MenuListTileState extends State<MenuListTile> {
                       children: <Widget>[
                         Padding(
                           padding: const EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 10.0),
-                          child: Hero(
-                            tag: widget.data.id.toString(),
-                            child: Container(
-                              height: MediaQuery.of(context).orientation == Orientation.portrait? MediaQuery.of(context).size.height * 0.10:MediaQuery.of(context).size.height * 0.20,
-                              child: AspectRatio(
-                                aspectRatio: 1.0,
-                                child: Material(
-                                  borderRadius: BorderRadius.circular(20.0),//! tu się zmienia kółeczko
-                                  clipBehavior: Clip.hardEdge,
-                                  color: Theme.of(context).primaryColor,
-                                  child: widget.data.logo.length>1?FadeInImage.assetNetwork(
-                                    placeholder: 'assets/placeholder.png',
-                                    image: widget.data.logo,
-                                  ):Container(child:Image.asset('assets/placeholder.png')),
-                                )
-                              ),
+                          child: Container(
+                            height: MediaQuery.of(context).orientation == Orientation.portrait? MediaQuery.of(context).size.height * 0.10:MediaQuery.of(context).size.height * 0.20,
+                            child: AspectRatio(
+                              aspectRatio: 1.0,
+                              child: Material(
+                                borderRadius: BorderRadius.circular(20.0),//! tu się zmienia kółeczko
+                                clipBehavior: Clip.hardEdge,
+                                color: Theme.of(context).primaryColor,
+                                child: widget.data.logo.length>1?FadeInImage.assetNetwork(
+                                  placeholder: 'assets/placeholder.png',
+                                  image: widget.data.logo,
+                                ):Container(child:Image.asset('assets/placeholder.png')),
+                              )
                             ),
                           ),
                         ),
