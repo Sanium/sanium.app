@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:geocoder/geocoder.dart';
+import 'package:sanium_app/tools/bookmark.dart';
 import 'package:sanium_app/tools/sort_controller.dart';
 
 class Requirement{
@@ -76,6 +77,7 @@ class JobOffer{
   String description;
   String logo;
   String employment;
+  bool isBookmark;
 
   JobOffer(int id, String title, Salary salary, Company company, String mainTechnology, List<Requirement> requirements, String description, String logo, String employment){
     this.id = id;
@@ -87,23 +89,32 @@ class JobOffer{
     this.description = description;
     this.logo = logo;
     this.employment = employment;
+    this.isBookmark = false;
   }
 }
 
 class JobOfferList{
   List<JobOffer> list;
   SortController sortController;
+  BookmarkController bookmarkController;
   JobOfferList({List<JobOffer> list}){
     this.list = list;
     this.sortController = SortController();
+    this.bookmarkController = BookmarkController();
   }
 
   List<JobOffer> get(){
     return this.list;
   }
 
-  void replace(List<JobOffer> newList){
+  void reload() async{
+    this.bookmarkController.setBookmarks(this.list);
+    
+  }
+
+  void replace(List<JobOffer> newList)async{
     this.list = newList;
+    await this.bookmarkController.setBookmarks(this.list);
   }
 
   void append(List<JobOffer> nextPart){

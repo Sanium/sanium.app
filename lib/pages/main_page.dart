@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -83,11 +85,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
       return "Fail!";
     }
     print("Page: ${json.decode(data)['meta']['current_page']} loading complete");
-    this.setState(() {
+    jobOfferList = JobOfferList(list:createJobList2(json.decode(data)));
+    await jobOfferList.bookmarkController.setBookmarks(jobOfferList.list);
+    this.setState((){
       jobOfferList.sortController.resetStates();
       nextPage = json.decode(data)['links']['next'];
       filters = json.decode(data)['filters'];
-      jobOfferList = JobOfferList(list:createJobList2(json.decode(data)));
     });
     return "Success!";
   }
@@ -100,10 +103,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
       return "Fail!";
     }
     print("Page: ${json.decode(data)['meta']['current_page']} loading complete");
+    jobOfferList.append(createJobList2(json.decode(data)));
+    await jobOfferList.bookmarkController.setBookmarks(jobOfferList.list);
     this.setState(() {
       nextPage = json.decode(data)['links']['next'];
-      filters = json.decode(data)['filters'];
-      jobOfferList.append(createJobList2(json.decode(data)));
+      filters = json.decode(data)['filters'];  
     });
     return "Success!";
   }
@@ -136,6 +140,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
     super.initState();
     _initAnimationControllers();
     _initAnimations();
+    sleep(Duration(seconds: 5));
   }
   
   void _initAnimationControllers() {
@@ -144,7 +149,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
       duration: Duration(milliseconds: 400),
     )..addListener(() {
         setState(() {});
-      });
+    });
 
     stateNotifier = ValueNotifier(returnFromDetailPage)
       ..addListener(() {
@@ -185,6 +190,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
     else{
       stateNotifier.value = true;
     }    
+  }
+
+  void manageBookmark(JobOffer o, int operation) async{
+    // print(o.id);
+    if(operation==0){jobOfferList.bookmarkController.removeBookmark(o.id);}
+    else if(operation==1){jobOfferList.bookmarkController.addBookmark(o);}
   }
 
   void onMap() async {
@@ -300,14 +311,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
         onSelected: onSelected,
         customSort: sortData,
         loadNextData: getNextData,
+        manageBookmark: manageBookmark,
       ),
     );
   }
 }
 
 class CustomSliverList extends StatefulWidget{
-  CustomSliverList({Key key, this.title, this.list, this.onSelected, this.customSort, this.loadNextData}) : super(key: key);
+  CustomSliverList({Key key, this.title, this.list, this.onSelected, this.manageBookmark, this.customSort, this.loadNextData}) : super(key: key);
   final Function(JobOffer) onSelected;
+  final Function(JobOffer, int) manageBookmark;
   final Function(String, int) customSort;
   final Function loadNextData;
   final String title;
@@ -355,6 +368,7 @@ class _CustomSliverListState extends State<CustomSliverList>{
               data: widget.list.get()[index-1],
               thumbnail: Icon(Icons.android),
               onSelected: widget.onSelected,
+              manageBookmark: widget.manageBookmark,
             ),
           ),
         ),
@@ -461,7 +475,7 @@ class _CustomSliverListState extends State<CustomSliverList>{
                                   ],
                                 ),
                                 onPressed: (){
-                                  print('Technologia'); 
+                                  // print('Technologia'); 
                                   widget.customSort("technology",0);
                                 },
                               ),
@@ -517,7 +531,7 @@ class _CustomSliverListState extends State<CustomSliverList>{
                                   ],
                                 ),
                                 onPressed: (){
-                                  print('Lokalizacja'); 
+                                  // print('Lokalizacja'); 
                                   widget.customSort("city",1);
                                 },
                               ),
@@ -572,7 +586,7 @@ class _CustomSliverListState extends State<CustomSliverList>{
                                   ],
                                 ),
                                 onPressed: (){
-                                  print('Płaca'); 
+                                  // print('Płaca'); 
                                   widget.customSort("salaryMax",2);
                                 },
                               ),
@@ -610,10 +624,12 @@ class MenuListTile extends StatefulWidget{
     this.id,
     this.thumbnail,
     this.data,
-    this.onSelected
+    this.onSelected,
+    this.manageBookmark
   }) : super(key: key);
 
   final Function(JobOffer) onSelected;
+  final Function(JobOffer, int) manageBookmark;
   final int id;
   final Widget thumbnail;
   final JobOffer data;
@@ -623,7 +639,12 @@ class MenuListTile extends StatefulWidget{
 }
 
 class _MenuListTileState extends State<MenuListTile> {
-
+  void changeState(){
+    setState(() {
+      widget.data.isBookmark = widget.data.isBookmark==true?false:true;
+      widget.data.isBookmark==true?widget.manageBookmark(widget.data, 1):widget.manageBookmark(widget.data, 0);
+    });
+  }
   Widget createBottomTag(String text, IconData icon, double width, double height){
     return  Padding(
       padding: const EdgeInsets.all(1.0),
@@ -673,11 +694,12 @@ class _MenuListTileState extends State<MenuListTile> {
         elevation: 2.0,
         borderRadius: BorderRadius.circular(10.0),
         child: InkWell (
+          splashColor: Colors.transparent,
+          focusColor: Colors.transparent,
           onTap: () => widget.onSelected(widget.data),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 5.0),
             child: SizedBox(
-              // height: MediaQuery.of(context).size.height * 0.15,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
@@ -718,17 +740,38 @@ class _MenuListTileState extends State<MenuListTile> {
                                   crossAxisAlignment: CrossAxisAlignment.stretch,
                                   children: <Widget>[
                                     Container(
-                                      child: Padding(
-                                        padding: const EdgeInsets.fromLTRB(0.0, 5.0, 0.0, 5.0),
-                                        child: AutoSizeText(
-                                          "${widget.data.title}",
-                                          style:TextStyle(
-                                            fontWeight: FontWeight.w400,
-                                            fontFamily: 'Open Sans',
-                                            fontSize: 22,
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: <Widget>[
+                                          Container(
+                                            width: MediaQuery.of(context).size.width * 0.60,
+                                            child: Padding(
+                                              padding: const EdgeInsets.fromLTRB(0.0, 5.0, 0.0, 5.0),
+                                              child: AutoSizeText(
+                                                widget.data.title,
+                                                style:TextStyle(
+                                                  fontWeight: FontWeight.w400,
+                                                  fontFamily: 'Open Sans',
+                                                  fontSize: 20,
+                                                ),
+                                                maxLines: 1,
+                                                minFontSize: 16,
+
+                                                maxFontSize: 20,
+                                              ),
+                                            ),
                                           ),
-                                          maxLines: 1,
-                                        ),
+                                          InkWell(
+                                            autofocus: true,
+                                            onTap: () => changeState(),
+                                            child:Padding(
+                                              padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                                              child: widget.data.isBookmark==true?Icon(Icons.bookmark, color: Theme.of(context).accentColor):Icon(Icons.bookmark_border),
+                                            ),
+                                            highlightColor: Colors.transparent,
+                                            splashColor: Colors.transparent,
+                                          ),
+                                        ],
                                       ),
                                       decoration: BoxDecoration(
                                         color: Colors.transparent,
