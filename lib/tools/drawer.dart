@@ -2,7 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
 
-Widget mainDrawer(BuildContext context, Function onMap, Function onInfo) {
+Widget mainDrawer(BuildContext context, Function onMap, Function onInfo, Function onBookmark) {
   return Container(
       width: MediaQuery.of(context).size.width * 0.65,
       child: Drawer(
@@ -28,7 +28,7 @@ Widget mainDrawer(BuildContext context, Function onMap, Function onInfo) {
                   ),
                   maxLines: 1,
                 ),
-                leading: Icon(Icons.map, color: Theme.of(context).accentColor),
+                leading: Icon(Icons.map, color: Theme.of(context).primaryColorDark),
                 onTap: () {
                   Navigator.pop(context);
                   onMap();
@@ -36,6 +36,28 @@ Widget mainDrawer(BuildContext context, Function onMap, Function onInfo) {
                   
               ),
             ),
+
+            Card(
+              child: ListTile(
+                title: AutoSizeText(
+                  'Zakładki',
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.w400,
+                    fontFamily: 'Open Sans',
+                    color: Theme.of(context).primaryColorDark,
+                  ),
+                  maxLines: 1,
+                ),
+                leading: Icon(Icons.bookmark_border, color: Theme.of(context).primaryColorDark),
+                onTap: () {
+                  Navigator.pop(context);
+                  onBookmark();
+                }
+                  
+              ),
+            ),
+
             Card(
               child: ListTile(
                 title: AutoSizeText(
@@ -48,7 +70,7 @@ Widget mainDrawer(BuildContext context, Function onMap, Function onInfo) {
                   ),
                   maxLines: 1,
                 ),
-                leading: Icon(Icons.info_outline),
+                leading: Icon(Icons.info_outline, color: Theme.of(context).primaryColorDark),
                 onTap: () {
                   Navigator.pop(context);
                   onInfo();
