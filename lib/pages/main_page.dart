@@ -17,6 +17,8 @@ import 'package:sanium_app/routes/fancy_page_route.dart';
 import 'package:sanium_app/tools/drawer.dart';
 import 'package:sanium_app/tools/rotate_trans.dart';
 
+import 'bookmark_page.dart';
+
 
 class HomePage extends StatefulWidget {
   HomePage({Key key, this.title}) : super(key: key);
@@ -220,6 +222,17 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
     )??true;
   }
 
+  void onBookmark() async {
+    _animationController.forward(from: 0.0);
+    stateNotifier.value = await Navigator.of(context).push(
+      FancyPageRoute(
+        builder: (_) {
+          return BookmarkPage();
+        },
+      ),
+    )??true;
+  }
+
   void onFilter() async {
     dynamic tempList;
     _animationController.forward(from: 0.0);
@@ -302,7 +315,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
         foregroundColor: Theme.of(context).primaryColor,
       ),
 
-      drawer: mainDrawer(context,onMap,onInfo),
+      drawer: mainDrawer(context,onMap,onInfo,onBookmark),
 
       body: CustomSliverList(
         key: listKey,
@@ -318,12 +331,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
 }
 
 class CustomSliverList extends StatefulWidget{
-  CustomSliverList({Key key, this.title, this.list, this.onSelected, this.manageBookmark, this.customSort, this.loadNextData}) : super(key: key);
+  CustomSliverList({Key key, this.title, this.list, this.onSelected, this.manageBookmark, this.customSort, this.loadNextData, this.isBookmarkPage:false}) : super(key: key);
   final Function(JobOffer) onSelected;
   final Function(JobOffer, int) manageBookmark;
   final Function(String, int) customSort;
   final Function loadNextData;
   final String title;
+  final bool isBookmarkPage;
   final JobOfferList list;
 
   @override
@@ -369,6 +383,7 @@ class _CustomSliverListState extends State<CustomSliverList>{
               thumbnail: Icon(Icons.android),
               onSelected: widget.onSelected,
               manageBookmark: widget.manageBookmark,
+              isBookmarkPage: widget.isBookmarkPage,
             ),
           ),
         ),
@@ -411,7 +426,7 @@ class _CustomSliverListState extends State<CustomSliverList>{
             color: Colors.blueGrey[50],
             child: CustomScrollView(
               controller: controller,
-              slivers: <Widget>[
+              slivers:  widget.isBookmarkPage==false?<Widget>[
                 SliverAppBar(
                   leading: new Container(),
                   backgroundColor: Theme.of(context).primaryColor,
@@ -597,7 +612,7 @@ class _CustomSliverListState extends State<CustomSliverList>{
                     ),
                   )
                 ),
-
+                //TODO: reformat
                 LiveSliverList(
                   reAnimateOnVisibility: true,
                   controller: controller,
@@ -606,7 +621,15 @@ class _CustomSliverListState extends State<CustomSliverList>{
                   itemCount: widget.list.get().length.toInt(),
                   itemBuilder: _buildAnimatedItem,
                 ),
-
+              ]:<Widget>[
+                LiveSliverList(
+                  reAnimateOnVisibility: true,
+                  controller: controller,
+                  showItemInterval: Duration(milliseconds: 100),
+                  showItemDuration: Duration(milliseconds: 400),
+                  itemCount: widget.list.get().length.toInt(),
+                  itemBuilder: _buildAnimatedItem,
+                ),
               ],
             ),
           ),
@@ -625,7 +648,8 @@ class MenuListTile extends StatefulWidget{
     this.thumbnail,
     this.data,
     this.onSelected,
-    this.manageBookmark
+    this.manageBookmark,
+    this.isBookmarkPage
   }) : super(key: key);
 
   final Function(JobOffer) onSelected;
@@ -633,6 +657,7 @@ class MenuListTile extends StatefulWidget{
   final int id;
   final Widget thumbnail;
   final JobOffer data;
+  final bool isBookmarkPage;
 
   @override
   _MenuListTileState createState() => _MenuListTileState();
@@ -761,7 +786,7 @@ class _MenuListTileState extends State<MenuListTile> {
                                               ),
                                             ),
                                           ),
-                                          InkWell(
+                                          widget.isBookmarkPage==false?InkWell(
                                             autofocus: true,
                                             onTap: () => changeState(),
                                             child:Padding(
@@ -770,7 +795,7 @@ class _MenuListTileState extends State<MenuListTile> {
                                             ),
                                             highlightColor: Colors.transparent,
                                             splashColor: Colors.transparent,
-                                          ),
+                                          ):Container(),
                                         ],
                                       ),
                                       decoration: BoxDecoration(
