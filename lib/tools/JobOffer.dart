@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'dart:convert';
 import 'package:geocoder/geocoder.dart';
 import 'package:sanium_app/tools/bookmark.dart';
 import 'package:sanium_app/tools/sort_controller.dart';
@@ -9,6 +10,9 @@ class Requirement{
   Requirement(String name, String level){
     this.name = name;
     this.level = int.parse(level);
+  }
+  String toString(){
+    return '{"tag":"$name"}';
   }
 }
 
@@ -25,11 +29,24 @@ class Salary{
 }
 
 class Company{
+  int id;
   String name;
+  String size;
   Localization local;
   String email;
   String website;
-  Company({this.name,this.local,this.email,this.website});
+  String logo;
+  Company({this.id, this.name, this.logo, this.size, this.local,this.email,this.website,});
+  String toJson(){
+    return '''{
+    "id": ${this.id},
+    "name": "${this.name}",
+    "size": "${this.size}",
+    "website": "${this.website}",
+    "logo": "${this.logo}"
+    }
+    ''';
+  }
 }
 
 class Localization{
@@ -49,18 +66,18 @@ class Localization{
         var first = addresses.first;
         this.latitude = first.coordinates.latitude;
         this.longnitude = first.coordinates.longitude;
-        // print("${first.featureName} : ${first.coordinates}");
+        print("${first.featureName} : ${first.coordinates}");
       }
       else if (this.city!=null && this.street!=null){
         var addresses = await Geocoder.local.findAddressesFromQuery("${this.city}  ${this.street}");
         var first = addresses.first;
         this.latitude = first.coordinates.latitude;
         this.longnitude = first.coordinates.longitude;
-        // print("${first.featureName} : ${first.coordinates}");
+        print("${first.featureName} : ${first.coordinates}");
       }
     }
     on PlatformException{
-      // print('[!] PlatformException ${this.city}  ${this.street}');
+      print('[!] PlatformException ${this.city}  ${this.street}');
       this.latitude = null;
       this.longnitude = null;
     }
@@ -77,9 +94,11 @@ class JobOffer{
   String description;
   String logo;
   String employment;
+  String experience;
+  bool isRemote;
   bool isBookmark;
 
-  JobOffer(int id, String title, Salary salary, Company company, String mainTechnology, List<Requirement> requirements, String description, String logo, String employment){
+  JobOffer({int id, String title, Salary salary, Company company, String mainTechnology, List<Requirement> requirements, String description:'', String logo:'', String employment:'', String experience:'', String remote:'0'}){
     this.id = id;
     this.title = title;
     this.salary = salary;
@@ -89,7 +108,28 @@ class JobOffer{
     this.description = description;
     this.logo = logo;
     this.employment = employment;
+    this.experience = experience;
+    this.isRemote = remote=='0'?false:true;
     this.isBookmark = false;
+  }
+
+  String toJson(){
+    return '''{"id": ${this.id},\
+    "name": "${this.title}",\
+    "description": "${escapeDescription(this.description)}",\
+    "experience": "${this.experience}",\
+    "employment": "${this.employment}",\
+    "technology": "${this.mainTechnology}",\
+    "city": "${this.company.local.city}",\
+    "street": "${this.company.local.street}",\
+    "contact": "${this.company.email}",\
+    "website": "${this.company.website}",\
+    "salary_from": ${this.salary.salaryMin},\
+    "salary_to": ${this.salary.salaryMax},\
+    "currency": "${this.salary.currency}",\
+    "employer": ${this.company.toJson()},\
+    "tech_stack": ${requirementsToJson(this.requirements)}\
+    }''';
   }
 }
 
@@ -182,15 +222,14 @@ List<JobOffer> createPlaceholderList(Map<String, dynamic> offers){
   List<JobOffer> tempJobOfferList = new List();
   offers.forEach((k,v)=>tempJobOfferList.add(
     new JobOffer(
-      int.parse(k),
-      v['title'], 
-      new Salary(salaryFrom: v['salaryMin'], salaryTo: v['salaryMax'], currency: v['currency']),
-      new Company(name:v['company'],local:Localization(city:v['city']), email:v['email'], website:v['phone'].toString()), 
-      v['technology'],
-      createRequirementPlaceholder(v['requirements']),
-      v['description'],
-      '',
-      ''
+      id: int.parse(k),
+      title: v['title'], 
+      salary: new Salary(salaryFrom: v['salaryMin'], salaryTo: v['salaryMax'], currency: v['currency']),
+      company: new Company(name:v['company'],
+      local:Localization(city:v['city']), email:v['email'], website:v['phone'].toString()), 
+      mainTechnology: v['technology'],
+      requirements: createRequirementPlaceholder(v['requirements']),
+      description: v['description'],
     )
   ));
   return tempJobOfferList;
@@ -202,17 +241,34 @@ List<JobOffer> createJobList2(Map<String, dynamic> offers){
   for(dynamic v in data){
     tempJobOfferList.add(
       new JobOffer(
-        v['id'],
-        v['name'], 
-        new Salary(salaryFrom: v['salary_from'] == null ? '0.0': v['salary_from'].toString(), salaryTo: v['salary_to'] == null ? '0.0' : v['salary_to'].toString(), currency: v['currency'] == null ? 'PLN' : v['currency'].toString()),
-        new Company(name:v['employer']['name'],local:Localization(city: v['city'],street: v['street']), email:v['contact'], website:v['employer']['website']), 
-        v['technology'],
-        createRequirementList(v['tech_stack']),
-        v['description'],
-        v['employer']['logo']==null?'':v['employer']['logo'],
-        v['employment']
+        id: v['id'],
+        title: v['name'],
+        experience: v['experience'],
+        employment: v['employment'],
+        salary: new Salary(salaryFrom: v['salary_from'] == null ? '0.0': v['salary_from'].toString(), salaryTo: v['salary_to'] == null ? '0.0' : v['salary_to'].toString(), currency: v['currency'] == null ? 'PLN' : v['currency'].toString()),
+        company: new Company(id:v['employer']['id'], name:v['employer']['name'],logo:v['employer']['logo']==null?'':v['employer']['logo'],size:v['employer']['size'], local:Localization(city: v['city'],street: v['street']), email:v['contact'], website:v['employer']['website']), 
+        mainTechnology: v['technology'],
+        requirements: createRequirementList(v['tech_stack']),
+        description: v['description'],
+        logo: v['employer']['logo']==null?'':v['employer']['logo'],
+        remote: v['remote'].toString(),
       )
     );
   }
   return tempJobOfferList;
+}
+
+String requirementsToJson(List<Requirement> data){
+  String output="[";
+  for(Requirement r in data){
+    output+=r.toString();
+    output+=',';
+  }
+  output=output.substring(0,output.length-1);
+  output+=']';
+  return output;
+}
+
+String escapeDescription(String description){
+  return description.replaceAll(new RegExp(r'"'), '\\"');
 }
