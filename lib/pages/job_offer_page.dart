@@ -694,7 +694,6 @@ class JobContactInfo extends StatelessWidget{
       elevation: 5.0,
       child: Container(
         color:  Theme.of(context).primaryColor,
-        height: 140,
         child: Column(
           mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.stretch,
