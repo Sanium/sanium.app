@@ -27,6 +27,8 @@ dependencies:
   geocoder: ^0.2.1
   flutter_launcher_icons: ^0.7.4
   path_provider: ^1.6.7
+  theme_provider: ^0.3.3
+
   
   flutter:
     sdk: flutter

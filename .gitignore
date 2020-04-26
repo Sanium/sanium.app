@@ -32,3 +32,4 @@ doc/api/
 /sanium_app.iml
 /.metadata
 /.flutter-plugins-dependencies
+.flutter-plugins
