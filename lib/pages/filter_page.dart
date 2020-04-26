@@ -2,9 +2,11 @@ import 'dart:convert';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:sanium_app/themes/theme_options.dart';
 import 'package:sanium_app/tools/filter.dart';
 import 'package:sanium_app/tools/JobOffer.dart';
 import 'package:searchable_dropdown/searchable_dropdown.dart';
+import 'package:theme_provider/theme_provider.dart';
 
 
 class FilterPage extends StatefulWidget{
@@ -51,7 +53,7 @@ class _FilterPageState extends State<FilterPage>{
     }
   }
 
-  Future<String> getData({String city, String exp, String tech,String salaryFrom, String salaryTo}) async {
+  Future<String> getData({BuildContext context, String city, String exp, String tech,String salaryFrom, String salaryTo}) async {
     String nextPage = '';
     var data;
     Filter f = Filter(city:city,exp:exp,tech:tech,salaryFrom:salaryFrom,salaryTo:salaryTo);
@@ -74,6 +76,60 @@ class _FilterPageState extends State<FilterPage>{
       }
       else{
         print("BRAK WYNIKÓW");
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            titlePadding: const EdgeInsets.fromLTRB(40.0, 30.0, 40.0, 20.0),
+            titleTextStyle: TextStyle(
+              fontSize: 35.0,
+              fontWeight: FontWeight.w400,
+              fontFamily: 'Open Sans',
+              color: ThemeProvider.optionsOf<CustomThemeOptions>(context).mainTextColor,
+            ),
+            title: Row(
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 10, 0),
+                  child: Icon(Icons.warning, color:Theme.of(context).accentColor),
+                ),
+                Padding(
+                  padding:  const EdgeInsets.fromLTRB(10, 0, 20, 0),
+                  child: Text(
+                    "BRAK WYNIKÓW",
+                    style: TextStyle(
+                      fontSize: 25.0,
+                      fontWeight: FontWeight.w400,
+                      fontFamily: 'Open Sans',
+                      color: ThemeProvider.optionsOf<CustomThemeOptions>(context).mainTextColor,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Theme.of(context).primaryColor,
+            actions: <Widget>[
+              FlatButton(
+                child: Text(
+                  "OK",
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.w400,
+                    fontFamily: 'Open Sans',
+                    color: ThemeProvider.optionsOf<CustomThemeOptions>(context).secondaryTextColor,
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+            shape: RoundedRectangleBorder(
+              side: BorderSide(color: ThemeProvider.optionsOf<CustomThemeOptions>(context).surfaceColor, width: 5),
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          barrierDismissible: false,
+        );
       }
       return "Success!";
     }
@@ -84,59 +140,45 @@ class _FilterPageState extends State<FilterPage>{
 
   Widget createSearcher(String title, List<dynamic> data, double height){
     return Padding(
-      padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+      padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
       child: Container(
         decoration: BoxDecoration(
           color: Theme.of(context).primaryColor,
           borderRadius: BorderRadius.all(Radius.circular(10.0)),
-          border: Border.all(width: 1.5, color: Colors.grey[400],)
+          border: Border.all(width: 1.5, color: ThemeProvider.optionsOf<CustomThemeOptions>(context).backgroundColor,)
         ),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(5.0, 5.0, 5.0, 0.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor,
-                  border: Border(
-                    top: BorderSide(width: 0.0, color: Theme.of(context).primaryColor,),
-                    bottom: BorderSide(width: 2.0, color: Theme.of(context).accentColor),
-                    left: BorderSide(width: 0.0, color: Theme.of(context).primaryColor,),
-                    right: BorderSide(width: 0.0, color: Theme.of(context).primaryColor,),
-                  )
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(0.0),
-                  child: AutoSizeText(
-                    title,
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.w400,
-                      fontFamily: 'Open Sans',
-                      color: Theme.of(context).primaryColorDark,
+              Center(
+                child: SearchableDropdown.single(
+                  items: data.map((exNum) {
+                    return (DropdownMenuItem(
+                        child: Text(exNum), value: exNum));
+                  }).toList(),
+                  value: selectedValues[title],
+                  hint: title,
+                  searchHint: title,
+                  onChanged: (value) {
+                    setState(() {
+                      selectedValues[title] = value;
+                    });
+                  },
+                  dialogBox: true,
+                  menuBackgroundColor: Theme.of(context).primaryColor,
+                  isExpanded: true,
+                  underline: Container(
+                    margin: EdgeInsets.symmetric(horizontal: 5.0),
+                    height: 1.0,
+                    decoration: BoxDecoration(
+                      color: ThemeProvider.optionsOf<CustomThemeOptions>(context).mainTextColor,
+                      borderRadius: BorderRadius.all(Radius.circular(20.0)),
                     ),
-                    maxLines: 1,
+                    child: Container(height: 0.0,),
                   ),
                 ),
-              ),
-
-              SearchableDropdown.single(
-                items: data.map((exNum) {
-                  return (DropdownMenuItem(
-                      child: Text(exNum), value: exNum));
-                }).toList(),
-                value: selectedValues[title],
-                hint: "Select one",
-                searchHint: "Select one",
-                onChanged: (value) {
-                  setState(() {
-                    selectedValues[title] = value;
-                  });
-                },
-                // underline: Container(),
-                dialogBox: true,
-                isExpanded: true,
               ),
             ],
           ),
@@ -147,8 +189,10 @@ class _FilterPageState extends State<FilterPage>{
 
   @override
   Widget build(BuildContext context) {
+    Color titleColor = ThemeProvider.optionsOf<CustomThemeOptions>(context).mainTextColor;
+    Color backgroundColor = ThemeProvider.optionsOf<CustomThemeOptions>(context).backgroundColor;
     return Scaffold(
-      resizeToAvoidBottomPadding: false,
+      resizeToAvoidBottomInset: true,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(55.0),
         child: new AppBar(
@@ -164,157 +208,160 @@ class _FilterPageState extends State<FilterPage>{
             color: Theme.of(context).accentColor
           ),
           title: Text(
-            "Sanium",
+            "F I L T R O W A N I E",
             style: TextStyle(
-              color: Theme.of(context).primaryColorDark,
+              color: titleColor,
             ),
           ),
         ),
       ),
 
       body: ScrollConfiguration(
-            behavior: ScrollBehavior(),
-            child: GlowingOverscrollIndicator(
-              axisDirection: AxisDirection.down,
-              color: Colors.transparent,
-              showLeading: false,
-              showTrailing: false,
-              child: CustomScrollView(
-                controller: controller,
-                slivers: <Widget>[
-                  SliverList(
-                    delegate: SliverChildListDelegate([
-                    Center(
-                    child: Container(
-                      color: Colors.blueGrey[50],
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        mainAxisSize: MainAxisSize.max,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: <Widget>[
-                          Column(
-                            children: <Widget>[
-                              createSearcher("Miasto", widget.cities, MediaQuery.of(context).size.height * 0.17),
-                              createSearcher("Doświadczenie", widget.exp, MediaQuery.of(context).size.height * 0.17),
-                              createSearcher("Technologia", widget.tech, MediaQuery.of(context).size.height * 0.17),
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                                child: Container(
-                                  height: MediaQuery.of(context).size.height * 0.17,
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context).primaryColor,
-                                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                                    border: Border.all(width: 1.5, color: Colors.grey[400],)
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(3.0),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                                      children: <Widget>[
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(context).primaryColor,
-                                            border: Border(
-                                              top: BorderSide(width: 0.0, color: Theme.of(context).primaryColor,),
-                                              bottom: BorderSide(width: 2.0, color: Theme.of(context).accentColor),
-                                              left: BorderSide(width: 0.0, color: Theme.of(context).primaryColor,),
-                                              right: BorderSide(width: 0.0, color: Theme.of(context).primaryColor,),
-                                            )
-                                          ),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: AutoSizeText(
-                                              "Płaca",
-                                              style: TextStyle(
-                                                fontSize: 18.0,
-                                                fontWeight: FontWeight.w400,
-                                                fontFamily: 'Open Sans',
-                                                color: Theme.of(context).primaryColorDark,
-                                              ),
-                                              maxLines: 1,
-                                            ),
-                                          ),
-                                        ),
-                                        Expanded(
-                                            child: RangeSlider(
-                                            values: values,
-                                            onChanged: (RangeValues value) {
-                                              setState(() => values = value);
-                                            },
-                                            divisions: divisions,
-                                            min: widget.min,
-                                            max: widget.max,
-                                            labels: RangeLabels('MIN: ${(values.start.toInt()~/100)*100}','MAX: ${(values.end.toInt()~/100)*100}'),
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          Container(
-                            height: MediaQuery.of(context).size.height * 0.11,
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+        behavior: ScrollBehavior(),
+        child: GlowingOverscrollIndicator(
+          axisDirection: AxisDirection.down,
+          color: Colors.transparent,
+          showLeading: false,
+          showTrailing: false,
+          child: Container(
+            color: Theme.of(context).brightness == Brightness.light?backgroundColor:Theme.of(context).primaryColor,
+            child: CustomScrollView(
+              controller: controller,
+              slivers: <Widget>[
+                SliverList(
+                  delegate: SliverChildListDelegate([
+                  Center(
+                  child: Container(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisSize: MainAxisSize.max,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: <Widget>[
+                        Column(
+                          children: <Widget>[
+                            createSearcher("Miasto", widget.cities, MediaQuery.of(context).size.height * 0.20),
+                            createSearcher("Doświadczenie", widget.exp, MediaQuery.of(context).size.height * 0.20),
+                            createSearcher("Technologia", widget.tech, MediaQuery.of(context).size.height * 0.20),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
                               child: Container(
+                                height: MediaQuery.of(context).orientation == Orientation.portrait?MediaQuery.of(context).size.height * 0.15:MediaQuery.of(context).size.height * 0.30,
                                 decoration: BoxDecoration(
                                   color: Theme.of(context).primaryColor,
                                   borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                                  border: Border.all(width: 1.5, color: Colors.grey[400],)
+                                  border: Border.all(width: 1.5, color: backgroundColor,)
                                 ),
-                                child: Center(
-                                  child: FlatButton(
-                                    shape: RoundedRectangleBorder(borderRadius: new BorderRadius.circular(9.0)),
-                                    padding: const EdgeInsets.fromLTRB(30, 0, 0, 0),
-                                    highlightColor: Colors.transparent,
-                                    splashColor: Colors.amberAccent,
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                                      children: <Widget>[
-                                        Container(
-                                          child: Center(
-                                            child: AutoSizeText(
-                                              "Filtruj",
-                                              style: TextStyle(
-                                                fontSize: 35.0,
-                                                fontWeight: FontWeight.w300,
-                                                fontFamily: 'Open Sans',
-                                                color: Theme.of(context).primaryColorDark,
-                                              ),
-                                              textAlign: TextAlign.center,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(3.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    children: <Widget>[
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context).primaryColor,
+                                          border: Border(
+                                            top: BorderSide(width: 0.0, color: Colors.transparent,),
+                                            bottom: BorderSide(width: 1.0, color: ThemeProvider.optionsOf<CustomThemeOptions>(context).mainTextColor),
+                                            left: BorderSide(width: 0.0, color: Colors.transparent,),
+                                            right: BorderSide(width: 0.0, color: Colors.transparent,),
+                                          )
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: AutoSizeText(
+                                            "Płaca",
+                                            style: TextStyle(
+                                              fontSize: 18.0,
+                                              fontWeight: FontWeight.w400,
+                                              fontFamily: 'Open Sans',
+                                              color: titleColor,
                                             ),
+                                            maxLines: 1,
                                           ),
                                         ),
-                                        Icon(
-                                          Icons.filter_list,
-                                          size: 35,
-                                          color: Theme.of(context).accentColor,
+                                      ),
+                                      Expanded(
+                                        child: RangeSlider(
+                                          values: values,
+                                          onChanged: (RangeValues value) {
+                                            setState(() => values = value);
+                                          },
+                                          divisions: divisions,
+                                          min: widget.min,
+                                          max: widget.max,
+                                          labels: RangeLabels('MIN: ${(values.start.toInt()~/100)*100}','MAX: ${(values.end.toInt()~/100)*100}'),
                                         ),
-                                      ],
-                                    ), 
-                                    onPressed: () => getData(
-                                      city: selectedValues['Miasto'],
-                                      exp: selectedValues['Doświadczenie'],
-                                      tech: selectedValues['Technologia'],
-                                      salaryFrom: values.start!=widget.min?(values.start.toInt()~/100*100).toString():values.end==widget.max?'':(values.start.toInt()~/100*100).toString(),
-                                      salaryTo: values.end!=widget.max?(values.end.toInt()~/100*100).toString():values.start==widget.min?'':(values.end.toInt()~/100*100).toString()
-                                    ),
+                                      )
+                                    ],
                                   ),
                                 ),
                               ),
                             ),
-                          )
-                        ],
-                      ),
+                          ],
+                        ),
+                        Container(
+                          height: MediaQuery.of(context).size.height * 0.20,
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).primaryColor,
+                                borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                border: Border.all(width: 1.5, color: backgroundColor,)
+                              ),
+                              child: Center(
+                                child: FlatButton(
+                                  shape: RoundedRectangleBorder(borderRadius: new BorderRadius.circular(9.0)),
+                                  padding: const EdgeInsets.fromLTRB(30, 0, 0, 0),
+                                  highlightColor: Colors.transparent,
+                                  splashColor: Colors.amberAccent,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    children: <Widget>[
+                                      Container(
+                                        child: Center(
+                                          child: AutoSizeText(
+                                            "Filtruj",
+                                            style: TextStyle(
+                                              fontSize: 35.0,
+                                              fontWeight: FontWeight.w300,
+                                              fontFamily: 'Open Sans',
+                                              color: titleColor,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ),
+                                      Icon(
+                                        Icons.filter_list,
+                                        size: 35,
+                                        color: Theme.of(context).accentColor,
+                                      ),
+                                    ],
+                                  ), 
+                                  onPressed: () => getData(
+                                    context: context,
+                                    city: selectedValues['Miasto'],
+                                    exp: selectedValues['Doświadczenie'],
+                                    tech: selectedValues['Technologia'],
+                                    salaryFrom: values.start!=widget.min?(values.start.toInt()~/100*100).toString():values.end==widget.max?'':(values.start.toInt()~/100*100).toString(),
+                                    salaryTo: values.end!=widget.max?(values.end.toInt()~/100*100).toString():values.start==widget.min?'':(values.end.toInt()~/100*100).toString()
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
                     ),
                   ),
-                ],
                 ),
+              ],
               ),
-            ]
+              ),
+              ]
+            ),
           )
         )
       )

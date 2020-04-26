@@ -70,6 +70,9 @@ class BookmarkController{
           o.isBookmark = true;
           this.bookmarks[o.id] = o;
         }
+        else{
+          o.isBookmark = false;
+        }
       }
     }
     this.keys = keys;
@@ -117,4 +120,15 @@ class BookmarkController{
     file.writeAsString(data);
   }
 
+
+  void wipeData()async{
+    final keysFile = await _localKeysFile;
+    final dataFile = await _localDataFile;
+    if (await keysFile.exists()) {
+      keysFile.writeAsString("");
+    }
+    if (await dataFile.exists()) {
+      dataFile.writeAsString("");
+    }
+  }
 }

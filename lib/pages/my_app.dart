@@ -1,32 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:sanium_app/themes/dark_theme.dart';
+import 'package:sanium_app/themes/light_theme.dart';
+import 'package:sanium_app/themes/theme_options.dart';
+import 'package:theme_provider/theme_provider.dart';
 
 import 'main_page.dart';
-
-
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'SANIUM',
-      color: Colors.black,
-      theme: ThemeData.light().copyWith(
-        primaryColor: Colors.white,
-        primaryColorDark: Colors.black,
-        accentColor: Colors.amber,
-        appBarTheme: AppBarTheme(elevation: 0),
+    return ThemeProvider(
+      saveThemesOnChange: true,
+      loadThemeOnInit: true,
+      defaultThemeId: 'dark_theme', 
+      themes: [
+        customLightTheme(),
+        customDarkTheme(),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'SANIUM',
+        color: Colors.black,
+        home: ThemeConsumer(
+          child: HomePage(title: 'S A N I U M'),
+        ),
       ),
-      darkTheme: ThemeData.dark().copyWith(
-        accentColor: Colors.amber,
-        primaryColor: Colors.black,
-        primaryColorDark: Colors.white,
-        appBarTheme: AppBarTheme(elevation: 0),
-        textTheme: TextTheme(title: TextStyle(color: Colors.white),),
-      ),
-      // themeMode: ThemeMode.dark,
-      themeMode: ThemeMode.light,
-      home: HomePage(title: 'Sanium'),
     );
   }
 }

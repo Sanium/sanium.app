@@ -1,4 +1,3 @@
-
 //city, exp, tech, from, to
 class Filter{
   String city;
@@ -16,16 +15,22 @@ class Filter{
   }
 
   String normalize(String input){
-      return input!=null?input.toLowerCase()
-      .replaceAll('ą', 'a')
-      .replaceAll('ć', 'c')
-      .replaceAll('ę', 'e')
-      .replaceAll('ł', 'l')
-      .replaceAll('ń', 'n')
-      .replaceAll('ó', 'o')
-      .replaceAll('ś', 's')
-      .replaceAll('ź', 'z')
-      .replaceAll('ż', 'z'):'';}
+    return input!=null?input.toLowerCase()
+    .replaceAll('ą', 'a')
+    .replaceAll('ć', 'c')
+    .replaceAll('ę', 'e')
+    .replaceAll('ł', 'l')
+    .replaceAll('ń', 'n')
+    .replaceAll('ó', 'o')
+    .replaceAll('ś', 's')
+    .replaceAll('ź', 'z')
+    .replaceAll('ż', 'z')
+    .replaceAll(new RegExp(r'\s{2,}'), ' ')
+    .replaceAll(new RegExp(r'([^\w\s-])'), '-')
+    .replaceAll(' ','-')
+    .replaceAll(new RegExp(r'^\W+|\W+$'),'')
+    :'';
+  }
 
   String createQuery(){
     String query = "?";

@@ -7,8 +7,10 @@ import 'package:auto_animated/auto_animated.dart';
 import 'package:sanium_app/pages/job_offer_page.dart';
 import 'package:sanium_app/pages/main_page.dart';
 import 'package:sanium_app/routes/fancy_page_route.dart';
+import 'package:sanium_app/themes/theme_options.dart';
 import 'package:sanium_app/tools/JobOffer.dart';
 import 'package:sanium_app/tools/bookmark.dart';
+import 'package:theme_provider/theme_provider.dart';
 
 class BookmarkPage extends StatefulWidget {
   BookmarkPage({Key key, this.title}) : super(key: key);
@@ -26,14 +28,15 @@ class _BookmarkPageState extends State<BookmarkPage> with TickerProviderStateMix
   Future<String> getData() async {
     var data;
     data = await controller.loadData();
-    this.setState((){
-      if(data!=null && data!=""){
-        bookmarkList = JobOfferList(list:createJobList2(json.decode(data)));
-      }
-      else{
-        print('brak danych');
-      }
-    });
+    if(data!=null && data!=""){
+      bookmarkList = JobOfferList(list:createJobList2(json.decode(data)));
+      await bookmarkList.bookmarkController.setBookmarks(bookmarkList.list);
+    }
+    else{
+      bookmarkList.list = [];
+      print('brak danych');
+    }
+    this.setState((){});
     return "Success!";
   }
 
@@ -41,10 +44,17 @@ class _BookmarkPageState extends State<BookmarkPage> with TickerProviderStateMix
     Navigator.of(context).push(
       FancyPageRoute(
         builder: (_) {
-          return JobDetailPage(id: tempData.id, img: tempData.logo, data: tempData);
+          return ThemeConsumer(child: JobDetailPage(id: tempData.id, img: tempData.logo, data: tempData));
         },
       ),
     ); 
+  }
+
+  void manageBookmark({JobOffer o, int operation}) async{
+    if(operation==0){await bookmarkList.bookmarkController.removeBookmark(o.id);}
+    else if(operation==1){await bookmarkList.bookmarkController.addBookmark(o);}
+    else if(operation==2){await bookmarkList.bookmarkController.wipeData();}
+    getData();
   }
 
   @override
@@ -55,6 +65,9 @@ class _BookmarkPageState extends State<BookmarkPage> with TickerProviderStateMix
 
  @override
   Widget build(BuildContext context) {
+    Color titleColor = ThemeProvider.optionsOf<CustomThemeOptions>(context).mainTextColor;
+    Color textColor = ThemeProvider.optionsOf<CustomThemeOptions>(context).secondaryTextColor;
+    Color iconColor = ThemeProvider.optionsOf<CustomThemeOptions>(context).defaultIconColor;
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(55.0),
@@ -70,74 +83,64 @@ class _BookmarkPageState extends State<BookmarkPage> with TickerProviderStateMix
           iconTheme: IconThemeData(
             color: Theme.of(context).accentColor
           ),
-          title: Text(
-            'Sanium',
-            style: TextStyle(
-              color: Theme.of(context).primaryColorDark,
-            ),
-          ),
-          actions: <Widget>[
-            Container(
-              decoration: BoxDecoration(
-                border: Border(left: BorderSide(width: 2.0, color: Theme.of(context).dividerColor))
-              ),
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
-                        child: Icon(Icons.bookmark_border, color: Theme.of(context).primaryColorDark),
-                      ),
-                      AutoSizeText(
-                        'Zakładki',
-                        style: TextStyle(
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.w300,
-                          fontFamily: 'Open Sans',
-                          color: Theme.of(context).primaryColorDark,
-                        ),
-                        maxLines: 1,
-                      ),
-                    ],
-                  ),
+          title: Row(
+            children: <Widget>[
+              Text(
+                'Z A K Ł A D K I',
+                style: TextStyle(
+                  color: titleColor,
                 ),
               ),
-            ),
+            ],
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Icon(Icons.delete_outline, color: Colors.red,), 
+              onPressed: () => manageBookmark(operation: 2),
+            )
           ],
         ),
       ),
 
-      body: bookmarkList.list.length>0?CustomSliverList(
-        title: widget.title,
-        list: bookmarkList,
-        onSelected: onSelected,
-        isBookmarkPage: true,
-      ):Column(
-        mainAxisSize:  MainAxisSize.max,
-        children: <Widget>[
-          Expanded(
-            child:Center(
-              child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: AutoSizeText(
-                    "Brak zapisanych ofert",
-                    style: TextStyle(
-                      fontSize: 25.0,
-                      fontWeight: FontWeight.w400,
-                      fontFamily: 'Open Sans',
-                      color: Theme.of(context).primaryColorDark,
+      body: Container(
+        color: Theme.of(context).primaryColor,
+        child: bookmarkList.list.length>0?CustomSliverList(
+          title: widget.title,
+          list: bookmarkList,
+          onSelected: onSelected,
+          isBookmarkPage: true,
+          manageBookmark: manageBookmark,
+        ):Container(
+          color: ThemeProvider.optionsOf<CustomThemeOptions>(context).backgroundColor,
+          child: Column(
+            mainAxisSize:  MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Card(
+                  color: Theme.of(context).primaryColor,
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Center(
+                      child: AutoSizeText(
+                        "Brak zapisanych ofert",
+                        style: TextStyle(
+                          fontSize: 25.0,
+                          fontWeight: FontWeight.w400,
+                          fontFamily: 'Open Sans',
+                          color: titleColor,
+                        ),
+                        maxLines: 1,
+                      ),
                     ),
-                    maxLines: 1,
                   ),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
