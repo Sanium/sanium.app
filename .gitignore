@@ -31,3 +31,4 @@ doc/api/
 /.idea
 /sanium_app.iml
 /.metadata
+.flutter-plugins
