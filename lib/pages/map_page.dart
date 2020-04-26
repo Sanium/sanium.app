@@ -5,7 +5,9 @@ import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:latlong/latlong.dart';
 import 'package:sanium_app/pages/job_offer_page.dart';
 import 'package:sanium_app/routes/fancy_page_route.dart';
+import 'package:sanium_app/themes/theme_options.dart';
 import 'package:sanium_app/tools/JobOffer.dart';
+import 'package:theme_provider/theme_provider.dart';
 
 
 class MapPage extends StatefulWidget{
@@ -70,6 +72,9 @@ class _MapPageState extends State<MapPage>{
 
   @override
   Widget build(BuildContext context) {
+    Color titleColor = ThemeProvider.optionsOf<CustomThemeOptions>(context).mainTextColor;
+    Color textColor = ThemeProvider.optionsOf<CustomThemeOptions>(context).secondaryTextColor;
+    Color iconColor = ThemeProvider.optionsOf<CustomThemeOptions>(context).defaultIconColor;
     return Scaffold(
       resizeToAvoidBottomPadding: false,
       appBar: PreferredSize(
@@ -88,7 +93,7 @@ class _MapPageState extends State<MapPage>{
                     children: <Widget>[
                       Padding(
                         padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
-                        child: Icon(Icons.home, color: Theme.of(context).primaryColorDark),
+                        child: Icon(Icons.home, color: iconColor),
                       ),
                       AutoSizeText(
                         widget.offerList[0].company.local.city,
@@ -96,7 +101,7 @@ class _MapPageState extends State<MapPage>{
                           fontSize: 18.0,
                           fontWeight: FontWeight.w300,
                           fontFamily: 'Open Sans',
-                          color: Theme.of(context).primaryColorDark,
+                          color: textColor,
                         ),
                         maxLines: 1,
                       ),
@@ -118,9 +123,9 @@ class _MapPageState extends State<MapPage>{
             color: Theme.of(context).accentColor
           ),
           title: Text(
-            "Sanium",
+            "M A P A",
             style: TextStyle(
-              color: Theme.of(context).primaryColorDark,
+              color: titleColor,
             ),
           ),
         ),

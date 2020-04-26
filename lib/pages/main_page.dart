@@ -10,12 +10,14 @@ import 'package:flutter/material.dart';
 import 'package:auto_animated/auto_animated.dart';
 import 'package:sanium_app/pages/info_page.dart';
 import 'package:sanium_app/pages/map_page.dart';
+import 'package:sanium_app/themes/theme_options.dart';
 import 'package:sanium_app/tools/JobOffer.dart';
 import 'package:sanium_app/pages/job_offer_page.dart';
 import 'package:sanium_app/pages/filter_page.dart';
 import 'package:sanium_app/routes/fancy_page_route.dart';
 import 'package:sanium_app/tools/drawer.dart';
 import 'package:sanium_app/tools/rotate_trans.dart';
+import 'package:theme_provider/theme_provider.dart';
 
 import 'bookmark_page.dart';
 
@@ -41,6 +43,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
   bool returnFromDetailPage = false;
   ValueNotifier<bool> stateNotifier;
 
+  // bool isDarkMode;
+
   String nextPage ='';
 
   String extremeData = '''{
@@ -49,25 +53,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
     "2" : {"title":"Frontend Dev", "salaryMin":"1000.0", "salaryMax":"5100.0", "currency":"PLN", "company" : "Facebook", "city" : "Łódź", "email" : "fb@gmail.com", "phone" : "www.praca.pl", "technology" : "HTML",
     "requirements":{"1":{"name":"HTML5", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
     "3" : {"title":"C++ Backend Dev", "salaryMin":"1000.0", "salaryMax":"7000.0", "currency":"PLN", "company" : "LinkedIN", "city" : "Poznań", "email" : "dc@gmail.com", "phone" : "www.praca.pl", "technology" : "C++",
-    "requirements":{"1":{"name":"C++", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
-    "4" : {"title":"Python Frontend Dev", "salaryMin":"1000.0", "salaryMax":"5500.0", "currency":"PLN", "company" : "Microsoft", "city" : "Kraków", "email" : "mcsoft@gmail.com", "phone" : "www.praca.pl", "technology" : "Python",
-    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"2"}},"description":"defult"},
-    "5" : {"title":"Java Backend Dev", "salaryMin":"1000.0", "salaryMax":"6000.0", "currency":"PLN", "company" : "Google", "city" : "Wrocław", "email" : "abc@gmail.com", "phone" : "www.praca.pl", "technology" : "Java",
-    "requirements":{"1":{"name":"Java", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
-    "6" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"15000.0", "currency":"PLN", "company" : "Facebook", "city" : "Legnica", "email" : "fb@gmail.com", "phone" : "www.praca.pl", "technology" : "Python",
-    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
-    "7" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"4500.0", "currency":"PLN", "company" : "LinkedIN", "city" : "Poznań", "email" : "dc@gmail.com", "phone" : "www.praca.pl", "technology" : "Python",
-    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
-    "8" : {"title":"Angular Dev", "salaryMin":"1000.0", "salaryMax":"7000.0", "currency":"PLN", "company" : "Microsoft", "city" : "Gdańsk", "email" : "mcsoft@gmail.com", "phone" : "www.praca.pl", "technology" : "Angular",
-    "requirements":{"1":{"name":"Angular", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
-    "9" : {"title":"JavaScript Dev", "salaryMin":"1000.0", "salaryMax":"8000.0", "currency":"PLN", "company" : "Google", "city" : "Warszawa", "email" : "abc@gmail.com", "phone" : "www.praca.pl", "technology" : "JavaScript",
-    "requirements":{"1":{"name":"JavaScript", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
-    "10" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"9000.0", "currency":"PLN", "company" : "Facebook", "city" : "Warszawa", "email" : "fb@gmail.com", "phone" : "www.praca.pl", "technology" : "Python",
-    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"},
-    "11" : {"title":"Python Backend Dev", "salaryMin":"1000.0", "salaryMax":"3900.0", "currency":"PLN", "company" : "LinkedIN", "city" : "Katowice", "email" : "dc@gmail.com", "phone" : "www.praca.pl", "technology" : "Python",
-    "requirements":{"1":{"name":"Python 3", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"2"}},"description":"defult"},
-    "12" : {"title":"PHP Backend Dev", "salaryMin":"1000.0", "salaryMax":"5800.0", "currency":"PLN", "company" : "Microsoft", "city" : "Kraków", "email" : "mcsoft@gmail.com", "phone" : "www.praca.pl", "technology" : "PHP",
-    "requirements":{"1":{"name":"PHP", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"}
+    "requirements":{"1":{"name":"C++", "level":"4"}, "2":{"name":"Unit tests", "level":"3"}, "3":{"name":"GIT", "level":"3"}},"description":"defult"}
   }''';
 
   Future<dynamic> getJSON(String httpLink) async {
@@ -182,7 +168,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
      tempList= await Navigator.of(context).push(
       FancyPageRoute(
         builder: (_) {
-          return JobDetailPage(id: tempData.id, img: tempData.logo, data: tempData);
+          return ThemeConsumer(child: JobDetailPage(id: tempData.id, img: tempData.logo, data: tempData));
         },
       ),
     );
@@ -194,8 +180,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
     }    
   }
 
-  void manageBookmark(JobOffer o, int operation) async{
-    // print(o.id);
+  void manageBookmark({JobOffer o, int operation}) async{
     if(operation==0){jobOfferList.bookmarkController.removeBookmark(o.id);}
     else if(operation==1){jobOfferList.bookmarkController.addBookmark(o);}
   }
@@ -205,7 +190,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
     stateNotifier.value = await Navigator.of(context).push(
       FancyPageRoute(
         builder: (_) {
-          return MapPage(offerList: jobOfferList.list);
+          return ThemeConsumer(child: MapPage(offerList: jobOfferList.list));
         },
       ),
     )??true;
@@ -216,7 +201,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
     stateNotifier.value = await Navigator.of(context).push(
       FancyPageRoute(
         builder: (_) {
-          return InfoPage();
+          return ThemeConsumer(child: InfoPage());
         },
       ),
     )??true;
@@ -227,10 +212,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
     stateNotifier.value = await Navigator.of(context).push(
       FancyPageRoute(
         builder: (_) {
-          return BookmarkPage();
+          return ThemeConsumer(child: BookmarkPage());
         },
       ),
     )??true;
+    await this.jobOfferList.bookmarkController.setBookmarks(jobOfferList.list);
+    this.setState((){});
   }
 
   void onFilter() async {
@@ -239,7 +226,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
     tempList = await Navigator.of(context).push(
       FancyPageRoute(
         builder: (_) {
-          return FilterPage.fromMap(filters);
+          return ThemeConsumer(child: FilterPage.fromMap(filters));
         },
       ),
     );
@@ -262,6 +249,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
 
   @override
   Widget build(BuildContext context) {
+    Color detailColor = ThemeProvider.optionsOf<CustomThemeOptions>(context).defaultDetailColor;
     return Scaffold(
       key: _scaffoldKey,
       appBar: PreferredSize(
@@ -290,7 +278,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
             icon: AnimatedIcon(
               icon: AnimatedIcons.menu_arrow,
               progress: _animationController,
-              color: Theme.of(context).primaryColorDark,
+              color: ThemeProvider.optionsOf<CustomThemeOptions>(context).mainTextColor,
             ),
             onPressed: () => _scaffoldKey.currentState.openDrawer(),
           ),
@@ -300,22 +288,33 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
           title: Text(
             widget.title,
             style: TextStyle(
-              color: Theme.of(context).primaryColorDark,
+              color: ThemeProvider.optionsOf<CustomThemeOptions>(context).mainTextColor,
             ),
           ),
         ),
       ),
-
-      floatingActionButton: new FloatingActionButton(
-        onPressed: () => onFilter(),
-        elevation: 15.0,
-        heroTag: null,
-        child: Icon(Icons.filter_list,color: Theme.of(context).accentColor,),
-        backgroundColor: Theme.of(context).primaryColor,
-        foregroundColor: Theme.of(context).primaryColor,
+      floatingActionButton: Material(
+        color: Colors.transparent,
+        child: Ink(
+          decoration: BoxDecoration(
+            border: Border.all(color: detailColor, width: 3.0),
+            color: Theme.of(context).primaryColor,
+            shape: BoxShape.circle,
+          ),
+          child: InkWell(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            borderRadius: BorderRadius.circular(1000.0), //Something large to ensure a circle
+            onTap: () => onFilter(),
+            child: Padding(
+              padding:EdgeInsets.all(15.0),
+              child: Icon(Icons.filter_list,size:30, color: Theme.of(context).accentColor,)
+            ),
+          ),
+        )
       ),
 
-      drawer: mainDrawer(context,onMap,onInfo,onBookmark),
+      drawer: new MainDrawer(onMap: onMap, onBookmark: onBookmark, onInfo: onInfo),
 
       body: CustomSliverList(
         key: listKey,
@@ -333,7 +332,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
 class CustomSliverList extends StatefulWidget{
   CustomSliverList({Key key, this.title, this.list, this.onSelected, this.manageBookmark, this.customSort, this.loadNextData, this.isBookmarkPage:false}) : super(key: key);
   final Function(JobOffer) onSelected;
-  final Function(JobOffer, int) manageBookmark;
+  final Function manageBookmark;
   final Function(String, int) customSort;
   final Function loadNextData;
   final String title;
@@ -360,14 +359,15 @@ class _CustomSliverListState extends State<CustomSliverList>{
   }
 
   Widget customIcon(int button, double size){
+    Color color = ThemeProvider.optionsOf<CustomThemeOptions>(context).defaultIconColor;
     if(widget.list.sortController.getState(button)==0){
-      if(button==0){return Icon(Icons.title, size: size,);}
-      else if(button==1){return Icon(Icons.place, size: size,);}
-      else if(button==2){return Icon(Icons.attach_money, size: size,);}
+      if(button==0){return Icon(Icons.computer, size: size, color: color,);}
+      else if(button==1){return Icon(Icons.place, size: size, color: color);}
+      else if(button==2){return Icon(Icons.attach_money, size: size, color: color);}
     }
-    else if(widget.list.sortController.getState(button)==1){return Icon(Icons.arrow_downward, size: size,);}
-    else if(widget.list.sortController.getState(button)==2){return Icon(Icons.arrow_upward, size: size,);}
-    return Icon(Icons.attach_file, size: size,);
+    else if(widget.list.sortController.getState(button)==1){return Icon(Icons.arrow_downward, size: size, color: color);}
+    else if(widget.list.sortController.getState(button)==2){return Icon(Icons.arrow_upward, size: size, color: color);}
+    return Icon(Icons.attach_file, size: size, color: color);
   }
 
   Widget _buildCard(int index) => Builder(
@@ -419,11 +419,11 @@ class _CustomSliverListState extends State<CustomSliverList>{
         behavior: ScrollBehavior(),
         child: GlowingOverscrollIndicator(
           axisDirection: AxisDirection.down,
-          color: Colors.red[100],
+          color: Colors.black,
           showLeading: false,
           showTrailing: false,
           child: Container(
-            color: Colors.blueGrey[50],
+            color: Theme.of(context).brightness == Brightness.light?ThemeProvider.optionsOf<CustomThemeOptions>(context).backgroundColor: Theme.of(context).primaryColor,
             child: CustomScrollView(
               controller: controller,
               slivers:  widget.isBookmarkPage==false?<Widget>[
@@ -467,7 +467,7 @@ class _CustomSliverListState extends State<CustomSliverList>{
                                                     fontSize: 20.0,
                                                     fontWeight: FontWeight.w300,
                                                     fontFamily: 'Open Sans',
-                                                    color: Theme.of(context).primaryColorDark,
+                                                    color: ThemeProvider.optionsOf<CustomThemeOptions>(context).mainTextColor,
                                                   ),
                                                   maxLines: 1,
                                                 ),
@@ -482,7 +482,7 @@ class _CustomSliverListState extends State<CustomSliverList>{
                                       height: 4.0,
                                       width: 500,
                                       decoration: BoxDecoration(
-                                        color: widget.list.sortController.getState(0)==0 ? Colors.grey[500] : Theme.of(context).accentColor,
+                                        color: widget.list.sortController.getState(0)==0 ? ThemeProvider.optionsOf<CustomThemeOptions>(context).defaultDetailColor : Theme.of(context).accentColor,
                                         borderRadius: BorderRadius.all(Radius.circular(20.0)),
                                       ),
                                       child: Container(height: 10.0,),
@@ -523,7 +523,7 @@ class _CustomSliverListState extends State<CustomSliverList>{
                                                     fontSize: 20.0,
                                                     fontWeight: FontWeight.w300,
                                                     fontFamily: 'Open Sans',
-                                                    color: Theme.of(context).primaryColorDark,
+                                                    color: ThemeProvider.optionsOf<CustomThemeOptions>(context).mainTextColor,
                                                   ),
                                                   maxLines: 1,
                                                 ),
@@ -538,7 +538,7 @@ class _CustomSliverListState extends State<CustomSliverList>{
                                       height: 4.0,
                                       width: 500,
                                       decoration: BoxDecoration(
-                                        color: widget.list.sortController.getState(1)==0 ? Colors.grey[500] : Theme.of(context).accentColor,
+                                        color: widget.list.sortController.getState(1)==0 ? ThemeProvider.optionsOf<CustomThemeOptions>(context).defaultDetailColor : Theme.of(context).accentColor,
                                         borderRadius: BorderRadius.all(Radius.circular(20.0)),
                                       ),
                                       child: Container(height: 10.0,),
@@ -578,7 +578,7 @@ class _CustomSliverListState extends State<CustomSliverList>{
                                                     fontSize: 20.0,
                                                     fontWeight: FontWeight.w300,
                                                     fontFamily: 'Open Sans',
-                                                    color: Theme.of(context).primaryColorDark,
+                                                    color: ThemeProvider.optionsOf<CustomThemeOptions>(context).mainTextColor,
                                                   ),
                                                   maxLines: 1,
                                                 ),
@@ -593,7 +593,7 @@ class _CustomSliverListState extends State<CustomSliverList>{
                                       height: 4.0,
                                       width: 500,
                                       decoration: BoxDecoration(
-                                        color: widget.list.sortController.getState(2)==0 ? Colors.grey[500] : Theme.of(context).accentColor,
+                                        color: widget.list.sortController.getState(2)==0 ? ThemeProvider.optionsOf<CustomThemeOptions>(context).defaultDetailColor : Theme.of(context).accentColor,
                                         borderRadius: BorderRadius.all(Radius.circular(20.0)),
                                       ),
                                       child: Container(height: 10.0,),
@@ -653,7 +653,7 @@ class MenuListTile extends StatefulWidget{
   }) : super(key: key);
 
   final Function(JobOffer) onSelected;
-  final Function(JobOffer, int) manageBookmark;
+  final Function manageBookmark;
   final int id;
   final Widget thumbnail;
   final JobOffer data;
@@ -667,10 +667,10 @@ class _MenuListTileState extends State<MenuListTile> {
   void changeState(){
     setState(() {
       widget.data.isBookmark = widget.data.isBookmark==true?false:true;
-      widget.data.isBookmark==true?widget.manageBookmark(widget.data, 1):widget.manageBookmark(widget.data, 0);
+      widget.data.isBookmark==true?widget.manageBookmark(o:widget.data, operation:1):widget.manageBookmark(o:widget.data, operation:0);
     });
   }
-  Widget createBottomTag(String text, IconData icon, double width, double height){
+  Widget createBottomTag(String text, IconData icon, double width, double height, Color textColor, Color iconColor){
     return  Padding(
       padding: const EdgeInsets.all(1.0),
       child: Container(
@@ -683,7 +683,7 @@ class _MenuListTileState extends State<MenuListTile> {
               Icon(
                 icon,
                 size: 18.0,
-                color: Colors.grey[600],
+                color: iconColor,
               ),
               Container(
                 child: Padding(
@@ -691,7 +691,7 @@ class _MenuListTileState extends State<MenuListTile> {
                   child: AutoSizeText(
                     "$text",
                     style:TextStyle(
-                      color: Colors.grey[700],
+                      color: textColor,
                       fontWeight: FontWeight.w400,
                       fontFamily: 'Open Sans',
                       fontSize: 20,
@@ -712,146 +712,181 @@ class _MenuListTileState extends State<MenuListTile> {
 
   @override
   Widget build(BuildContext context) {
+    Color titleColor = ThemeProvider.optionsOf<CustomThemeOptions>(context).mainTextColor;
+    Color textColor = ThemeProvider.optionsOf<CustomThemeOptions>(context).secondaryTextColor;
+    Color iconColor = ThemeProvider.optionsOf<CustomThemeOptions>(context).defaultIconColor;
+    Color frameColor = ThemeProvider.optionsOf<CustomThemeOptions>(context).backgroundColor;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 7.0, horizontal: 7.0),
-      child: Material(
-        color:  Theme.of(context).primaryColor,
-        elevation: 2.0,
-        borderRadius: BorderRadius.circular(10.0),
-        child: InkWell (
-          splashColor: Colors.transparent,
-          focusColor: Colors.transparent,
-          onTap: () => widget.onSelected(widget.data),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 5.0),
-            child: SizedBox(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.transparent,
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 10.0),
-                          child: Container(
-                            height: MediaQuery.of(context).orientation == Orientation.portrait? MediaQuery.of(context).size.height * 0.10:MediaQuery.of(context).size.height * 0.20,
-                            child: AspectRatio(
-                              aspectRatio: 1.0,
-                              child: Material(
-                                borderRadius: BorderRadius.circular(20.0),//! tu się zmienia kółeczko
-                                clipBehavior: Clip.hardEdge,
-                                color: Theme.of(context).primaryColor,
-                                child: widget.data.logo.length>1?FadeInImage.assetNetwork(
-                                  placeholder: 'assets/placeholder.png',
-                                  image: widget.data.logo,
-                                ):Container(child:Image.asset('assets/placeholder.png')),
-                              )
+      child: Container(
+        decoration: Theme.of(context).brightness == Brightness.light?
+        BoxDecoration(
+          color: frameColor,
+        ):BoxDecoration(
+          color: frameColor,
+          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+          border: Border(
+            bottom: BorderSide(width: 3.5, color: frameColor),
+            top: BorderSide(width: 3.5, color: frameColor),
+            left: BorderSide(width: 3.5, color: frameColor),
+            right: BorderSide(width: 3.5, color: frameColor),
+          )
+        ),
+        child: Material(
+          color:  Theme.of(context).primaryColor,
+          elevation: 2.0,
+          borderRadius: BorderRadius.circular(10.0),
+          borderOnForeground: false,
+          child: InkWell (
+            splashColor: Colors.transparent,
+            focusColor: Colors.transparent,
+            onTap: () => widget.onSelected(widget.data),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 4.0),
+              child: SizedBox(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.transparent,
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(5.0, 5.0, 10.0, 5.0),
+                            child: Container(
+                              height: MediaQuery.of(context).orientation == Orientation.portrait? MediaQuery.of(context).size.height * 0.10:MediaQuery.of(context).size.height * 0.20,
+                              child: AspectRatio(
+                                aspectRatio: 1.0,
+                                child: Material(
+                                  borderRadius: BorderRadius.circular(20.0),//! tu się zmienia ikonke w kółeczko
+                                  clipBehavior: Clip.hardEdge,
+                                  color: Theme.of(context).primaryColor,
+                                  child: widget.data.logo.length>1?FadeInImage.assetNetwork(
+                                    placeholder: 'assets/placeholder.png',
+                                    image: widget.data.logo,
+                                  ):Container(child:Image.asset('assets/placeholder.png')),
+                                )
+                              ),
                             ),
                           ),
-                        ),
-                        
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(10.0, 5.0, 5.0, 10.0),
-                              child: Container(
-                                height: MediaQuery.of(context).orientation == Orientation.portrait? MediaQuery.of(context).size.height * 0.10:MediaQuery.of(context).size.height * 0.20,
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                                  children: <Widget>[
-                                    Container(
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: <Widget>[
-                                          Container(
-                                            width: MediaQuery.of(context).size.width * 0.60,
-                                            child: Padding(
-                                              padding: const EdgeInsets.fromLTRB(0.0, 5.0, 0.0, 5.0),
-                                              child: AutoSizeText(
-                                                widget.data.title,
-                                                style:TextStyle(
-                                                  fontWeight: FontWeight.w400,
-                                                  fontFamily: 'Open Sans',
-                                                  fontSize: 20,
+                          
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(5.0, 0.0, 5.0, 10.0),
+                                child: Container(
+                                  height: MediaQuery.of(context).orientation == Orientation.portrait? MediaQuery.of(context).size.height * 0.10:MediaQuery.of(context).size.height * 0.20,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    children: <Widget>[
+                                      Container(
+                                        child: Padding(
+                                          padding: const EdgeInsets.fromLTRB(0, 0, 0, 5),
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: <Widget>[
+                                              Padding(
+                                                padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+                                                child: Container(
+                                                  width: MediaQuery.of(context).size.width * 0.6,
+                                                  child: Padding(
+                                                    padding: const EdgeInsets.fromLTRB(0.0, 5.0, 0.0, 5.0),
+                                                    child: AutoSizeText(
+                                                      widget.data.title,
+                                                      style:TextStyle(
+                                                        fontWeight: FontWeight.w400,
+                                                        fontFamily: 'Open Sans',
+                                                        fontSize: 20,
+                                                        color: titleColor,
+                                                      ),
+                                                      maxLines: 1,
+                                                      minFontSize: 16,
+                                                      maxFontSize: 20,
+                                                    ),
+                                                  ),
                                                 ),
-                                                maxLines: 1,
-                                                minFontSize: 16,
-
-                                                maxFontSize: 20,
                                               ),
-                                            ),
+                                              // widget.isBookmarkPage==false?
+                                              InkWell(
+                                                autofocus: false,
+                                                onTap: () => changeState(),
+                                                child:Container(
+                                                  width: MediaQuery.of(context).size.width * 0.08,
+                                                  child: Center(
+                                                    child: Padding(
+                                                      padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                                                      child: widget.data.isBookmark==true?Icon(Icons.bookmark, color: Theme.of(context).accentColor):Icon(Icons.bookmark_border,color: iconColor),
+                                                    )
+                                                  ),
+                                                ),
+                                                highlightColor: Colors.transparent,
+                                                splashColor: Colors.transparent,
+                                                focusColor: Colors.transparent,
+                                                hoverColor: Colors.transparent,
+                                              ),
+                                            ],
                                           ),
-                                          widget.isBookmarkPage==false?InkWell(
-                                            autofocus: true,
-                                            onTap: () => changeState(),
-                                            child:Padding(
-                                              padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                                              child: widget.data.isBookmark==true?Icon(Icons.bookmark, color: Theme.of(context).accentColor):Icon(Icons.bookmark_border),
-                                            ),
-                                            highlightColor: Colors.transparent,
-                                            splashColor: Colors.transparent,
-                                          ):Container(),
-                                        ],
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.transparent,
-                                        border: Border(bottom: BorderSide(width: 1.0, color: Theme.of(context).dividerColor))
-                                      ),
-                                    ),
-                                    widget.data.salary.salaryMin != 0.0 || widget.data.salary.salaryMax != 0.0 ? Container(
-                                      child: AutoSizeText.rich(
-                                        TextSpan(
-                                          text: "${widget.data.salary.salaryMin.toInt()} - ${widget.data.salary.salaryMax.toInt()} ",
-                                          children: <TextSpan>[
-                                            TextSpan(
-                                              text: " ${widget.data.salary.currency}",
-                                              style: TextStyle(
-                                                color: Theme.of(context).accentColor,
-                                                fontWeight: FontWeight.w600,
-                                                fontFamily: 'Open Sans',
-                                                fontSize: 15,
-                                              ),
-                                            )
-                                          ]
                                         ),
-                                        style:TextStyle(
-                                          color: Colors.grey[700],
-                                          fontWeight: FontWeight.w600,
-                                          fontFamily: 'Open Sans',
-                                          fontSize: 15,
+                                        decoration: BoxDecoration(
+                                          color: Colors.transparent,
+                                          border: Border(bottom: BorderSide(width: 1.0, color: Theme.of(context).dividerColor))
                                         ),
-                                        maxLines: 1,
-                                        textAlign: TextAlign.justify,
                                       ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.transparent,
-                                      ),
-                                    ):Container(child:Text('')),
-                                  ],
+                                      widget.data.salary.salaryMin != 0.0 || widget.data.salary.salaryMax != 0.0 ? Container(
+                                        child: AutoSizeText.rich(
+                                          TextSpan(
+                                            text: "${widget.data.salary.salaryMin.toInt()} - ${widget.data.salary.salaryMax.toInt()} ",
+                                            children: <TextSpan>[
+                                              TextSpan(
+                                                text: " ${widget.data.salary.currency}",
+                                                style: TextStyle(
+                                                  color: Theme.of(context).accentColor,
+                                                  fontWeight: FontWeight.w600,
+                                                  fontFamily: 'Open Sans',
+                                                  fontSize: 15,
+                                                ),
+                                              )
+                                            ]
+                                          ),
+                                          style:TextStyle(
+                                            color: textColor,
+                                            fontWeight: FontWeight.w600,
+                                            fontFamily: 'Open Sans',
+                                            fontSize: 15,
+                                          ),
+                                          maxLines: 1,
+                                          textAlign: TextAlign.justify,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.transparent,
+                                        ),
+                                      ):Container(child:Text('')),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Row(
-                        children: <Widget>[
-                          createBottomTag(widget.data.company.name, Icons.location_city, MediaQuery.of(context).size.width * 0.3, 25),
-                          createBottomTag(widget.data.company.local.city, Icons.place, MediaQuery.of(context).size.width * 0.3, 25),
+                            ),
+                          )
                         ],
                       ),
-                      createBottomTag(widget.data.mainTechnology, Icons.bug_report, MediaQuery.of(context).size.width * 0.3, 25),
-                  ]),
-                ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Row(
+                          children: <Widget>[
+                            createBottomTag(widget.data.company.name, Icons.domain, MediaQuery.of(context).size.width * 0.3, 25, textColor, Theme.of(context).brightness == Brightness.light?iconColor:Colors.blue),
+                            createBottomTag(widget.data.company.local.city, Icons.place, MediaQuery.of(context).size.width * 0.3, 25, textColor, Theme.of(context).brightness == Brightness.light?iconColor:Colors.redAccent),
+                          ],
+                        ),
+                        createBottomTag(widget.data.mainTechnology, Icons.computer, MediaQuery.of(context).size.width * 0.3, 25, textColor, Theme.of(context).brightness == Brightness.light?iconColor:Colors.lightGreenAccent),
+                    ]),
+                  ],
+                ),
               ),
             ),
           ),
