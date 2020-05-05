@@ -34,7 +34,7 @@ class _MapPageState extends State<MapPage>{
     await Navigator.of(context).push(
       FancyPageRoute(
         builder: (_) {
-          return JobDetailPage(id: tempData.id, img: tempData.logo, data: tempData,isFromMap: true,);
+          return ThemeConsumer(child: JobDetailPage(id: tempData.id, img: tempData.logo, data: tempData,isFromMap: true,));
         },
       ),
     );  
