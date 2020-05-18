@@ -94,7 +94,7 @@ class _JobDetailPageState extends State<JobDetailPage> with SingleTickerProvider
                     pinned: true,
                     expandedHeight: appBarHeight,
                     floating: false,
-                    
+
                     flexibleSpace: GestureDetector(
                       onPanUpdate: (details) {
                         if (details.delta.dx > 1) {
@@ -122,33 +122,44 @@ class _JobDetailPageState extends State<JobDetailPage> with SingleTickerProvider
                                   borderRadius: BorderRadius.only(bottomLeft: Radius.circular(17.0)),
                                   clipBehavior: Clip.hardEdge,
                                   color: Colors.transparent,
-                                  child:widget.data.logo.length>1?FadeInImage.assetNetwork(
-                                    placeholder: 'assets/placeholder.png',
-                                    image: widget.data.logo,
-                                  ):Container(child:Image.asset('assets/placeholder.png')),
+                                  child:Padding(
+                                    padding: const EdgeInsets.all(2.0),
+                                    child: Material(
+                                        borderRadius: BorderRadius.circular(200.0),
+                                        clipBehavior: Clip.hardEdge,
+                                        child: widget.data.logo.length>1?FadeInImage.assetNetwork(
+                                        placeholder: 'assets/placeholder.png',
+                                        image: widget.data.logo,
+                                      ):Container(child:Image.asset('assets/placeholder.png')),
+                                    ),
+                                  ),
                                 ),
                                 Expanded(
-                                  child: Center(
-                                    child: Padding(
-                                      padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                                      child: Container(
-                                        width: MediaQuery.of(context).size.width*0.7,
-                                        decoration: BoxDecoration(
-                                          color: Colors.transparent
-                                        ),
-                                        child:AutoSizeText(
-                                          widget.data.title,
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w300,
-                                            fontFamily: 'Open Sans',
-                                            fontSize: 30,
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      Padding(
+                                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                                        child: Container(
+                                          width: MediaQuery.of(context).size.width*0.60,
+                                          decoration: BoxDecoration(
+                                            color: Colors.transparent
                                           ),
-                                          maxFontSize: 30,
-                                          minFontSize: 25,
-                                          maxLines: 2,
+                                          child:AutoSizeText(
+                                            widget.data.title,
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w300,
+                                              fontFamily: 'Open Sans',
+                                              fontSize: 80,
+                                            ),
+                                            maxFontSize: 80,
+                                            minFontSize: 25,
+                                            maxLines: 2,
+                                          ),
                                         ),
                                       ),
-                                    ),
+                                    ],
                                   ),
                                 ),
 
@@ -164,6 +175,7 @@ class _JobDetailPageState extends State<JobDetailPage> with SingleTickerProvider
                       [
                         JobMainInfo(
                           tech: widget.data.mainTechnology,
+                          level: widget.data.experience,
                           salary: "${widget.data.salary.salaryMin} - ${widget.data.salary.salaryMax}  ${widget.data.salary.currency} / miesiąc", 
                           employment: widget.data.employment,
                           employer: widget.data.company.name,
@@ -199,15 +211,16 @@ class JobMainInfo extends StatelessWidget{
   final String employment;
   final String employer;
   final String city;
+  final String level;
 
-  JobMainInfo({this.tech:"Developer",this.salary:"3000 PLN", this.employment:"Normal", this.employer:"Google", this.city:"Warszawa"});
+  JobMainInfo({this.tech:"Developer",this.level:"Mid", this.salary:"3000 PLN", this.employment:"Normal", this.employer:"Google", this.city:"Warszawa"});
 
   @override
   Widget build(BuildContext context) {
     Color textColor = ThemeProvider.optionsOf<CustomThemeOptions>(context).secondaryTextColor;
     Color iconColor = ThemeProvider.optionsOf<CustomThemeOptions>(context).defaultIconColor;
     return Card(
-      elevation: 5.0,
+      elevation: 0.0,
       color: Theme.of(context).primaryColor,
       child: Container(
         child: Column(
@@ -264,6 +277,39 @@ class JobMainInfo extends StatelessWidget{
                         padding: const EdgeInsets.fromLTRB(0.0, 0.0, 16.0, 0.0),
                         child: Text(
                           '$employer $city',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w300,
+                            fontFamily: 'Open Sans',
+                            fontSize: 20,
+                            color: textColor,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.transparent
+                ),
+                child: Row(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 0.0),
+                      child: Icon(
+                        Icons.signal_cellular_null,size: 30.0, 
+                        color: Theme.of(context).brightness == Brightness.light?iconColor:Colors.redAccent,),
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(0.0, 0.0, 16.0, 0.0),
+                        child: Text(
+                          level,
                           style: TextStyle(
                             fontWeight: FontWeight.w300,
                             fontFamily: 'Open Sans',
@@ -451,37 +497,40 @@ class JobRequirements extends StatelessWidget{
 
   Widget createReqList(BuildContext context, List requirements, Color textColor){
     bool isVertical = MediaQuery.of(context).orientation == Orientation.portrait?true:false;
-    return Container(
-      height: (requirements.length/(isVertical==true?3:5)).ceil()*75.0,
-      child: GridView.builder(
-        itemCount: requirements.length,
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: isVertical==true?3:5, childAspectRatio: 2.0),
-        itemBuilder: (BuildContext context, int index) {
-          return Card(
-            elevation: 1.0,
-            color: Theme.of(context).primaryColor,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Center(
-                child: AutoSizeText(
-                  requirements[index].name,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontFamily: 'Open Sans',
-                    fontSize: 20,
-                    color: textColor,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 3),
+      child: Container(
+        height: (requirements.length/(isVertical==true?3:5)).ceil()*(isVertical==true?80.0:95.0),
+        child: GridView.builder(
+          itemCount: requirements.length,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: isVertical==true?3:5, childAspectRatio: 2.0),
+          itemBuilder: (BuildContext context, int index) {
+            return Card(
+              elevation: 1.0,
+              color: Theme.of(context).primaryColor,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Center(
+                  child: AutoSizeText(
+                    requirements[index].name,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w300,
+                      fontFamily: 'Open Sans',
+                      fontSize: 25,
+                      color: textColor,
+                    ),
+                    maxLines: 1,
                   ),
-                  maxLines: 1,
                 ),
               ),
-            ),
-            shape: RoundedRectangleBorder(
-              side: BorderSide(color: ThemeProvider.optionsOf<CustomThemeOptions>(context).surfaceColor, width: 1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-          );
-        }
+              shape: RoundedRectangleBorder(
+                side: BorderSide(color: ThemeProvider.optionsOf<CustomThemeOptions>(context).surfaceColor, width: 1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+            );
+          }
+        ),
       ),
     );
   }
@@ -492,7 +541,7 @@ class JobRequirements extends StatelessWidget{
     Color textColor = ThemeProvider.optionsOf<CustomThemeOptions>(context).secondaryTextColor;
     Color iconColor = ThemeProvider.optionsOf<CustomThemeOptions>(context).defaultIconColor;
     return Card(
-      elevation: 5.0,
+      elevation: 0.0,
       color: Theme.of(context).primaryColor,
       child: Container(
         child: Column(
@@ -562,7 +611,7 @@ class JobDetailInfo extends StatelessWidget{
     Color textColor = ThemeProvider.optionsOf<CustomThemeOptions>(context).secondaryTextColor;
     Color iconColor = ThemeProvider.optionsOf<CustomThemeOptions>(context).defaultIconColor;
     return Card(
-      elevation: 5.0,
+      elevation: 0.0,
       color:  Theme.of(context).primaryColor,
       child: Container(
         child: Column(
@@ -705,7 +754,7 @@ class JobContactInfo extends StatelessWidget{
     Color titleColor = ThemeProvider.optionsOf<CustomThemeOptions>(context).mainTextColor;
     Color iconColor = ThemeProvider.optionsOf<CustomThemeOptions>(context).defaultIconColor;
     return Card(
-      elevation: 5.0,
+      elevation: 0.0,
       color:  Theme.of(context).primaryColor,
       child: Container(
         child: Column(
@@ -753,7 +802,7 @@ class JobContactInfo extends StatelessWidget{
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
               child: Container(
-                height: 5.0,
+                height: 0.0,
                 decoration: BoxDecoration(
                   color: ThemeProvider.optionsOf<CustomThemeOptions>(context).defaultDetailColor,
                   borderRadius: BorderRadius.all(Radius.circular(20.0)),
@@ -844,7 +893,7 @@ class JobLocalization extends StatelessWidget{
     Color titleColor = ThemeProvider.optionsOf<CustomThemeOptions>(context).mainTextColor;
     Color iconColor = ThemeProvider.optionsOf<CustomThemeOptions>(context).defaultIconColor;
     return Card(
-      elevation: 3.0,
+      elevation: 0.0,
       color:  Theme.of(context).primaryColor,
       child: Container(
         child: Column(

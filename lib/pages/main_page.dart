@@ -727,16 +727,16 @@ class _MenuListTileState extends State<MenuListTile> {
           color: frameColor,
           borderRadius: BorderRadius.all(Radius.circular(10.0)),
           border: Border(
-            bottom: BorderSide(width: 3.5, color: frameColor),
-            top: BorderSide(width: 3.5, color: frameColor),
-            left: BorderSide(width: 3.5, color: frameColor),
-            right: BorderSide(width: 3.5, color: frameColor),
+            bottom: BorderSide(width: 2.5, color: frameColor),
+            top: BorderSide(width: 2.5, color: frameColor),
+            left: BorderSide(width: 2.5, color: frameColor),
+            right: BorderSide(width: 2.5, color: frameColor),
           )
         ),
         child: Material(
           color:  Theme.of(context).primaryColor,
           elevation: 2.0,
-          borderRadius: BorderRadius.circular(10.0),
+          borderRadius: BorderRadius.circular(6.0),
           borderOnForeground: false,
           child: InkWell (
             splashColor: Colors.transparent,
@@ -762,7 +762,7 @@ class _MenuListTileState extends State<MenuListTile> {
                               child: AspectRatio(
                                 aspectRatio: 1.0,
                                 child: Material(
-                                  borderRadius: BorderRadius.circular(20.0),//! tu się zmienia ikonke w kółeczko
+                                  borderRadius: BorderRadius.circular(200.0),//! tu się zmienia ikonke w kółeczko
                                   clipBehavior: Clip.hardEdge,
                                   color: Theme.of(context).primaryColor,
                                   child: widget.data.logo.length>1?FadeInImage.assetNetwork(
