@@ -117,32 +117,35 @@ class _JobDetailPageState extends State<JobDetailPage> with SingleTickerProvider
                           child: Container(
                             child: Row(
                               children: <Widget>[
-                                Material(
-                                  elevation: 0.0,
-                                  borderRadius: BorderRadius.only(bottomLeft: Radius.circular(17.0)),
-                                  clipBehavior: Clip.hardEdge,
-                                  color: Colors.transparent,
-                                  child:Padding(
-                                    padding: const EdgeInsets.all(2.0),
-                                    child: Material(
-                                        borderRadius: BorderRadius.circular(200.0),
-                                        clipBehavior: Clip.hardEdge,
-                                        child: widget.data.logo.length>1?FadeInImage.assetNetwork(
-                                        placeholder: 'assets/placeholder.png',
-                                        image: widget.data.logo,
-                                      ):Container(child:Image.asset('assets/placeholder.png')),
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                                  child: Material(
+                                    elevation: 0.0,
+                                    borderRadius: BorderRadius.only(bottomLeft: Radius.circular(17.0)),
+                                    clipBehavior: Clip.hardEdge,
+                                    color: Colors.transparent,
+                                    child:Padding(
+                                      padding: const EdgeInsets.all(2.0),
+                                      child: Material(
+                                          borderRadius: BorderRadius.circular(200.0),
+                                          clipBehavior: Clip.hardEdge,
+                                          child: widget.data.logo.length>1?FadeInImage.assetNetwork(
+                                          placeholder: 'assets/placeholder.png',
+                                          image: widget.data.logo,
+                                        ):Container(child:Image.asset('assets/placeholder.png')),
+                                      ),
                                     ),
                                   ),
                                 ),
                                 Expanded(
                                   child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: <Widget>[
                                       Padding(
-                                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                                        padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                                         child: Container(
-                                          width: MediaQuery.of(context).size.width*0.60,
+                                          width: MediaQuery.of(context).size.width*0.65,
                                           decoration: BoxDecoration(
                                             color: Colors.transparent
                                           ),
@@ -498,38 +501,40 @@ class JobRequirements extends StatelessWidget{
   Widget createReqList(BuildContext context, List requirements, Color textColor){
     bool isVertical = MediaQuery.of(context).orientation == Orientation.portrait?true:false;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 0, 0, 3),
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
       child: Container(
-        height: (requirements.length/(isVertical==true?3:5)).ceil()*(isVertical==true?80.0:95.0),
-        child: GridView.builder(
-          itemCount: requirements.length,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: isVertical==true?3:5, childAspectRatio: 2.0),
-          itemBuilder: (BuildContext context, int index) {
-            return Card(
-              elevation: 1.0,
-              color: Theme.of(context).primaryColor,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Center(
-                  child: AutoSizeText(
-                    requirements[index].name,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w300,
-                      fontFamily: 'Open Sans',
-                      fontSize: 25,
-                      color: textColor,
+        height: (requirements.length/(isVertical==true?3:5)).ceil()*(isVertical==true?MediaQuery.of(context).size.height*0.095:MediaQuery.of(context).size.height*0.18),// 75:95
+        child: Center(
+          child: GridView.builder(
+            itemCount: requirements.length,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: isVertical==true?3:5, childAspectRatio: 2.0),
+            itemBuilder: (BuildContext context, int index) {
+              return Card(
+                elevation: 0.0,
+                color: Theme.of(context).primaryColor,
+                child: Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: Center(
+                    child: AutoSizeText(
+                      requirements[index].name,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w300,
+                        fontFamily: 'Open Sans',
+                        fontSize: 25,
+                        color: textColor,
+                      ),
+                      maxLines: 1,
                     ),
-                    maxLines: 1,
                   ),
                 ),
-              ),
-              shape: RoundedRectangleBorder(
-                side: BorderSide(color: ThemeProvider.optionsOf<CustomThemeOptions>(context).surfaceColor, width: 1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-            );
-          }
+                shape: RoundedRectangleBorder(
+                  side: BorderSide(color: ThemeProvider.optionsOf<CustomThemeOptions>(context).surfaceColor, width: 1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              );
+            }
+          ),
         ),
       ),
     );
