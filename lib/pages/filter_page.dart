@@ -79,50 +79,41 @@ class _FilterPageState extends State<FilterPage>{
         showDialog(
           context: context,
           builder: (_) => AlertDialog(
-            titlePadding: const EdgeInsets.fromLTRB(40.0, 30.0, 40.0, 20.0),
+            titlePadding: const EdgeInsets.all(0),
             titleTextStyle: TextStyle(
               fontSize: 35.0,
               fontWeight: FontWeight.w400,
               fontFamily: 'Open Sans',
               color: ThemeProvider.optionsOf<CustomThemeOptions>(context).mainTextColor,
             ),
-            title: Row(
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 10, 0),
-                  child: Icon(Icons.warning, color:Theme.of(context).accentColor),
-                ),
-                Padding(
-                  padding:  const EdgeInsets.fromLTRB(10, 0, 20, 0),
-                  child: Text(
-                    "BRAK WYNIKÓW",
-                    style: TextStyle(
-                      fontSize: 25.0,
-                      fontWeight: FontWeight.w400,
-                      fontFamily: 'Open Sans',
-                      color: ThemeProvider.optionsOf<CustomThemeOptions>(context).mainTextColor,
+            title: FlatButton(
+              child: Container(
+                child: Row(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 0, 10, 0),
+                      child: Icon(Icons.warning, color:Theme.of(context).accentColor),
                     ),
-                  ),
+                    Padding(
+                      padding:  const EdgeInsets.fromLTRB(10, 40, 20, 40),
+                      child: Text(
+                        "BRAK WYNIKÓW",
+                        style: TextStyle(
+                          fontSize: 25.0,
+                          fontWeight: FontWeight.w400,
+                          fontFamily: 'Open Sans',
+                          color: ThemeProvider.optionsOf<CustomThemeOptions>(context).mainTextColor,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
             ),
             backgroundColor: Theme.of(context).primaryColor,
-            actions: <Widget>[
-              FlatButton(
-                child: Text(
-                  "OK",
-                  style: TextStyle(
-                    fontSize: 20.0,
-                    fontWeight: FontWeight.w400,
-                    fontFamily: 'Open Sans',
-                    color: ThemeProvider.optionsOf<CustomThemeOptions>(context).secondaryTextColor,
-                  ),
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
             shape: RoundedRectangleBorder(
               side: BorderSide(color: ThemeProvider.optionsOf<CustomThemeOptions>(context).surfaceColor, width: 5),
               borderRadius: BorderRadius.circular(10),
@@ -173,7 +164,7 @@ class _FilterPageState extends State<FilterPage>{
                     margin: EdgeInsets.symmetric(horizontal: 5.0),
                     height: 1.0,
                     decoration: BoxDecoration(
-                      color: ThemeProvider.optionsOf<CustomThemeOptions>(context).mainTextColor,
+                      // color: ThemeProvider.optionsOf<CustomThemeOptions>(context).mainTextColor,
                       borderRadius: BorderRadius.all(Radius.circular(20.0)),
                     ),
                     child: Container(height: 0.0,),
@@ -190,6 +181,7 @@ class _FilterPageState extends State<FilterPage>{
   @override
   Widget build(BuildContext context) {
     Color titleColor = ThemeProvider.optionsOf<CustomThemeOptions>(context).mainTextColor;
+    Color textColor = ThemeProvider.optionsOf<CustomThemeOptions>(context).secondaryTextColor;
     Color backgroundColor = ThemeProvider.optionsOf<CustomThemeOptions>(context).backgroundColor;
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -261,7 +253,8 @@ class _FilterPageState extends State<FilterPage>{
                                           color: Theme.of(context).primaryColor,
                                           border: Border(
                                             top: BorderSide(width: 0.0, color: Colors.transparent,),
-                                            bottom: BorderSide(width: 1.0, color: ThemeProvider.optionsOf<CustomThemeOptions>(context).mainTextColor),
+                                            // bottom: BorderSide(width: 1.0, color: ThemeProvider.optionsOf<CustomThemeOptions>(context).mainTextColor),
+                                            bottom: BorderSide(width: 1.0, color:Theme.of(context).brightness == Brightness.light?backgroundColor:Theme.of(context).primaryColor,),
                                             left: BorderSide(width: 0.0, color: Colors.transparent,),
                                             right: BorderSide(width: 0.0, color: Colors.transparent,),
                                           )
@@ -272,9 +265,9 @@ class _FilterPageState extends State<FilterPage>{
                                             "Płaca",
                                             style: TextStyle(
                                               fontSize: 18.0,
-                                              fontWeight: FontWeight.w400,
+                                              fontWeight: FontWeight.w300,
                                               fontFamily: 'Open Sans',
-                                              color: titleColor,
+                                              color: textColor,
                                             ),
                                             maxLines: 1,
                                           ),
